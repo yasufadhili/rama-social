@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "859130689170",
+    "project_id": "rama-social",
+    "storage_bucket": "rama-social.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859130689170:android:9990614e482a1ba6cd984b",
+        "android_client_info": {
+          "package_name": "com.yasufadhili.ramasocial"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEx1Ahc8tCqicKiJtwmQRaWn4ahZtb1a0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
