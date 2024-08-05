@@ -1,14 +1,15 @@
-import { Redirect, Stack } from "expo-router";
-import { useEffect, useState } from "react";
-import auth from '@react-native-firebase/auth';
+import { Redirect, router, Stack } from "expo-router";
 import HomeHeaderLeft from "@/components/HomeHeaderLeft";
 import HomeHeaderRight from "@/components/HomeHeaderRight";
 import { useTheme } from "@/context/ThemeContext";
 import HeaderBack from "@/components/HeaderBack";
 
+
+
 export default function AppLayout(){
     const {colourTheme, colours} = useTheme();
-    return <Stack screenOptions={{
+
+    return <Stack initialRouteName={"index"} screenOptions={{
         headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 21,
@@ -27,6 +28,7 @@ export default function AppLayout(){
         }} name={"index"} />
         <Stack.Screen
             name={"(create)"}
+            options={{ headerShown: false  }}
         />
         <Stack.Screen
             name={"(profile)"}

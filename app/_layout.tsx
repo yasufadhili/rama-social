@@ -1,13 +1,11 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import ThemeProvider, { useTheme } from '@/context/ThemeContext';
+import { SplashScreen, Stack, useSegments } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import ThemeProvider, { useTheme } from '@/context/ThemeContext';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -40,22 +38,36 @@ export default function RootLayout() {
     return null;
   }
 
-  return <GestureHandlerRootView style={{
-    flex: 1
-  }}>
-    <ThemeProvider><RootLayoutNav /></ThemeProvider>
-  </GestureHandlerRootView> ;
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
+          <RootLayoutNav />
+      </ThemeProvider>
+    </GestureHandlerRootView>
+  );
 }
 
 function RootLayoutNav() {
-  const {colourTheme} = useTheme();
+  const { colourTheme } = useTheme();
+
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+  const [initializing, setInitializing] = useState(true);
+
+  useEffect(() => {
+      const unsubscribe = auth().onAuthStateChanged((user) => {
+      setUser(user);
+      if (initializing) setInitializing(false);
+      });
+
+      return unsubscribe;
+  }, [user]);
 
   return (
     <NavigationThemeProvider value={colourTheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(app)" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{  }} />
-      </Stack>
+      {
+        user ? <Stack> <Stack.Screen name="(app)" options={{ headerShown: false }} /> </Stack> 
+        : <Stack> <Stack.Screen name="(auth)" options={{ headerShown: false }} /> </Stack>
+      }
     </NavigationThemeProvider>
   );
 }

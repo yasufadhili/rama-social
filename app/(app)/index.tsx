@@ -4,9 +4,10 @@ import { RamaBackView, RamaCard, RamaHStack, RamaText, RamaVStack } from "@/comp
 import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { RectButton, TouchableOpacity } from "react-native-gesture-handler";
 import BottomSheet, { BottomSheetBackdrop, BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import RightFAB from '@/components/RightFAB';
+import { router } from 'expo-router';
 
 // Define types
 type Circle = {
@@ -165,81 +166,55 @@ const PostCard: React.FC<{ post: Post; onUpdatePost: (updatedPost: Post) => void
   };
 
   return (
-    <RamaCard style={{ marginHorizontal: 0, marginBottom: 8 }}>
-      {/* Post header */}
-      <RamaHStack style={{ marginBottom: 18, justifyContent: "space-between" }}>
-        <RamaHStack>
-          <TouchableOpacity onPress={() => Alert.alert("Go to profile details")}>
-            <Image
-              style={{
-                width: 42,
-                height: 42,
-                backgroundColor: '#0553',
-                borderRadius: 24,
-                borderWidth: 1,
-                borderColor: "transparent"
-              }}
-              source={post.creator.avatar}
-              contentFit="cover"
-              transition={1000}
-            />
-          </TouchableOpacity>
-          <RamaVStack style={{ marginLeft: 12 }}>
-            <RamaText variant="h3">{`${post.creator.firstName} ${post.creator.lastName}`}</RamaText>
-            <RamaText variant="p2">@{post.creator.username}</RamaText>
-          </RamaVStack>
+      <RamaCard style={{ margin: 0, padding: 0, paddingHorizontal: 0, paddingVertical: 0, }}>
+        <RectButton onPress={()=> router.push(`/(posts)/${post.id}`)} style={{
+          padding: 10,
+          paddingVertical: 16,
+        }}>
+        {/* Post header */}
+        <RamaHStack style={{ marginBottom: 18, justifyContent: "space-between" }}>
+          <RamaHStack>
+            <TouchableOpacity onPress={() => router.push({ pathname: '/(profile)/[id]/', params: { id: "1" } })}>
+              <Image
+                style={{
+                  width: 42,
+                  height: 42,
+                  backgroundColor: '#0553',
+                  borderRadius: 24,
+                  borderWidth: 1,
+                  borderColor: "transparent"
+                }}
+                source={post.creator.avatar}
+                contentFit="cover"
+                transition={1000}
+              />
+            </TouchableOpacity>
+            <RamaVStack style={{ marginLeft: 2 }}>
+              <RamaText variant="h3">{`${post.creator.firstName} ${post.creator.lastName}`}</RamaText>
+              <RamaText variant="p2">@{post.creator.username}</RamaText>
+            </RamaVStack>
+          </RamaHStack>
+          <RamaText style={{ color: colours.text.soft }}>{post.createdAt}</RamaText>
         </RamaHStack>
-        <RamaText style={{ color: colours.text.soft }}>{post.createdAt}</RamaText>
-      </RamaHStack>
 
-      {/* Post content */}
-      <View style={{ marginBottom: 8 }}>
-        {post.media.length > 0 && (
-          post.media.length === 1 ? (
-            <View style={{ marginBottom: 4 }}>
-              {post.media[0].type === 'image' ? (
-                <Image
-                  style={{
-                    width: '100%',
-                    height: 200,
-                    borderRadius: 8,
-                  }}
-                  source={post.media[0].url}
-                  contentFit="cover"
-                />
-              ) : (
-                <View style={{
-                  width: '100%',
-                  height: 200,
-                  borderRadius: 8,
-                  backgroundColor: '#000',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                  <Ionicons name="play-circle-outline" size={48} color="white" />
-                </View>
-              )}
-            </View>
-          ) : (
-            <FlatList
-              data={post.media}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <View style={{ marginRight: 10 }}>
-                  {item.type === 'image' ? (
+        {/* Post content */}
+          <View style={{ marginBottom: 8 }}>
+            {post.media.length > 0 && (
+              post.media.length === 1 ? (
+                <View style={{ marginBottom: 4 }}>
+                  {post.media[0].type === 'image' ? (
                     <Image
                       style={{
-                        width: 200,
+                        width: '100%',
                         height: 200,
                         borderRadius: 8,
                       }}
-                      source={item.url}
+                      source={post.media[0].url}
                       contentFit="cover"
                     />
                   ) : (
                     <View style={{
-                      width: 200,
+                      width: '100%',
                       height: 200,
                       borderRadius: 8,
                       backgroundColor: '#000',
@@ -250,97 +225,128 @@ const PostCard: React.FC<{ post: Post; onUpdatePost: (updatedPost: Post) => void
                     </View>
                   )}
                 </View>
-              )}
-              keyExtractor={(item, index) => index.toString()}
-            />
-          )
-        )}
-        <RamaText style={{ lineHeight: 22, fontSize: 17, marginTop: 12 }}>
-          {renderContent()}
-        </RamaText>
-      </View>
-
-      {/* Card Footer */}
-      <RamaHStack style={{
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingRight: 12
-      }}>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Ionicons name="ellipsis-vertical" size={24} color={colours.text.soft} />
-        </TouchableOpacity>
-        <RamaHStack style={{ gap: 24 }}>
-          <TouchableOpacity onPress={toggleLike}>
-            <RamaHStack>
-              <Ionicons 
-                name={post.isLiked ? "heart" : "heart-outline"} 
-                size={28} 
-                color={post.isLiked ? "#d00" : colours.text.soft} 
-              />
-            </RamaHStack>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => Alert.alert('Comments', 'Comment functionality to be implemented')}>
-            <RamaHStack>
-              <Ionicons name="chatbubbles-outline" size={28} color={colours.text.soft} />
-            </RamaHStack>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleShare}>
-            <RamaHStack>
-              <Ionicons name="share-outline" size={28} color={colours.text.soft} />
-            </RamaHStack>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={toggleStar}>
-            <Ionicons 
-              name={post.isStarred ? "star" : "star-outline"} 
-              size={28} 
-              color={post.isStarred ? "gold" : colours.text.soft} 
-            />
-          </TouchableOpacity>
-        </RamaHStack>
-      </RamaHStack>
-
-      {/* Options Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.centeredView}>
-          <View style={{
-            backgroundColor: colours.background.strong,
-            borderRadius: 20,
-            padding: 35,
-            width: "70%",
-            alignItems: 'center',
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 4,
-            elevation: 5,
-          }}>
-            <TouchableOpacity style={styles.modalOption} onPress={() => {
-              Alert.alert('Report', 'Post reported successfully');
-              setModalVisible(false);
-            }}>
-              <RamaText>Report Post</RamaText>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.modalOption} onPress={() => {
-              Alert.alert('Mute', 'User muted successfully');
-              setModalVisible(false);
-            }}>
-              <RamaText>Mute User</RamaText>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.modalOption} onPress={() => setModalVisible(false)}>
-              <RamaText>Cancel</RamaText>
-            </TouchableOpacity>
+              ) : (
+                <FlatList
+                  data={post.media}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  renderItem={({ item }) => (
+                    <View style={{ marginRight: 10 }}>
+                      {item.type === 'image' ? (
+                        <Image
+                          style={{
+                            width: 200,
+                            height: 200,
+                            borderRadius: 8,
+                          }}
+                          source={item.url}
+                          contentFit="cover"
+                        />
+                      ) : (
+                        <View style={{
+                          width: 200,
+                          height: 200,
+                          borderRadius: 8,
+                          backgroundColor: '#000',
+                          justifyContent: 'center',
+                          alignItems: 'center'
+                        }}>
+                          <Ionicons name="play-circle-outline" size={48} color="white" />
+                        </View>
+                      )}
+                    </View>
+                  )}
+                  keyExtractor={(item, index) => index.toString()}
+                />
+              )
+            )}
+            <RamaText style={{ lineHeight: 22, fontSize: 17, marginTop: 12 }}>
+              {renderContent()}
+            </RamaText>
           </View>
-        </View>
-      </Modal>
-    </RamaCard>
+
+        {/* Card Footer */}
+        <RamaHStack style={{
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingRight: 12
+        }}>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <Ionicons name="ellipsis-vertical" size={24} color={colours.text.soft} />
+          </TouchableOpacity>
+          <RamaHStack style={{ gap: 24 }}>
+            <TouchableOpacity onPress={toggleLike}>
+              <RamaHStack>
+                <Ionicons 
+                  name={post.isLiked ? "heart" : "heart-outline"} 
+                  size={28} 
+                  color={post.isLiked ? "#d00" : colours.text.soft} 
+                />
+              </RamaHStack>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => Alert.alert('Comments', 'Comment functionality to be implemented')}>
+              <RamaHStack>
+                <Ionicons name="chatbubbles-outline" size={28} color={colours.text.soft} />
+              </RamaHStack>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleShare}>
+              <RamaHStack>
+                <Ionicons name="share-outline" size={28} color={colours.text.soft} />
+              </RamaHStack>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={toggleStar}>
+              <Ionicons 
+                name={post.isStarred ? "star" : "star-outline"} 
+                size={28} 
+                color={post.isStarred ? "gold" : colours.text.soft} 
+              />
+            </TouchableOpacity>
+          </RamaHStack>
+        </RamaHStack>
+        </RectButton>
+
+        {/* Options Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.centeredView}>
+            <View style={{
+              backgroundColor: colours.background.strong,
+              borderRadius: 20,
+              padding: 35,
+              width: "70%",
+              alignItems: 'center',
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 4,
+              elevation: 5,
+            }}>
+              <TouchableOpacity style={styles.modalOption} onPress={() => {
+                Alert.alert('Report', 'Post reported successfully');
+                setModalVisible(false);
+              }}>
+                <RamaText>Report Post</RamaText>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalOption} onPress={() => {
+                Alert.alert('Mute', 'User muted successfully');
+                setModalVisible(false);
+              }}>
+                <RamaText>Mute User</RamaText>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalOption} onPress={() => setModalVisible(false)}>
+                <RamaText>Cancel</RamaText>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </RamaCard>
   );
 };
 
@@ -419,6 +425,7 @@ const HomeScreen: React.FC = () => {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
+          ItemSeparatorComponent={()=> <View style={{backgroundColor: "transparent", height: 4}} />}
         />
       )}
 
