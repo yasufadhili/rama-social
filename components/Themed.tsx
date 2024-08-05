@@ -30,9 +30,10 @@ import {
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
 
-import { Eye, EyeOff, X, Check, AlertCircle } from 'lucide-react-native';
+import { Check, AlertCircle } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
+import { Ionicons } from '@expo/vector-icons';
 
 // Types
 type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -509,9 +510,9 @@ export const RamaInput: React.FC<RamaInputProps> = ({
       return (
         <TouchableOpacity onPress={togglePasswordVisibility}>
           {isPasswordVisible ? (
-            <EyeOff color={colours.text.soft} size={20} />
+            <Ionicons name={"eye-off-outline"} color={colours.text.soft} size={20} />
           ) : (
-            <Eye color={colours.text.soft} size={20} />
+            <Ionicons name={"eye-outline"} color={colours.text.soft} size={20} />
           )}
         </TouchableOpacity>
       );
@@ -520,7 +521,7 @@ export const RamaInput: React.FC<RamaInputProps> = ({
     if (showClearButton && rest.value) {
       return (
         <TouchableOpacity onPress={handleClear}>
-          <X color={colours.text.soft} size={20} />
+          <Ionicons name={"close"} color={colours.text.soft} size={20} />
         </TouchableOpacity>
       );
     }

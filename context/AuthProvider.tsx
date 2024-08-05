@@ -1,12 +1,11 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode, useMemo, useCallback } from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
-import { ActivityIndicator } from 'react-native';
 import RamaSplashScreen from '@/app/splash';
 
 type AuthContextType = {
   user: FirebaseAuthTypes.User | null;
   signOut: () => Promise<void>;
-  intialising: boolean;
+  initialising: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,27 +20,32 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
-  const [intialising, setInitialising] = useState<boolean>(false);
+  const [initialising, setInitialising] = useState<boolean>(true);
 
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged((user) => {
       setUser(user);
+      setInitialising(false);
     });
 
     return unsubscribe;
+  }, [user, initialising]);
+
+  const signOut = useCallback(async () => {
+    try {
+      await auth().signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   }, []);
 
-  const signOut = async () => {
-    await auth().signOut();
-  };
-
-  const value = {
+  const value = useMemo(() => ({
     user,
     signOut,
-    intialising
-  };
+    initialising
+  }), [user, signOut, initialising]);
 
-  if (intialising) return <RamaSplashScreen />
+  if (initialising) return <RamaSplashScreen />;
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
