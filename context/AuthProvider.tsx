@@ -1,10 +1,12 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
-import { useRouter, useSegments } from 'expo-router';
+import { ActivityIndicator } from 'react-native';
+import RamaSplashScreen from '@/app/splash';
 
 type AuthContextType = {
   user: FirebaseAuthTypes.User | null;
   signOut: () => Promise<void>;
+  intialising: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,6 +21,7 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+  const [intialising, setInitialising] = useState<boolean>(false);
 
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged((user) => {
@@ -35,7 +38,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = {
     user,
     signOut,
+    intialising
   };
+
+  if (intialising) return <RamaSplashScreen />
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

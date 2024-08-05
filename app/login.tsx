@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { RamaBackView, RamaText, RamaButton, RamaInput } from "../../components/Themed";
+import { RamaBackView, RamaText, RamaButton, RamaInput } from "../components/Themed";
 import { KeyboardAvoidingView, Platform, View, StyleSheet, ActivityIndicator } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { Image } from "expo-image";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../context/ThemeContext";
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
+import { useAuth } from "@/context/AuthProvider";
 
 export default function LoginScreen() {
     const { colours } = useTheme();
+    const {user, intialising} = useAuth();
     const [phoneNumber, setPhoneNumber] = useState<string>("");
     const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | null>(null);
     const [otp, setOtp] = useState<string>("");
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [step, setStep] = useState<'phone' | 'otp'>('phone');
+
+    if (user) {
+        return <Redirect href={"/(app)"} />
+    }
 
     const handleSendCode = async () => {
         if (!phoneNumber.trim()) {
@@ -110,7 +116,7 @@ export default function LoginScreen() {
                     <ScrollView contentContainerStyle={styles.scrollViewContent}>
                         <View style={styles.logoContainer}>
                             <Image
-                                source={require("../../assets/images/logo.png")}
+                                source={require("../assets/images/logo.png")}
                                 style={styles.logo}
                             />
                             <RamaText variant={"h1"} style={styles.title}>Login</RamaText>

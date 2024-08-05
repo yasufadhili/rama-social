@@ -1,31 +1,25 @@
-import { Redirect, router, Slot, Stack } from "expo-router";
-import HomeHeaderLeft from "@/components/HomeHeaderLeft";
-import HomeHeaderRight from "@/components/HomeHeaderRight";
-import { useTheme } from "@/context/ThemeContext";
-import HeaderBack from "@/components/HeaderBack";
-import { useEffect, useState } from "react";
-import { Text } from "react-native";
+import { Text } from 'react-native';
+import { Redirect, Stack } from 'expo-router';
+import { useAuth } from '@/context/AuthProvider';
 
+export default function AppLayout() {
+  const { user, intialising } = useAuth();
 
+  // You can keep the splash screen open, or render a loading screen like we do here.
+  if (intialising) {
+    return <Text>Loading...</Text>;
+  }
 
-export default function AppLayout(){
-    const {colourTheme, colours} = useTheme();
-    const [isLoading, setIsLoading] = useState();
+  // Only require authentication within the (app) group's layout as users
+  // need to be able to access the (auth) group and sign in again.
+  if (user === null) {
+    // On web, static rendering will stop here as the user is not authenticated
+    // in the headless Node process that the pages are rendered in.
+    return <Redirect href="/login" />;
+  }
 
-    useEffect(() => {
-        router.replace('/(auth)');
-      }, []);
-    
-      // It is OK to defer rendering this nested layout's content. We couldn't
-      // defer rendering the root layout's content since a navigation event (the
-      // redirect) would have been triggered before the root layout's content had
-      // been mounted.
-      if (isLoading) {
-        return <Text>Loading...</Text>;
-      }
-
-    return <Stack>
-        <Stack.Screen name={"index"} options={{}} />
-        <Stack.Screen name={"(profile)"} options={{}} />
-    </Stack>
+  // This layout can be deferred because it's not the root layout.
+  return <Stack> 
+    <Stack.Screen name={"index"} />
+  </Stack>
 }

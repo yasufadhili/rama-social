@@ -42,7 +42,9 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <Slot />
+        <AuthProvider>
+          <Slot />
+        </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
