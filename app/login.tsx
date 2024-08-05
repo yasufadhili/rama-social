@@ -7,6 +7,7 @@ import { Image } from "expo-image";
 import { useTheme } from "../context/ThemeContext";
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 import { Redirect, router } from 'expo-router';
 import { useAuth } from "@/context/AuthProvider";
 import * as ImagePicker from 'expo-image-picker';
@@ -212,12 +213,13 @@ const styles = StyleSheet.create({
   });
 
   interface ProfileData {
-    userName: string;
+    displayName: string;
     profilePicture: string | null;
   }
+
   const ProfileSetupScreen: React.FC = () => {
     const [profileData, setProfileData] = useState<ProfileData>({
-      userName: '',
+      displayName: '',
       profilePicture: null,
     });
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -250,8 +252,18 @@ const styles = StyleSheet.create({
         setProfileData({ ...profileData, profilePicture: result.assets[0].uri });
       }
     };
+
+    const uploadImage = async (uri: string): Promise<string> => {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const filename = `${user?.uid}_${Date.now()}.jpg`;
+        const ref = storage().ref(`user_profile_pictures/${filename}`);
+        await ref.put(blob);
+        return await ref.getDownloadURL();
+    };
   
     const handleSubmit = () => {
+        
       console.log('Submitting profile data:', profileData);
     };
 
@@ -362,8 +374,8 @@ const styles = StyleSheet.create({
                           showCharacterCount
                           showClearButton
                           maxLength={20}
-                          onChangeText={(text) => setProfileData({...profileData, userName: text})}
-                          value={profileData.userName}
+                          onChangeText={(text) => setProfileData({...profileData, displayName: text})}
+                          value={profileData.displayName}
                           leftIcon={<Ionicons name={"at"} color={colours.text.soft} size={20} />}
                       />
                   </View>
