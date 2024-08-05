@@ -2,7 +2,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } fro
 import { useFonts } from 'expo-font';
 import { router, Slot, SplashScreen, Stack, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ThemeProvider, { useTheme } from '@/context/ThemeContext';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
@@ -43,9 +43,17 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
         <AuthProvider>
-          <Slot />
+          <RootLayoutNav />
         </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
+}
+
+function RootLayoutNav(){
+  const {colourTheme, colours} = useTheme();
+  return <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
+    <Slot />
+    <StatusBar barStyle={colourTheme === "dark" ? "light-content": "dark-content"} backgroundColor={colourTheme === "dark" ?colours.background.strong : colours.background.soft} />
+  </NavigationThemeProvider>
 }
