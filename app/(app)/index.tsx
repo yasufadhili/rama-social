@@ -156,11 +156,11 @@ const PostCard: React.FC<{ post: Post; onUpdatePost: (updatedPost: Post) => void
     const words = post.content.split(' ');
     return words.map((word, index) => {
       if (word.startsWith('#')) {
-        return <RamaText key={index} style={{ color: colours.primary }}>{word} </RamaText>;
+        return <RamaText key={index} style={{ fontSize: 17, color: colours.primary }}>{word} </RamaText>;
       } else if (word.startsWith('@')) {
-        return <RamaText key={index} style={{ color: colours.secondary }}>{word} </RamaText>;
+        return <RamaText key={index} style={{ fontSize: 17, color: colours.secondary }}>{word} </RamaText>;
       }
-      return <RamaText key={index}>{word} </RamaText>;
+      return <RamaText key={index} style={{fontSize: 17,}}>{word} </RamaText>;
     });
   };
 
@@ -193,10 +193,10 @@ const PostCard: React.FC<{ post: Post; onUpdatePost: (updatedPost: Post) => void
       </RamaHStack>
 
       {/* Post content */}
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: 8 }}>
         {post.media.length > 0 && (
           post.media.length === 1 ? (
-            <View style={{ marginBottom: 12 }}>
+            <View style={{ marginBottom: 4 }}>
               {post.media[0].type === 'image' ? (
                 <Image
                   style={{
