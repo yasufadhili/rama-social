@@ -165,7 +165,7 @@ const PostCard: React.FC<{ post: Post; onUpdatePost: (updatedPost: Post) => void
   };
 
   return (
-    <RamaCard style={{ marginHorizontal: 0, marginBottom: 16 }}>
+    <RamaCard style={{ marginHorizontal: 0, marginBottom: 8 }}>
       {/* Post header */}
       <RamaHStack style={{ marginBottom: 18, justifyContent: "space-between" }}>
         <RamaHStack>
@@ -275,7 +275,7 @@ const PostCard: React.FC<{ post: Post; onUpdatePost: (updatedPost: Post) => void
               <Ionicons 
                 name={post.isLiked ? "heart" : "heart-outline"} 
                 size={28} 
-                color={post.isLiked ? colours.primary : colours.text.soft} 
+                color={post.isLiked ? "#d00" : colours.text.soft} 
               />
             </RamaHStack>
           </TouchableOpacity>
@@ -293,7 +293,7 @@ const PostCard: React.FC<{ post: Post; onUpdatePost: (updatedPost: Post) => void
             <Ionicons 
               name={post.isStarred ? "star" : "star-outline"} 
               size={28} 
-              color={post.isStarred ? colours.secondary : colours.text.soft} 
+              color={post.isStarred ? "gold" : colours.text.soft} 
             />
           </TouchableOpacity>
         </RamaHStack>
