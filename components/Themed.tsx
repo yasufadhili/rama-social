@@ -66,10 +66,10 @@ export const RamaText: React.FC<RamaTextProps> = ({
 interface RamaViewProps extends ViewProps {}
 
 export const RamaBackView: React.FC<RamaViewProps> = ({ children, style, ...rest }) => {
-  const { colours } = useTheme();
+  const { colours, colourTheme } = useTheme();
   const styles = StyleSheet.create({
     view: {
-      backgroundColor: colours.background.strong,
+      backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default,
       flex: 1,
     },
   });
@@ -109,12 +109,13 @@ interface RamaCardProps extends ViewProps {
 }
 
 export const RamaCard: React.FC<RamaCardProps> = ({ elevation = 2, style, children, ...rest }) => {
-  const { colours } = useTheme();
+  const { colours, colourTheme } = useTheme();
   const styles = StyleSheet.create({
     card: {
-      padding: 16,
+      paddingHorizontal: 8,
+      paddingVertical: 16,
       borderRadius: 8,
-      backgroundColor: colours.background.soft,
+      backgroundColor: colourTheme === "dark" ? colours.background.soft : colours.background.strong,
       elevation: elevation,
       shadowColor: colours.text.soft,
       shadowOffset: { width: 0, height: 2 },
@@ -240,7 +241,7 @@ interface StackProps extends ViewProps {
 }
 
 export const RamaVStack: React.FC<StackProps> = ({
-  spacing = 8,
+  spacing = 1,
   align = 'stretch',
   justify = 'flex-start',
   style,

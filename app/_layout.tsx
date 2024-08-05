@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import ThemeProvider, { useTheme } from '@/context/ThemeContext';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -39,7 +40,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <ThemeProvider><RootLayoutNav /></ThemeProvider>;
+  return <GestureHandlerRootView style={{
+    flex: 1
+  }}>
+    <ThemeProvider><RootLayoutNav /></ThemeProvider>
+  </GestureHandlerRootView> ;
 }
 
 function RootLayoutNav() {
@@ -48,7 +53,7 @@ function RootLayoutNav() {
   return (
     <NavigationThemeProvider value={colourTheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(app)" options={{  }} />
+        <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{  }} />
       </Stack>
     </NavigationThemeProvider>
