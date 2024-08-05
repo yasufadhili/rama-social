@@ -19,8 +19,6 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
-  const router = useRouter();
-  const segments = useSegments();
 
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged((user) => {
@@ -29,16 +27,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return unsubscribe;
   }, []);
-
-  useEffect(() => {
-    const inAuthGroup = segments[0] === '(auth)';
-
-    if (!user && !inAuthGroup) {
-      router.replace('/(auth)');
-    } else if (user && inAuthGroup) {
-      router.replace('/(app)');
-    }
-  }, [user, segments]);
 
   const signOut = async () => {
     await auth().signOut();

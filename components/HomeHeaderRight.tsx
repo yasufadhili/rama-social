@@ -26,7 +26,7 @@ export default function HomeHeaderRight(){
 
     }} >
 
-        <RectButton onPress={()=> router.navigate("/settings")} style={{
+        <RectButton onPress={()=> router.navigate("/(settings)")} style={{
             width: 32,
             height: 32,
             alignItems: "center",
