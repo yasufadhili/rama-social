@@ -110,7 +110,7 @@ const RightFAB = () => {
         </AnimatedPressable>
         ))}
        */}
-      <AnimatedPressable style={[styles.button]} onPress={() => router.navigate("/create")}>
+      <AnimatedPressable style={[styles.button]} onPress={() => router.navigate("/(create)")}>
         <FontAwesome6 name="pen-to-square" size={24} color="#ffffff" />
       </AnimatedPressable>
     </>
