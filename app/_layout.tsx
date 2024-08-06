@@ -7,6 +7,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ThemeProvider, { useTheme } from '@/context/ThemeContext';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import AuthProvider from '@/context/AuthProvider';
+import { Drawer } from 'expo-router/drawer';
+import RightDrawer from '@/components/RightDrawer';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -53,7 +55,9 @@ export default function RootLayout() {
 function RootLayoutNav(){
   const {colourTheme, colours} = useTheme();
   return <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
-    <Slot />
+    <Drawer drawerContent={()=><RightDrawer />} screenOptions={{
+      headerShown: false
+    }} />
     <StatusBar barStyle={colourTheme === "dark" ? "light-content": "dark-content"} backgroundColor={colourTheme === "dark" ?colours.background.strong : colours.background.soft} />
   </NavigationThemeProvider>
 }

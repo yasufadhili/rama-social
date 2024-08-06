@@ -21,7 +21,7 @@ const colours: Record<ColourThemeName, ThemeColours> = {
     accent: "#FF6347",
     text: {
       default: "#f2f2f2",
-      strong:"fff",
+      strong:"#fff",
       soft: "#ccc"
     },
     background: {

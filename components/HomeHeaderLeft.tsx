@@ -6,7 +6,6 @@ import { RamaText } from "./Themed";
 export default function HomeHeaderLeft(){
     return <View style={{
         alignItems: "center",
-        justifyContent: "center",
         alignContent: "center",
         gap: 12,
         flexDirection: "row"

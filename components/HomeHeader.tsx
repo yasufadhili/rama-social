@@ -1,210 +1,220 @@
-import { Pressable, StyleSheet, View } from "react-native";
-import React, { FC, useState } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import HomeHeaderInput from "./HomeHeaderInput";
-const HEADER_HEIGHT = 170;
-const HEADER_PADDING = 15;
-const SCROLL_VALUE = 50;
-const ICONS_X_MIN =
-  (SCREEN_WIDTH - HEADER_PADDING * 2 - SCREEN_WIDTH * 0.6) / 2;
-
-const ICONS_X_MAX =
-  (SCREEN_WIDTH - HEADER_PADDING * 2 - SCREEN_WIDTH * 0.8) / 2;
-
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React, { useState } from 'react';
+import { StyleSheet, View, Image as RNImage } from 'react-native';
+import { Image } from 'expo-image';
+import { RamaHStack, RamaText, RamaVStack } from './Themed';
+import { RectButton, TouchableOpacity } from 'react-native-gesture-handler';
+import { useTheme } from '@/context/ThemeContext';
+import { SCREEN_WIDTH } from '@/constants/window';
+import { Ionicons } from '@expo/vector-icons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, {
-  Extrapolation,
-  interpolate,
-  interpolateColor,
-  runOnJS,
-  useAnimatedProps,
-  useAnimatedReaction,
-  useAnimatedStyle,
   useSharedValue,
+  useAnimatedStyle,
   withTiming,
-} from "react-native-reanimated";
-import { SCREEN_WIDTH } from "@/constants/window";
-const ICONS = ["logout", "currency-usd", "qrcode", "line-scan"];
-const AnimatedMIcon = Animated.createAnimatedComponent(MaterialCommunityIcons);
+  Easing,
+  interpolate,
+  Extrapolate,
+} from 'react-native-reanimated';
 
-type Props = {
-  scrollY: Animated.SharedValue<number>;
-};
-const HomeHeader: FC<Props> = ({ scrollY }) => {
-  const insets = useSafeAreaInsets();
+interface ShortCutsSectionProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-  //Just to update react state to keep icon colors updated
-  const [scrollYL, setScrollYL] = useState(scrollY.value);
+const ShortCutsSection: React.FC<ShortCutsSectionProps> = React.memo(({ isOpen, onClose }) => {
+  const { colours } = useTheme();
+  const translateX = useSharedValue(SCREEN_WIDTH);
 
-  const inputOpacity = useSharedValue(0);
-  useAnimatedReaction(
-    () => scrollY.value,
-    (value) => {
-      runOnJS(setScrollYL)(value);
-      inputOpacity.value = withTiming(0);
-    }
-  );
-  const headerAnimatedStyle = useAnimatedStyle(() => {
-    const headerHeight = interpolate(
-      scrollY.value,
-      [0, SCROLL_VALUE],
-      [HEADER_HEIGHT, HEADER_HEIGHT / 1.5],
-      Extrapolation.CLAMP
+  const animatedStyles = useAnimatedStyle(() => {
+    const translate = interpolate(
+      translateX.value,
+      [0, SCREEN_WIDTH],
+      [-SCREEN_WIDTH, 0],
+      Extrapolate.CLAMP,
     );
 
     return {
-      height: headerHeight,
+      transform: [{ translateX: translate }],
     };
   });
 
-  const animatedIconProps = useAnimatedProps(() => {
-    const color = interpolateColor(
-      scrollY.value,
-      [0, SCROLL_VALUE],
-      ["black", "white"]
-    );
-    return {
-      color: color,
-    };
-  });
+  React.useEffect(() => {
+    translateX.value = withTiming(isOpen ? 0 : SCREEN_WIDTH, {
+      duration: 300,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    });
+  }, [isOpen]);
 
-  const iconAstyle = useAnimatedStyle(() => {
-    const backgroundColor = interpolateColor(
-      scrollY.value,
-      [0, SCROLL_VALUE],
-      ["white", "transparent"]
-    );
-    return {
-      width: 30,
-      height: 30,
-      backgroundColor: backgroundColor,
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: 4,
-    };
-  });
-  const profileIconAnimatedStyle = useAnimatedStyle(() => {
-    const size = interpolate(
-      scrollY.value,
-      [0, SCROLL_VALUE],
-      [45, 34],
-      Extrapolation.CLAMP
-    );
-
-    return {
-      width: size,
-      height: size,
-      borderRadius: size / 2,
-      opacity: inputOpacity.value ? withTiming(0) : withTiming(1),
-    };
-  });
-  const iconContainerAStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(
-      scrollY.value,
-      [0, SCROLL_VALUE],
-      [60, 0],
-      Extrapolation.CLAMP
-    );
-    const translateX = interpolate(
-      scrollY.value,
-      [0, SCROLL_VALUE],
-      [ICONS_X_MAX, ICONS_X_MIN],
-      Extrapolation.CLAMP
-    );
-
-    const width = interpolate(
-      scrollY.value,
-      [0, SCROLL_VALUE],
-      [SCREEN_WIDTH * 0.8, SCREEN_WIDTH * 0.6],
-      Extrapolation.CLAMP
-    );
-
-    return {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      position: "absolute",
-      zIndex: -1,
-      transform: [{ translateY: translateY }, { translateX: translateX }],
-      width: width,
-    };
-  });
-  const closeButtonAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      position: "absolute",
-      right: 0,
-      opacity: inputOpacity.value,
-    };
-  });
-  const handleSearchPress = () => {
-    if (scrollY.value >= SCROLL_VALUE) {
-      inputOpacity.value = withTiming(1);
-    }
-  };
   return (
-    <Animated.View
-      style={[
-        headerAnimatedStyle,
-        styles.container,
-        { paddingTop: insets.top },
-      ]}
-    >
-      <View style={styles.profileAndSearch}>
-        <HomeHeaderInput
-          onSearchPress={handleSearchPress}
-          externalOpacity={inputOpacity}
-          scrollY={scrollY}
-        />
-        <Animated.View style={iconContainerAStyle}>
-          {ICONS.map((icon, index) => {
-            return (
-              <Animated.View key={index} style={iconAstyle}>
-                <AnimatedMIcon
-                  size={18}
-                  animatedProps={animatedIconProps}
-                  name={icon}
-                />
-              </Animated.View>
-            );
-          })}
-        </Animated.View>
-        <Animated.Image
-          style={profileIconAnimatedStyle}
-          source={require("../assets/images/icon.png")}
-        />
-        <Pressable
-          onPress={() => {
-            inputOpacity.value = withTiming(0, { duration: 200 });
-          }}
-          style={{
-            position: "relative",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Animated.View style={closeButtonAnimatedStyle}>
-            <AnimatedMIcon name={"window-close"} color={"white"} size={30} />
-          </Animated.View>
-        </Pressable>
+    <Animated.View style={[styles.container, animatedStyles, { backgroundColor: colours.background.default }]}>
+      <View style={styles.header}>
+        <RectButton style={[styles.iconButton, { backgroundColor: colours.background.soft }]}>
+          <Ionicons name="menu" size={24} color={colours.text.default} />
+        </RectButton>
+        <RamaText style={styles.title} variant="h1">
+          Rama Social
+        </RamaText>
+        <RectButton style={[styles.iconButton, { backgroundColor: colours.background.soft }]} onPress={onClose}>
+          <Ionicons name="close" size={24} color={colours.text.default} />
+        </RectButton>
       </View>
+
+      <TouchableOpacity containerStyle={styles.profileContainer}>
+        <RamaHStack>
+          <Image
+            style={styles.profileImage}
+            source="https://picsum.photos/seed/696/3000/2000"
+            contentFit="cover"
+            transition={1000}
+            onError={(e) => console.log('Error loading image', e)}
+          />
+          <RamaVStack>
+            <RamaText variant="h2">Yasu Fadhili</RamaText>
+            <RamaText>Go to profile</RamaText>
+          </RamaVStack>
+        </RamaHStack>
+      </TouchableOpacity>
+
+      <RamaHStack style={styles.buttonsContainer}>
+        <RectButton style={[styles.actionButton, { backgroundColor: colours.background.soft }]}>
+          <Ionicons name="settings-outline" size={28} color={colours.text.soft} />
+          <RamaText style={styles.buttonText}>Settings</RamaText>
+        </RectButton>
+        <RectButton style={[styles.actionButton, { backgroundColor: colours.background.soft }]}>
+          <FontAwesome name="handshake-o" size={24} color={colours.text.soft} />
+          <RamaText style={styles.buttonText}>Friends</RamaText>
+        </RectButton>
+        <RectButton style={[styles.actionButton, { backgroundColor: colours.background.soft }]}>
+          <Ionicons name="log-out-outline" size={28} color={colours.text.soft} />
+          <RamaText style={styles.buttonText}>Logout</RamaText>
+        </RectButton>
+      </RamaHStack>
     </Animated.View>
   );
-};
+});
 
-export default HomeHeader;
+const HomeHeader: React.FC = () => {
+  const [isShortcutsSectionOpen, setIsShortcutsSectionOpen] = useState(false);
+  const isOnline = false; // Replace with actual online status logic
+
+  const toggleShortcutsSection = () => {
+    setIsShortcutsSectionOpen(!isShortcutsSectionOpen);
+  };
+
+  return (
+    <View style={styles.headerContainer}>
+      <View style={styles.logoContainer}>
+        <RNImage source={require('../assets/images/logo.png')} style={styles.logo} />
+        <RamaText style={styles.logoText}>Rama</RamaText>
+      </View>
+      <RectButton
+        onPress={toggleShortcutsSection}
+        style={[styles.profileButton, { borderColor: isOnline ? '#3a9d29' : '#e77723' }]}
+      >
+        <Image
+          style={styles.profileButtonImage}
+          source="https://picsum.photos/seed/696/3000/2000"
+          contentFit="cover"
+          transition={1000}
+        />
+      </RectButton>
+      <ShortCutsSection isOpen={isShortcutsSectionOpen} onClose={() => setIsShortcutsSectionOpen(false)} />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#FF3A32",
-    position: "absolute",
-    zIndex: 2,
+    height: '100%',
     width: SCREEN_WIDTH,
-    paddingHorizontal: HEADER_PADDING,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    borderTopRightRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  profileAndSearch: {
-    position: "relative",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  iconButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 42,
+    width: 42,
+    borderRadius: 21,
+  },
+  title: {
+    fontSize: 24,
+  },
+  profileContainer: {
+    paddingHorizontal: 16,
+    marginVertical: 16,
+  },
+  profileImage: {
+    width: 65,
+    height: 65,
+    borderRadius: 32,
+    marginRight: 16,
+  },
+  buttonsContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    justifyContent: 'space-between',
+  },
+  actionButton: {
+    height: 80,
+    width: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 14,
+  },
+  buttonText: {
+    marginTop: 4,
+    fontSize: 12,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 14,
+    width: '100%',
+    alignItems: 'center',
+    paddingTop: 12,
+    justifyContent: 'space-between',
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  logo: {
+    width: 24,
+    height: 24,
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  profileButton: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
+    backgroundColor: '#ddd',
+    borderWidth: 1,
+  },
+  profileButtonImage: {
+    flex: 1,
+    width: '100%',
+    borderRadius: 15,
   },
 });
+
+export default HomeHeader;

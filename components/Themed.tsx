@@ -132,6 +132,7 @@ export const RamaCard: React.FC<RamaCardProps> = ({ elevation = 2, style, childr
   );
 };
 
+{/** TO DO Switch them to expo-icons not just luicde react native icons. as i now need to be usong the variious icons from expo-icons **/}
 // RamaButton Component
 interface RamaButtonProps {
   size?: ButtonSize;
