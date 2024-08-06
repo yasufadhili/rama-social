@@ -10,7 +10,9 @@ export default function HomeScreen(){
     flex: 1
   }}>
       <RamaBackView>
-        
+        <RamaText>{user?.displayName}</RamaText>
+        <RamaText>{user?.uid}</RamaText>
+        <RamaText>{user?.displayName}</RamaText>
       <RightFAB />
     </RamaBackView>
   </SafeAreaView>

@@ -222,6 +222,7 @@ const styles = StyleSheet.create({
       displayName: '',
       profilePicture: null,
     });
+    const [isPicLoading, setPicIsLoading] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const {colourTheme, colours} = useTheme();
     const {user} = useAuth();
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
         //return;
       }
   
-      setIsLoading(true);
+      setPicIsLoading(true);
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -246,7 +247,7 @@ const styles = StyleSheet.create({
         quality: 1,
       });
   
-      setIsLoading(false);
+      setPicIsLoading(false);
   
       if (!result.canceled) {
         setProfileData({ ...profileData, profilePicture: result.assets[0].uri });
@@ -256,13 +257,23 @@ const styles = StyleSheet.create({
     const uploadImage = async (uri: string): Promise<string> => {
         const response = await fetch(uri);
         const blob = await response.blob();
-        const filename = `${user?.uid}_${Date.now()}.jpg`;
+        const filename = `${user?.uid}_${Date.now()}`;
         const ref = storage().ref(`user_profile_pictures/${filename}`);
         await ref.put(blob);
         return await ref.getDownloadURL();
     };
   
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+
+      setIsLoading(true);
+
+      await auth().currentUser?.updateProfile({displayName: profileData.displayName})
+      .then(()=> {
+        setIsLoading(false)
+        router.replace("/(app)")
+      })
+      .catch((err) => console.error("Error updating profile", err) )
+      .finally(()=> setIsLoading(false))
         
       console.log('Submitting profile data:', profileData);
     };
@@ -322,6 +333,12 @@ const styles = StyleSheet.create({
           fontSize: 18,
           fontWeight: 'bold',
         },
+        loadingOverlay: {
+          ...StyleSheet.absoluteFillObject,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
       });
   
     return (
@@ -337,7 +354,7 @@ const styles = StyleSheet.create({
               >
               <ScrollView contentContainerStyle={styles.scrollContainer}>
                   <View style={styles.imageContainer}>
-                  {isLoading ? (
+                  {isPicLoading ? (
                       <ActivityIndicator size={"small"} color={colours.primary} />
                   ) : profileData.profilePicture ? (
                       <Image source={{ uri: profileData.profilePicture }} style={styles.profileImage} />
@@ -389,6 +406,11 @@ const styles = StyleSheet.create({
               </ScrollView>
               </KeyboardAvoidingView>
           </RamaBackView>
+          {isLoading && (
+              <View style={styles.loadingOverlay}>
+                  <ActivityIndicator size="large" color={colours.primary} />
+              </View>
+          )}
       </SafeAreaView>
     );
   };
