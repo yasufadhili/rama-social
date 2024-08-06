@@ -1,13 +1,20 @@
+{/** TO DO add a maximum character limit ie 255 charcters after that user won't be ablt to add more text */}
+{/** Un used functions should be left as they are but un implemented ones should be imaplemented, ie thise with comments on what's needed of then should be implementted accordingly */}
 import React, { useState, useRef, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { RamaBackView } from "@/components/Themed";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import Reanimated, { useSharedValue, useAnimatedStyle, withSpring, interpolateColor, withTiming, Easing } from 'react-native-reanimated';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Directions, Gesture, GestureDetector, GestureHandlerRootView, RectButton } from 'react-native-gesture-handler';
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '@/context/AuthProvider';
+import { Ionicons } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
+import HeaderBack from '@/components/HeaderBack';
+import { router } from 'expo-router';
+import { RamaButton, RamaText } from '@/components/Themed';
+import { useTheme } from '@/context/ThemeContext';
 
 type TextBlock = {
   id: string;
@@ -26,14 +33,16 @@ type Circle = {
 };
 
 const MAX_CIRCLES = 3;
-const FONT_SIZE_RANGE = { min: 14, max: 24 };
+const FONT_SIZE_RANGE = { min: 18, max: 38 };
 
 export default function CreateTextPostScreen() {
-  const [textBlocks, setTextBlocks] = useState<TextBlock[]>([{ id: '1', text: '', style: { fontWeight: 'normal', fontStyle: 'normal', textDecorationLine: 'none', fontSize: 18 } }]);
+  const [textBlocks, setTextBlocks] = useState<TextBlock[]>([{ id: '1', text: '', style: { fontWeight: 'normal', fontStyle: 'normal', textDecorationLine: 'none', fontSize: 20 } }]);
   const [selectedCircles, setSelectedCircles] = useState<Circle[]>([]);
-  const [gradientColors, setGradientColors] = useState(['#ffffff', '#f0f0f0']);
+  const [gradientColors, setGradientColors] = useState(['#000000', '#333333']);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const {user} = useAuth();
+  const {colourTheme, colours} = useTheme();
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const animationProgress = useSharedValue(0);
@@ -78,13 +87,24 @@ export default function CreateTextPostScreen() {
     };
   });
 
-  const pinchGesture = Gesture.Pinch()
+    const pinchGesture = Gesture.Pinch()
     .onUpdate((e) => {
-      scale.value = withSpring(e.scale, { damping: 10, stiffness: 100 });
+        scale.value = withSpring(e.scale, { damping: 10, stiffness: 100 });
     })
     .onEnd(() => {
-      scale.value = withSpring(1);
+        scale.value = withSpring(1);
     });
+    
+    const swipeDownGesture = Gesture.Fling()
+      .direction(Directions.DOWN)
+      .onEnd(() => console.log("Should Close the screen"));
+
+    const swipeUpGesture = Gesture.Fling()
+      .direction(Directions.UP)
+      .onEnd(() => console.log("Should ope, the modal"));
+
+  const composedGestures = Gesture.Race(swipeDownGesture, swipeUpGesture);
+    
 
   const handlePost = async () => {
     setIsLoading(true);
@@ -95,8 +115,9 @@ export default function CreateTextPostScreen() {
         gradientColors,
         circles: selectedCircles.map(circle => circle.id),
         createdAt: firestore.FieldValue.serverTimestamp(),
-        userId: 'current-user-id', // Replace with actual user ID
+        userId: user?.uid,
       };
+      console.log(postData);
       await firestore().collection('text_posts').add(postData);
       resetPostState();
     } catch (err) {
@@ -108,9 +129,9 @@ export default function CreateTextPostScreen() {
   };
 
   const resetPostState = async () => {
-    setTextBlocks([{ id: '1', text: '', style: { fontWeight: 'normal', fontStyle: 'normal', textDecorationLine: 'none', fontSize: 18 } }]);
+    setTextBlocks([{ id: '1', text: '', style: { fontWeight: 'normal', fontStyle: 'normal', textDecorationLine: 'none', fontSize: 20 } }]);
     setSelectedCircles([]);
-    setGradientColors(['#ffffff', '#f0f0f0']);
+    setGradientColors(['#000000', '#333333']);
     await AsyncStorage.removeItem('draftTextPost');
   };
 
@@ -152,9 +173,10 @@ export default function CreateTextPostScreen() {
 
   const renderText = (block: TextBlock) => {
     const fontSize = Math.max(
-      FONT_SIZE_RANGE.min,
-      Math.min(FONT_SIZE_RANGE.max, FONT_SIZE_RANGE.max - block.text.length / 10)
-    );
+        FONT_SIZE_RANGE.min,
+        Math.min(FONT_SIZE_RANGE.max, FONT_SIZE_RANGE.max - block.text.length / 10)
+      );
+      
     return (
       <TextInput
         key={block.id}
@@ -162,13 +184,16 @@ export default function CreateTextPostScreen() {
         multiline
         value={block.text}
         onChangeText={(text) => {
-          setTextBlocks(prevBlocks =>
-            prevBlocks.map(b =>
-              b.id === block.id ? { ...b, text } : b
-            )
-          );
-        }}
-        placeholder="What's on your mind?"
+            if (text.length <= 255) {
+              setTextBlocks(prevBlocks =>
+                prevBlocks.map(b =>
+                  b.id === block.id ? { ...b, text } : b
+                )
+              );
+            }
+          }}
+        placeholder="Tap to add text"
+        placeholderTextColor="#dddddd"
       />
     );
   };
@@ -192,64 +217,172 @@ export default function CreateTextPostScreen() {
     }, [])
   );
 
+  const handleCircleSelection = (circle: Circle) => {
+    if (selectedCircles.some(c => c.id === circle.id)) {
+      setSelectedCircles(selectedCircles.filter(c => c.id !== circle.id));
+    } else if (selectedCircles.length < MAX_CIRCLES) {
+      setSelectedCircles([...selectedCircles, circle]);
+    }
+  };
+
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <>
+    {/** Ahould have a loading overlay when the post button is clickes so as to save th post. a toast should come up after the rest of the post is either suceesful or failed. Successful post sends back and unsuccessful stays on current screen */}
       <BottomSheetModalProvider>
-        <SafeAreaView style={styles.container}>
-          <RamaBackView style={styles.content}>
-            <GestureDetector gesture={pinchGesture}>
-              <Reanimated.View style={[styles.gradientContainer, animatedStyle]}>
+          <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+            <GestureDetector gesture={composedGestures}>
+                <>
+                <Reanimated.View style={[styles.gradientContainer, animatedStyle]}>
+                {/**
+                 * <View style={styles.topBar}>
+                        <TouchableOpacity onPress={handlePostCircle} style={styles.circleButton}>
+                            <Ionicons name="close" size={24} color="#ffffff" />
+                        </TouchableOpacity>
+                        <RamaText style={styles.title}>Create Post</RamaText>
+                        <TouchableOpacity onPress={handlePost} style={styles.postButton}>
+                            {isLoading ? (
+                            <ActivityIndicator color="#ffffff" />
+                            ) : (
+                            <Ionicons name="send" size={24} color="#ffffff" />
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                */}
                 <Reanimated.View style={gradientStyle} />
+                    <View style={{
+                        position: "absolute",
+                        top: 48,
+                        right: 24,
+                        left: 18,
+                        justifyContent: "space-between",
+                        flexDirection: "row",
+                        alignItems: "center"
+                    }}>
+                        <RectButton onPress={()=> router.back()} style={{
+                            height: 48, width: 48, borderRadius: 12, alignContent: "center", alignItems: "center", justifyContent: "center"
+                        }}>
+                            <Ionicons name={"close"} size={32} color={"#ffffff"} />
+                        </RectButton>
+                        <RamaButton onPress={handlePost}>Post</RamaButton>
+                    </View>
                 <View style={styles.textContainer}>
-                  {textBlocks.map(renderText)}
+                    {textBlocks.map(renderText)}
                 </View>
-              </Reanimated.View>
+                <View style={{
+                        position: "absolute",
+                        bottom: 48,
+                        right: 24,
+                        left: 24,
+                        justifyContent: "space-between",
+                        flexDirection: "row"
+                    }}>
+
+                    <RectButton onPress={changeBackgroundGradient} style={{
+                        height: 48,
+                        width: 48,
+                        borderRadius: 12,
+                        alignItems: "center",
+                        alignContent: "center",
+                        justifyContent: "center"
+                    }}>
+                        <Ionicons name={"color-palette-outline"} size={32} color={"#ffffff"} />
+                    </RectButton>
+
+                    {/** Should have a badge to show the number of circles selected if greator than one  */}
+                    <RectButton onPress={handlePostCircle} style={{
+                        height: 48,
+                        width: 48,
+                        borderRadius: 12,
+                        alignItems: "center",
+                        alignContent: "center",
+                        justifyContent: "center"
+                    }}>
+                        <Ionicons name={"filter-circle-outline"} size={34} color={"#ffffff"} />
+
+                    </RectButton>
+
+                    </View>
+                
+                </Reanimated.View>
+                
+                {/**
+                 * <View style={styles.toolbar}>
+                    <TouchableOpacity onPress={changeBackgroundGradient} style={styles.toolbarButton}>
+                        <RamaText style={styles.toolbarButtonText}>Background</RamaText>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleRenderTextBlocks} style={styles.toolbarButton}>
+                        <RamaText style={styles.toolbarButtonText}>RamaText Block</RamaText>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handlePostCircle} style={styles.toolbarButton}>
+                        <RamaText style={styles.toolbarButtonText}>Circles ({selectedCircles.length})</RamaText>
+                    </TouchableOpacity>
+                    </View>
+                    <View style={styles.formattingToolbar}>
+                    {['bold', 'italic', 'underline'].map((format) => (
+                        <TouchableOpacity
+                        key={format}
+                        onPress={() => handleTextFormatting(textBlocks[0].id, format as 'bold' | 'italic' | 'underline')}
+                        style={styles.formattingButton}
+                        >
+                        <RamaText style={styles.formattingButtonText}>{format.charAt(0).toUpperCase()}</RamaText>
+                        </TouchableOpacity>
+                    ))}
+                    </View>
+                */}
+                {error && <RamaText style={styles.errorText}>{error}</RamaText>}
+                </>
             </GestureDetector>
-            <View style={styles.toolbar}>
-              <TouchableOpacity onPress={changeBackgroundGradient} style={styles.toolbarButton}>
-                <Text>Change Background</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleRenderTextBlocks} style={styles.toolbarButton}>
-                <Text>Add Text Block</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handlePostCircle} style={styles.toolbarButton}>
-                <Text>Select Circles ({selectedCircles.length})</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.formattingToolbar}>
-              {['bold', 'italic', 'underline'].map((format) => (
-                <TouchableOpacity
-                  key={format}
-                  onPress={() => handleTextFormatting(textBlocks[0].id, format as 'bold' | 'italic' | 'underline')}
-                  style={styles.formattingButton}
-                >
-                  <Text style={styles.formattingButtonText}>{format.charAt(0).toUpperCase()}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <TouchableOpacity onPress={handlePost} style={styles.postButton} disabled={isLoading}>
-              {isLoading ? (
-                <ActivityIndicator color="#ffffff" />
-              ) : (
-                <Text style={styles.postButtonText}>Post</Text>
-              )}
-            </TouchableOpacity>
-            {error && <Text style={styles.errorText}>{error}</Text>}
-          </RamaBackView>
-        </SafeAreaView>
+          </KeyboardAvoidingView>
         <BottomSheetModal
           ref={bottomSheetModalRef}
           index={0}
-          snapPoints={['50%']}
+          snapPoints={['95%']}
           onChange={handleSavePost}
         >
           <View style={styles.bottomSheetContent}>
-            <Text style={styles.bottomSheetTitle}>Select Circles (Max 3)</Text>
-            {/* Add circle selection logic here */}
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 20,
+            }}>
+              <View style={{width: "70%", gap: 12}}>
+                <RamaText style={{fontSize: 23}} variant={"h1"}>Circles to post to</RamaText>
+                <RamaText variant={"p2"}>Only contacts in the selected circles will view this post</RamaText>
+              </View>
+              <TouchableOpacity onPress={() => bottomSheetModalRef.current?.dismiss()} style={{padding: 12, backgroundColor: colours.background.soft, borderRadius: 12}}>
+                <Ionicons name="close" size={24} color="#000" />
+              </TouchableOpacity>
+            </View>
+            {/** a flatlist instead with still the select options in a vertical style with a check icon at the right for the select ones on top of the current styles*/}
+            <View style={styles.circlesContainer}>
+              {/* Example Circle Data - Replace with to be replaced actual circle data in future */}
+              {[
+                { id: '1', name: 'Family' },
+                { id: '2', name: 'Friends' },
+                { id: '3', name: 'Work' }
+              ].map(circle => (
+                <TouchableOpacity
+                  key={circle.id}
+                  onPress={() => handleCircleSelection(circle)}
+                  style={[
+                    styles.circleButton,
+                    selectedCircles.some(c => c.id === circle.id) && styles.selectedCircleButton
+                  ]}
+                >
+                  <RamaText style={styles.circleButtonText}>{circle.name}</RamaText>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <RamaButton
+              onPress={() => bottomSheetModalRef.current?.dismiss()}
+            > Set Selected Circles
+            </RamaButton>
           </View>
         </BottomSheetModal>
       </BottomSheetModalProvider>
-    </GestureHandlerRootView>
+      <StatusBar style={"light"} />
+    </>
   );
 }
 
@@ -257,31 +390,53 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
   gradientContainer: {
     flex: 1,
-    borderRadius: 20,
-    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   textContainer: {
     flex: 1,
     padding: 20,
+    paddingTop: 65,
+    alignContent: "center",
+    alignItems: "center",
+    justifyContent: "center"
   },
   textInput: {
+    color: '#ffffff',
+    textAlign: 'center',
     marginBottom: 10,
+    alignSelf: "center",
+    justifyContent: "center"
+  },
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#000000',
+  },
+  title: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  postButton: {
+    padding: 10,
   },
   toolbar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
+    justifyContent: 'space-around',
+    padding: 10,
+    backgroundColor: '#000000',
   },
   toolbarButton: {
     padding: 10,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 5,
+  },
+  toolbarButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
   },
   formattingToolbar: {
     flexDirection: 'row',
@@ -291,20 +446,10 @@ const styles = StyleSheet.create({
   formattingButton: {
     padding: 10,
     marginHorizontal: 5,
-    backgroundColor: '#d0d0d0',
+    backgroundColor: '#555555',
     borderRadius: 5,
   },
   formattingButtonText: {
-    fontWeight: 'bold',
-  },
-  postButton: {
-    backgroundColor: '#1877f2',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  postButtonText: {
     color: '#ffffff',
     fontWeight: 'bold',
   },
@@ -315,7 +460,36 @@ const styles = StyleSheet.create({
   bottomSheetTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  closeButton: {
+    padding: 10,
+  },
+  circlesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     marginBottom: 20,
+  },
+  circleButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 5,
+  },
+  selectedCircleButton: {
+    backgroundColor: '#cccccc',
+  },
+  circleButtonText: {
+    fontSize: 16,
+  },
+  setCirclesButton: {
+    backgroundColor: '#1877f2',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  setCirclesButtonText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
   },
   errorText: {
     color: 'red',
