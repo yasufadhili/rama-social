@@ -1,3 +1,4 @@
+import "@/gesture-handler";
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { router, Slot, SplashScreen, Stack, useSegments } from 'expo-router';
@@ -9,6 +10,7 @@ import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import AuthProvider from '@/context/AuthProvider';
 import { Drawer } from 'expo-router/drawer';
 import RightDrawer from '@/components/RightDrawer';
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@/constants/window';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -55,9 +57,16 @@ export default function RootLayout() {
 function RootLayoutNav(){
   const {colourTheme, colours} = useTheme();
   return <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
-    <Drawer drawerContent={()=><RightDrawer />} screenOptions={{
-      headerShown: false
+    <Drawer  drawerContent={()=><RightDrawer />} screenOptions={{
+      headerShown: false,
+      drawerPosition: "right",
+      swipeEdgeWidth: SCREEN_WIDTH /2 ,
+      drawerStyle: {
+        width: "90%",
+      },
+      
+      drawerType: "back"
     }} />
-    <StatusBar barStyle={colourTheme === "dark" ? "light-content": "dark-content"} backgroundColor={colourTheme === "dark" ?colours.background.strong : colours.background.soft} />
+    <StatusBar barStyle={colourTheme === "dark" ? "light-content": "dark-content"} backgroundColor={colourTheme === "dark" ?colours.background.strong : colours.background.default} />
   </NavigationThemeProvider>
 }
