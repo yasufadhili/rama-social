@@ -19,6 +19,7 @@ export default function AppLayout() {
         backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default
       },
       headerShadowVisible: false,
+      headerShown: false,
     headerTitleStyle: {
         fontSize: 22,
         fontWeight: "bold"
@@ -31,7 +32,11 @@ export default function AppLayout() {
         headerShown: false,
       }} />
       <Stack.Screen name="contacts" options={{
-        title: "Contacts"
+        title: "Contacts",
+        headerShown: true,
+      }} />
+      <Stack.Screen name="(circles)" options={{
+        title: "Circles"
       }} />
       <Stack.Screen name="(settings)" options={{
         headerShown: false,

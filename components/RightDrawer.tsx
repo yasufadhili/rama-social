@@ -6,7 +6,7 @@ import { Alert, StyleSheet, View } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import { Image } from "expo-image";
 import { SCREEN_WIDTH } from "@/constants/window";
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
 
@@ -84,8 +84,18 @@ export default function RightDrawer(){
                         paddingHorizontal: 12
                     }}>
                         <RamaHStack>
-                            <Ionicons name={"people-outline"} color={colours.text.soft} size={24} />
+                            <AntDesign name={"contacts"} color={colours.text.soft} size={24} />
                             <RamaText variant={"h3"}>Contacts</RamaText>
+                        </RamaHStack>
+                    </RectButton>
+                    <RectButton onPress={()=> router.navigate("/(circles)")} style={{
+                        paddingVertical: 12,
+                        borderRadius: 12,
+                        paddingHorizontal: 12
+                    }}>
+                        <RamaHStack>
+                            <Ionicons name={"people-outline"} color={colours.text.soft} size={24} />
+                            <RamaText variant={"h3"}>Circles</RamaText>
                         </RamaHStack>
                     </RectButton>
                     <RectButton onPress={()=> router.navigate("/coming-soon")} style={{
