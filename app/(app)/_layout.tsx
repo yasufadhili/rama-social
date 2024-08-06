@@ -19,11 +19,21 @@ export default function AppLayout() {
         backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default
       },
       headerShadowVisible: false,
+    headerTitleStyle: {
+        fontSize: 22,
+        fontWeight: "bold"
+    }
     }}>
       <Stack.Screen name="index" options={{
         headerShown: false
       }} />
       <Stack.Screen name="create" options={{
+        headerShown: false,
+      }} />
+      <Stack.Screen name="contacts" options={{
+        title: "Contacts"
+      }} />
+      <Stack.Screen name="(settings)" options={{
         headerShown: false,
       }} />
       <Stack.Screen name="setup-profile" />

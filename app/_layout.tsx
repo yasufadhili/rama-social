@@ -62,7 +62,7 @@ function RootLayoutNav(){
       drawerPosition: "right",
       swipeEdgeWidth: SCREEN_WIDTH /2 ,
       drawerStyle: {
-        width: "90%",
+        width: "100%",
       },
       
       drawerType: "back"
