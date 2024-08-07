@@ -25,13 +25,27 @@ import { RectButton } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/context/ThemeContext';
 import HeaderBack from '@/components/HeaderBack';
+import { useAuth } from '@/context/AuthProvider';
+import storage from "@react-native-firebase/storage";
+import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
+interface Post {
+  id?: string;
+  content: string;
+  mediaUrls: string[];
+  isPublic: boolean;
+  authorId: string;
+  authorName: string;
+  createdAt: FirebaseFirestoreTypes.Timestamp;
+  post_type: 'default';
+}
 
 const MAX_CHARACTERS = 280;
 const MAX_VIDEO_DURATION = 300; // 5 minutes in seconds
 
 const CreateDefaultPostScreen = ({  }: {  }) => {
     const { colours } = useTheme();
+    const {user} = useAuth();
     const [content, setContent] = useState('');
     const [media, setMedia] = useState<string[]>([]);
     const [isPublic, setIsPublic] = useState(true);
@@ -91,9 +105,52 @@ const CreateDefaultPostScreen = ({  }: {  }) => {
       };
   
       const handlePost = async () => {
-        
-
-      }
+        if (isPostButtonDisabled || isPosting) return;
+    
+        setIsPosting(true);
+    
+        try {
+          if (!user) {
+            throw new Error('User not authenticated');
+          }
+    
+          let mediaUrls: string[] = [];
+    
+          // Upload media files to Firebase Storage
+          if (media.length > 0) {
+            mediaUrls = await Promise.all(
+              media.map(async (mediaUri, index) => {
+                const reference = storage().ref(`posts/${user.uid}/${Date.now()}_${index}`);
+                await reference.putFile(mediaUri);
+                return await reference.getDownloadURL();
+              })
+            );
+          }
+    
+          const post: Post = {
+            content,
+            mediaUrls,
+            isPublic,
+            authorId: user.uid,
+            authorName: user.displayName || 'Anonymous',
+            createdAt: firestore.Timestamp.now(),
+            post_type: 'default',
+          };
+    
+          await firestore().collection('posts').add(post);
+    
+          setContent('');
+          setMedia([]);
+          setIsPublic(true);
+          router.back();
+    
+        } catch (error) {
+          console.error('Error posting:', error);
+          Alert.alert('Error', 'Failed to create post. Please try again.');
+        } finally {
+          setIsPosting(false);
+        }
+      };
   
     const toggleVisibility = () => {
       setIsPublic(prev => !prev);
@@ -106,14 +163,13 @@ const CreateDefaultPostScreen = ({  }: {  }) => {
       const lastWord = words[words.length - 1];
       if (lastWord.startsWith('#') || lastWord.startsWith('@')) {
         // Fetch suggestions (implement this based on our data source)
-        setSuggestions(['example1', 'example2', 'example3']);
+        setSuggestions(['Hashtags', 'Coming', 'Soon']);
       } else {
         setSuggestions([]);
       }
     };
   
     const saveDraft = () => {
-      // Implement draft saving logic here
       setIsDraftSaved(true);
       setTimeout(() => setIsDraftSaved(false), 2000);
     };
@@ -144,8 +200,9 @@ const CreateDefaultPostScreen = ({  }: {  }) => {
                 </RamaText>
             </RamaHStack>
 
-            <RamaButton onPress={handlePost} disabled={isPostButtonDisabled || isPosting}>Post</RamaButton>
-
+            <RamaButton onPress={handlePost} disabled={isPostButtonDisabled || isPosting}>
+              {isPosting ? <ActivityIndicator color={"#ffffff"}  size={"small"}/> : 'Post'}
+            </RamaButton>
           </View>
   
           <ScrollView style={styles.scrollView}>
@@ -159,12 +216,12 @@ const CreateDefaultPostScreen = ({  }: {  }) => {
                 alignItems: 'center',
                 marginRight: 12,
               }}>
-                <RamaText style={styles.avatarRamaText}>Y</RamaText>
+                <RamaText style={styles.avatarRamaText}>{user?.displayName?.charAt(0).toUpperCase()}</RamaText>
               </View>
               <View>
                 <RamaText variant={"h4"} style={{
                     
-                }}>Yasu Fadhili</RamaText>
+                }}>{user?.displayName}</RamaText>
                 <TouchableOpacity onPress={toggleVisibility} style={{
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -173,9 +230,9 @@ const CreateDefaultPostScreen = ({  }: {  }) => {
                   <RamaText variant={"p3"} style={{
                     color: colours.text.soft
                   }}>
-                    {isPublic ? 'Public' : 'Private'} 
+                    {isPublic ? 'All Contacts' : 'All Contacts'} 
                   </RamaText>
-                  <MaterialIcons name="arrow-drop-down" size={24} color="#666" />
+                  {/**<MaterialIcons name="arrow-drop-down" size={24} color="#666" /> */}
                 </TouchableOpacity>
               </View>
             </View>
