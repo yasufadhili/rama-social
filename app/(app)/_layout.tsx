@@ -4,6 +4,7 @@ import { Redirect, Stack } from 'expo-router';
 import { useAuth } from '@/context/AuthProvider';
 import { useTheme } from '@/context/ThemeContext';
 import HeaderBack from '@/components/HeaderBack';
+import HomeHeaderLeft from '@/components/HomeHeaderLeft';
 export default function AppLayout() {
   const { user, initialising } = useAuth();
   const {colourTheme, colours} = useTheme();
@@ -13,20 +14,27 @@ export default function AppLayout() {
 
 
   return (
-    <Stack screenOptions={{
+    <Stack initialRouteName={"(index)"} screenOptions={{
       headerLeft: ()=> <HeaderBack />,
       headerStyle: {
         backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default
       },
       headerShadowVisible: false,
-      headerShown: false,
-    headerTitleStyle: {
-        fontSize: 22,
-        fontWeight: "bold"
-    }
+      headerShown: true,
+      headerTitleStyle: {
+          fontSize: 22,
+          fontWeight: "bold"
+      }
     }}>
-      <Stack.Screen name="index" options={{
-        headerShown: false
+      <Stack.Screen name="(index)" options={{
+        headerShown: false,
+        headerLeft: ()=> <HomeHeaderLeft />,
+        title: "",
+        headerStyle: {
+          backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default,
+          
+        }, 
+        headerShadowVisible: true
       }} />
       <Stack.Screen name="(create)" options={{
         headerShown: false,

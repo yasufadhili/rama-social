@@ -95,14 +95,15 @@ const ShortCutsSection: React.FC<ShortCutsSectionProps> = React.memo(({ isOpen, 
 
 const HomeHeader: React.FC = () => {
   const [isShortcutsSectionOpen, setIsShortcutsSectionOpen] = useState(false);
-  const isOnline = false; // Replace with actual online status logic
+  const isOnline = false; 
+  const {colourTheme, colours} = useTheme();
 
   const toggleShortcutsSection = () => {
     setIsShortcutsSectionOpen(!isShortcutsSectionOpen);
   };
 
   return (
-    <View style={styles.headerContainer}>
+    <View style={[styles.headerContainer, {paddingBottom: 18, backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default}]}>
       <View style={styles.logoContainer}>
         <RNImage source={require('../assets/images/logo.png')} style={styles.logo} />
         <RamaText style={styles.logoText}>Rama</RamaText>
@@ -118,7 +119,6 @@ const HomeHeader: React.FC = () => {
           transition={1000}
         />
       </RectButton>
-      <ShortCutsSection isOpen={isShortcutsSectionOpen} onClose={() => setIsShortcutsSectionOpen(false)} />
     </View>
   );
 };
@@ -198,12 +198,12 @@ const styles = StyleSheet.create({
     height: 24,
   },
   logoText: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
   },
   profileButton: {
-    width: 32,
-    height: 32,
+    width: 38,
+    height: 38,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 16,

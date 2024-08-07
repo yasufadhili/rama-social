@@ -8,12 +8,12 @@ export default function HomeHeaderLeft(){
         alignItems: "center",
         alignContent: "center",
         gap: 12,
-        flexDirection: "row"
+        flexDirection: "row",
     }}>
         <Image
             source={require("../assets/images/logo.png")}
             style={{ width: 28, height: 28,  }}
         />
-        <RamaText variant={"h1"}>Rama</RamaText>
+        <RamaText style={{fontSize: 28}} variant={"h1"}>Rama</RamaText>
     </View>
 }
