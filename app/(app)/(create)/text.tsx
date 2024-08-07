@@ -1,7 +1,7 @@
 {/** TO DO add a maximum character limit ie 255 charcters after that user won't be ablt to add more text */}
 {/** Un used functions should be left as they are but un implemented ones should be imaplemented, ie thise with comments on what's needed of then should be implementted accordingly */}
 import React, { useState, useRef, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import Reanimated, { useSharedValue, useAnimatedStyle, withSpring, interpolateColor, withTiming, Easing } from 'react-native-reanimated';
 import { Directions, Gesture, GestureDetector, GestureHandlerRootView, RectButton } from 'react-native-gesture-handler';
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -107,6 +107,10 @@ export default function CreateTextPostScreen() {
     
 
   const handlePost = async () => {
+    if (textBlocks[0].text.length<1) {
+      setError("Please add content to your post");
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -115,16 +119,17 @@ export default function CreateTextPostScreen() {
         gradientColors,
         circles: selectedCircles.map(circle => circle.id),
         createdAt: firestore.FieldValue.serverTimestamp(),
-        userId: user?.uid,
+        creatorId: user?.uid,
       };
-      console.log(postData);
       await firestore().collection('text_posts').add(postData);
+      console.log(postData);
       resetPostState();
     } catch (err) {
       console.error('Error posting:', err);
       setError('Failed to publish post. Please try again.');
     } finally {
       setIsLoading(false);
+      router.back();
     }
   };
 
@@ -227,7 +232,7 @@ export default function CreateTextPostScreen() {
 
   return (
     <>
-    {/** Ahould have a loading overlay when the post button is clickes so as to save th post. a toast should come up after the rest of the post is either suceesful or failed. Successful post sends back and unsuccessful stays on current screen */}
+   
       <BottomSheetModalProvider>
           <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <GestureDetector gesture={composedGestures}>
@@ -295,7 +300,8 @@ export default function CreateTextPostScreen() {
                         borderRadius: 12,
                         alignItems: "center",
                         alignContent: "center",
-                        justifyContent: "center"
+                        justifyContent: "center",
+                        display: "none"
                     }}>
                         <Ionicons name={"filter-circle-outline"} size={34} color={"#ffffff"} />
 
@@ -329,7 +335,8 @@ export default function CreateTextPostScreen() {
                     ))}
                     </View>
                 */}
-                {error && <RamaText style={styles.errorText}>{error}</RamaText>}
+                {/**error && <RamaText style={styles.errorText}>{error}</RamaText>**/}
+                {error && Alert.alert(error)}
                 </>
             </GestureDetector>
           </KeyboardAvoidingView>
@@ -339,7 +346,11 @@ export default function CreateTextPostScreen() {
           snapPoints={['95%']}
           onChange={handleSavePost}
         >
-          <View style={styles.bottomSheetContent}>
+          <View style={{
+            flex: 1,
+            padding: 20,
+            backgroundColor: colourTheme === "dark" ? colours.background.default : colours.background.strong
+          }}>
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
@@ -351,7 +362,7 @@ export default function CreateTextPostScreen() {
                 <RamaText variant={"p2"}>Only contacts in the selected circles will view this post</RamaText>
               </View>
               <TouchableOpacity onPress={() => bottomSheetModalRef.current?.dismiss()} style={{padding: 12, backgroundColor: colours.background.soft, borderRadius: 12}}>
-                <Ionicons name="close" size={24} color="#000" />
+                <Ionicons name="close" size={24} color={colours.text.strong} />
               </TouchableOpacity>
             </View>
             {/** a flatlist instead with still the select options in a vertical style with a check icon at the right for the select ones on top of the current styles*/}
@@ -381,6 +392,11 @@ export default function CreateTextPostScreen() {
           </View>
         </BottomSheetModal>
       </BottomSheetModalProvider>
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color={colours.primary} />
+        </View>
+      )}
       <StatusBar style={"light"} />
     </>
   );
@@ -453,10 +469,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: 'bold',
   },
-  bottomSheetContent: {
-    flex: 1,
-    padding: 20,
-  },
   bottomSheetTitle: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -495,5 +507,11 @@ const styles = StyleSheet.create({
     color: 'red',
     marginTop: 10,
     textAlign: 'center',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

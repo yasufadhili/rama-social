@@ -88,7 +88,7 @@ export default function RightDrawer(){
                             <RamaText variant={"h3"}>Contacts</RamaText>
                         </RamaHStack>
                     </RectButton>
-                    <RectButton onPress={()=> router.navigate("/(circles)")} style={{
+                    <RectButton onPress={()=> router.navigate("/coming-soon")} style={{
                         paddingVertical: 12,
                         borderRadius: 12,
                         paddingHorizontal: 12
