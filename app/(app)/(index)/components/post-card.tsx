@@ -3,9 +3,8 @@ import { RamaHStack, RamaText, RamaVStack } from "@/components/Themed";
 import { useTheme } from "@/context/ThemeContext";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { View, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Alert, Dimensions } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
-import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
@@ -14,8 +13,10 @@ import Animated, {
   withSpring,
   runOnJS,
 } from 'react-native-reanimated';
+import { Audio } from 'expo-av';
 
 interface PostCardProps {
+  id: string;
   post_type: 'default' | 'text' | 'audio';
   user: {
     name: string;
@@ -24,17 +25,39 @@ interface PostCardProps {
   };
   content: string;
   timestamp: string;
+  audioUrl?: string;
+  imageUrl?: string;
+  likesCount: number;
+  commentsCount: number;
+  sharesCount: number;
+  onLike: (id: string) => void;
+  onComment: (id: string) => void;
+  onShare: (id: string) => void;
 }
 
 const REACTION_MENU_HEIGHT = 60;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const PostCard: React.FC<PostCardProps> = ({ post_type, user, content, timestamp }) => {
+const PostCard: React.FC<PostCardProps> = ({
+  id,
+  post_type,
+  user,
+  content,
+  timestamp,
+  audioUrl,
+  imageUrl,
+  likesCount,
+  commentsCount,
+  sharesCount,
+  onLike,
+  onComment,
+  onShare
+}) => {
   const { colourTheme, colours } = useTheme();
   const [showReactionMenu, setShowReactionMenu] = useState(false);
   const [userReactions, setUserReactions] = useState<string[]>([]);
-  const [likesCount, setLikesCount] = useState(0);
-  const [commentsCount, setCommentsCount] = useState(0);
-  const [sharesCount, setSharesCount] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
 
   const menuAnimation = useSharedValue(0);
   const emojis = ['😍', '😂', '😮', '😢', '😡', '👍'];
@@ -62,6 +85,14 @@ const PostCard: React.FC<PostCardProps> = ({ post_type, user, content, timestamp
     };
   }, [showReactionMenu, closeReactionMenu]);
 
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
+
   const handleReaction = useCallback((emoji: string) => {
     setUserReactions(prev => {
       const newReactions = [emoji, ...prev.filter(r => r !== emoji).slice(0, 2)];
@@ -70,17 +101,24 @@ const PostCard: React.FC<PostCardProps> = ({ post_type, user, content, timestamp
     closeReactionMenu();
   }, [closeReactionMenu]);
 
-  const handleLike = () => {
-    setLikesCount(prev => prev + 1);
-  };
+  const handleLike = () => onLike(id);
+  const handleComment = () => onComment(id);
+  const handleShare = () => onShare(id);
 
-  const handleComment = () => {
-    setCommentsCount(prev => prev + 1);
-  };
-
-  const handleShare = () => {
-    setSharesCount(prev => prev + 1);
-    Alert.alert("Post Shared!");
+  const playPauseAudio = async () => {
+    if (sound) {
+      if (isPlaying) {
+        await sound.pauseAsync();
+      } else {
+        await sound.playAsync();
+      }
+      setIsPlaying(!isPlaying);
+    } else if (audioUrl) {
+      const { sound: newSound } = await Audio.Sound.createAsync({ uri: audioUrl });
+      setSound(newSound);
+      await newSound.playAsync();
+      setIsPlaying(true);
+    }
   };
 
   const animatedMenuStyle = useAnimatedStyle(() => {
@@ -118,6 +156,51 @@ const PostCard: React.FC<PostCardProps> = ({ post_type, user, content, timestamp
     </Animated.View>
   );
 
+  const renderPostContent = () => {
+    switch (post_type) {
+      case 'default':
+        return (
+          <View style={styles.defaultPost}>
+            <RamaText>{content}</RamaText>
+            {imageUrl && (
+              <Image
+                source={{ uri: imageUrl }}
+                style={styles.postImage}
+                contentFit="cover"
+              />
+            )}
+          </View>
+        );
+      case 'text':
+        return (
+          <LinearGradient
+            colors={["purple", "pink"]}
+            style={styles.textPost}
+          >
+            <RamaText style={styles.textPostContent}>{content}</RamaText>
+          </LinearGradient>
+        );
+      case 'audio':
+        return (
+          <View style={styles.audioPost}>
+            <RamaText>{content}</RamaText>
+            <TouchableOpacity onPress={playPauseAudio} style={styles.audioButton}>
+              <Ionicons
+                name={isPlaying ? "pause" : "play"}
+                size={24}
+                color={colours.text.default}
+              />
+              <RamaText style={styles.audioButtonText}>
+                {isPlaying ? "Pause" : "Play"} Audio
+              </RamaText>
+            </TouchableOpacity>
+          </View>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <View style={[
       styles.container,
@@ -127,52 +210,27 @@ const PostCard: React.FC<PostCardProps> = ({ post_type, user, content, timestamp
       <RamaHStack style={styles.header}>
         <RamaHStack>
           <Image 
-            source={{ uri: user ? user.avatar : 'https://via.placeholder.com/40' }} 
+            source={{ uri: user.avatar }} 
             style={styles.profileImage}
           />
           <RamaVStack>
-            <RamaText style={styles.userName} variant={"h2"}>{user ? user.name: "Anonymous"}</RamaText>
-            <RamaText variant={"p5"} style={styles.timeAgo}>{timestamp ? timestamp : "23 inutes ago"}</RamaText>
+            <RamaText style={styles.userName} variant={"h2"}>{user.name}</RamaText>
+            <RamaText variant={"p5"} style={styles.timeAgo}>{timestamp}</RamaText>
           </RamaVStack>
         </RamaHStack>
       </RamaHStack>
 
-      {/* Middle */}
-      <View>
-        {post_type === "default" && (
-          <View>
-            <RamaText>{content}</RamaText>
-          </View>
-        )}
-        {post_type === "text" && (
-          <LinearGradient
-            colors={["purple", "pink"]}
-            style={styles.textPost}
-          >
-            <RamaText style={styles.textPostContent}>{content && content}</RamaText>
-          </LinearGradient>
-        )}
-        {post_type === "audio" && (
-          <View>
-            <RamaText>{content}</RamaText>
-            {/* Audio player component goes here */}
-          </View>
-        )}
-      </View>
+      {/* Content */}
+      {renderPostContent()}
 
       {/* Footer */}
       <RamaVStack style={styles.footer}>
-        {user && user.location && (
-          <RamaHStack style={styles.defaultPostFooter}>
-            <RamaHStack>
-              <Ionicons name={"map-outline"} size={22} color={colours.text.soft} />
-              <RamaVStack>
-                <RamaText variant={"h4"}>{ user ? user.location : "Uganda"}</RamaText>
-              </RamaVStack>
-            </RamaHStack>
+        {user.location && (
+          <RamaHStack style={styles.locationContainer}>
+            <Ionicons name={"map-outline"} size={22} color={colours.text.soft} />
+            <RamaText variant={"h4"}>{user.location}</RamaText>
           </RamaHStack>
         )}
-        <>
         <RamaHStack style={styles.reactionContainer}>
           <RamaHStack>
             {userReactions.map((emoji, index) => (
@@ -181,7 +239,6 @@ const PostCard: React.FC<PostCardProps> = ({ post_type, user, content, timestamp
           </RamaHStack>
         </RamaHStack>
         {showReactionMenu && <ReactionMenu />}
-        </>
         <RamaHStack style={styles.actionButtons}>
           <RamaHStack style={styles.leftActionButtons}>
             <TouchableOpacity style={styles.actionButton} onPress={handleLike} accessibilityLabel="Like post">
@@ -197,7 +254,7 @@ const PostCard: React.FC<PostCardProps> = ({ post_type, user, content, timestamp
               <RamaText style={styles.counterText}>{sharesCount}</RamaText>
             </TouchableOpacity>
           </RamaHStack>
-          <RectButton onPress={openReactionMenu} style={styles.addReactionButton} accessibilityLabel="Add reaction">
+          <RectButton onPress={openReactionMenu} style={styles.addReactionButton}>
             <Ionicons color={colours.text.soft} size={26} name={"add"} />
           </RectButton>
         </RamaHStack>
@@ -212,6 +269,8 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 18,
     marginBottom: 16,
+    width: SCREEN_WIDTH - 32, // Adjust for FlatList
+    alignSelf: 'center',
   },
   header: {
     paddingBottom: 14,
@@ -228,6 +287,15 @@ const styles = StyleSheet.create({
   timeAgo: {
     fontSize: 14,
   },
+  defaultPost: {
+    marginBottom: 10,
+  },
+  postImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    marginTop: 10,
+  },
   textPost: {
     padding: 15,
     borderRadius: 10,
@@ -241,12 +309,26 @@ const styles = StyleSheet.create({
     fontSize: 28,
     textAlign: "center",
   },
+  audioPost: {
+    marginBottom: 10,
+  },
+  audioButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#007AFF',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  audioButtonText: {
+    color: 'white',
+    marginLeft: 10,
+  },
   footer: {
     paddingTop: 12,
   },
-  defaultPostFooter: {
-    justifyContent: "space-between",
-    alignItems: "center",
+  locationContainer: {
+    marginBottom: 8,
   },
   reactionContainer: {
     justifyContent: "space-between",
