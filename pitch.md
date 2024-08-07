@@ -39,10 +39,19 @@ Welcome to Rama, a hobby social network designed to foster genuine connections i
    - **Reactions and Interactions:** React to posts with likes, comments, quotes, bookmarks, and more to stay engaged.
    - **Seamless Contact Integration:** Automatically sync your contacts to ensure you're always connected with your close ones.
 
+**Future Features:**
+   -  **Telegram Integration:** Be able to link your telegram account so as to view updates from your channels, create a channel, broadcast to your audience(subscribers) among others
+   -  **Cloud Storage:** With cloud storage from google drive, be able to save, sharem backeup your gallery to the cloud - This would enable users to shaer contet direct from theie google drive to their connections
+   -  **Global Network:**  Access content from not just your connections, but also everywhere else - From Youtube, Tiktok, among other platforms and engage with what your most interested in
+
 **Technology Stack:**
 - **Frontend:** React Native Expo with TypeScript for a smooth and responsive user experience.
 - **Backend:** Firebase for real-time data handling and offline-first capabilities.
 - **Local Storage:** Expo-SQLite for efficient local data management and offline access.
+- **API Providers:** 
+   - *** Videos *** : PeerTube - default video hosting on the platform for video posts
+   - *** YouTube *** : Gain access to your subscriptions and recommendation feed from youtube all within Rama
+   - *** Google *** : Cloud Storage for accounts, Google AI, Google ML, among others
 
 **Why Rama?**
 Rama is designed to prioritise real relationships and meaningful interactions in a secure and private environment. With an offline-first approach, you can stay connected and engaged even when you're not online. Join Rama today and experience a social network that truly understands the value of your inner circle.

@@ -528,11 +528,11 @@ export const RamaInput: React.FC<RamaInputProps> = ({
     }
 
     if (error) {
-      return <AlertCircle color={"red"} size={20} />;
+      return <Ionicons name={"alert-circle-outline"} color={"red"} size={22} />;
     }
 
     if (success) {
-      return <Check color={"green"} size={20} />;
+      return <Ionicons name={"checkmark-outline"} color={"green"} size={22} />;
     }
 
     return rightIcon;
@@ -622,7 +622,7 @@ const getStyles = (colours: any, isFocused: boolean, isError: boolean, isSuccess
         ? colours.success
         : isFocused
         ? colours.primary
-        : colours.border,
+        : colours.background.soft,
       backgroundColor: colours.background.soft,
     },
     input: {

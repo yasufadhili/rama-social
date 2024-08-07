@@ -11,7 +11,7 @@ const colours: Record<ColourThemeName, ThemeColours> = {
     background: {
       default: "#f2f2f2",
       strong: "#fff",
-      soft: "#859295db",
+      soft: "#e2e3ef",
       inverted: "#fff", 
     },
   },

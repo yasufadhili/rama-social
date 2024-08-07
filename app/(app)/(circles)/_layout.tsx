@@ -18,7 +18,7 @@ export default function CirclesLayout(){
             name={"index"} options={{title: "Circles"}}
         />
         <Stack.Screen 
-            name={"add"} options={{title: "Create Circle"}}
+            name={"add"} options={{title: "Create Circle", headerShown: false}}
         />
     </Stack>
 }
