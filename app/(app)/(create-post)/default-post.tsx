@@ -16,13 +16,11 @@ import {
   Keyboard
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Feather, AntDesign, MaterialIcons } from '@expo/vector-icons';
+import { Feather, AntDesign } from '@expo/vector-icons';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RamaButton, RamaHStack, RamaText } from '@/components/Themed';
-import { RectButton } from 'react-native-gesture-handler';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/context/ThemeContext';
 import HeaderBack from '@/components/HeaderBack';
 import { useAuth } from '@/context/AuthProvider';
@@ -34,14 +32,13 @@ interface Post {
   content: string;
   mediaUrls: string[];
   isPublic: boolean;
-  authorId: string;
-  authorName: string;
+  creatorId: string;
   createdAt: FirebaseFirestoreTypes.Timestamp;
   post_type: 'default';
 }
 
 const MAX_CHARACTERS = 280;
-const MAX_VIDEO_DURATION = 300; // 5 minutes in seconds
+const MAX_VIDEO_DURATION = 300; 
 
 const CreateDefaultPostScreen = ({  }: {  }) => {
     const { colours } = useTheme();
@@ -131,8 +128,7 @@ const CreateDefaultPostScreen = ({  }: {  }) => {
             content,
             mediaUrls,
             isPublic,
-            authorId: user.uid,
-            authorName: user.displayName || 'Anonymous',
+            creatorId: user?.uid,
             createdAt: firestore.Timestamp.now(),
             post_type: 'default',
           };
@@ -158,11 +154,11 @@ const CreateDefaultPostScreen = ({  }: {  }) => {
   
     const handleContentChange = (text: string) => {
       setContent(text);
-      // Check for hashtags or mentions
+      // Check for hashtags or mentions 
       const words = text.split(' ');
       const lastWord = words[words.length - 1];
       if (lastWord.startsWith('#') || lastWord.startsWith('@')) {
-        // Fetch suggestions (implement this based on our data source)
+        // Fetch suggestions (implement this based on our data source) // likely hashtags
         setSuggestions(['Hashtags', 'Coming', 'Soon']);
       } else {
         setSuggestions([]);
