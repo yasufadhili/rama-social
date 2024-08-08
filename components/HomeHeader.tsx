@@ -15,7 +15,8 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from 'react-native-reanimated';
-
+import { router } from 'expo-router';
+import auth from "@react-native-firebase/auth";
 interface ShortCutsSectionProps {
   isOpen: boolean;
   onClose: () => void;
@@ -97,6 +98,7 @@ const HomeHeader: React.FC = () => {
   const [isShortcutsSectionOpen, setIsShortcutsSectionOpen] = useState(false);
   const isOnline = false; 
   const {colourTheme, colours} = useTheme();
+  const user = auth().currentUser;
 
   const toggleShortcutsSection = () => {
     setIsShortcutsSectionOpen(!isShortcutsSectionOpen);
@@ -109,7 +111,10 @@ const HomeHeader: React.FC = () => {
         <RamaText style={styles.logoText}>Rama</RamaText>
       </View>
       <RectButton
-        onPress={toggleShortcutsSection}
+        onPress={() => router.push({
+          pathname: '/(profile)/[id]',
+          params: { uid: user?.uid }
+        })}
         style={[styles.profileButton, { borderColor: isOnline ? '#3a9d29' : '#e77723' }]}
       >
         <Image

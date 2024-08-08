@@ -21,14 +21,11 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-na
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RamaButton, RamaHStack, RamaText } from '@/components/Themed';
-import { RectButton } from 'react-native-gesture-handler';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/context/ThemeContext';
 import HeaderBack from '@/components/HeaderBack';
-import { useAuth } from '@/context/AuthProvider';
 import storage from "@react-native-firebase/storage";
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
-
+import auth from "@react-native-firebase/auth"
 interface Post {
   id?: string;
   content: string;
@@ -45,7 +42,7 @@ const MAX_VIDEO_DURATION = 300; // 5 minutes in seconds
 
 const CreateDefaultPostScreen = ({  }: {  }) => {
     const { colours } = useTheme();
-    const {user} = useAuth();
+    const user = auth().currentUser;
     const [content, setContent] = useState('');
     const [media, setMedia] = useState<string[]>([]);
     const [isPublic, setIsPublic] = useState(true);

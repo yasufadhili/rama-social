@@ -4,8 +4,6 @@ import RamaSplashScreen from '@/app/splash';
 
 type AuthContextType = {
   user: FirebaseAuthTypes.User | null;
-  signOut: () => Promise<void>;
-  initialising: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,33 +17,13 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  // Set an initialising state whilst Firebase connects
+  const [initialising, setInitializing] = useState(true);
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
-  const [initialising, setInitialising] = useState<boolean>(true);
-
-  useEffect(() => {
-    const unsubscribe = auth().onAuthStateChanged((user) => {
-      setUser(user);
-      setInitialising(false);
-    });
-
-    return unsubscribe;
-  }, [user, initialising]);
-
-  const signOut = useCallback(async () => {
-    try {
-      await auth().signOut();
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  }, []);
 
   const value = useMemo(() => ({
     user,
-    signOut,
-    initialising
-  }), [user, signOut, initialising]);
-
-  if (initialising) return <RamaSplashScreen />;
+  }), [user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

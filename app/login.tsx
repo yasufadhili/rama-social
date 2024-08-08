@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { RamaBackView, RamaText, RamaButton, RamaInput } from "../components/Themed";
 import { KeyboardAvoidingView, Platform, View, StyleSheet, ActivityIndicator, Alert } from "react-native";
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+
 import { Image } from "expo-image";
-import { useTheme } from "../context/ThemeContext";
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+
+import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
-import { Redirect, router } from 'expo-router';
-import { useAuth } from "@/context/AuthProvider";
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from "@expo/vector-icons";
+import { Redirect, router } from 'expo-router';
+import { useTheme } from "@/context/ThemeContext";
+import { RamaBackView, RamaButton, RamaInput, RamaText } from "@/components/Themed";
+import SetupProfileScreen from "./(app)/setup-profile";
 
 
-export default function LoginScreen() {
+
+const LoginScreen: React.FC = () => {
     const { colours } = useTheme();
-    const {user} = useAuth();
     const [phoneNumber, setPhoneNumber] = useState<string>("");
     const [confirm, setConfirm] = useState<FirebaseAuthTypes.ConfirmationResult | null>(null);
     const [otp, setOtp] = useState<string>("");
@@ -25,24 +27,40 @@ export default function LoginScreen() {
     const [step, setStep] = useState<'phone' | 'otp' | 'profileSetup'>('phone');
 
     const handleSendCode = async () => {
-        if (!phoneNumber.trim()) {
+        const trimmedPhoneNumber = phoneNumber.trim();
+        if (!trimmedPhoneNumber) {
             setError("Please enter your phone number");
             return;
         }
 
-        setIsLoading(true);
-        setError(null);
+        Alert.alert(
+            "Confirm Phone Number",
+            `We will send a verification code to ${trimmedPhoneNumber}. Is this correct?`,
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Yes, send code",
+                    onPress: async () => {
+                        setIsLoading(true);
+                        setError(null);
 
-        try {
-            const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
-            setConfirm(confirmation);
-            setStep('otp');
-        } catch (err) {
-            console.error("Error sending verification code:", err);
-            setError("Failed to send verification code. Please try again.");
-        } finally {
-            setIsLoading(false);
-        }
+                        try {
+                            const confirmation = await auth().signInWithPhoneNumber(trimmedPhoneNumber);
+                            setConfirm(confirmation);
+                            setStep('otp');
+                        } catch (err) {
+                            console.error("Error sending verification code:", err);
+                            setError("Failed to send verification code. Please try again.");
+                        } finally {
+                            setIsLoading(false);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const handleVerifyCode = async () => {
@@ -76,7 +94,7 @@ export default function LoginScreen() {
                     keyboardType="phone-pad"
                     placeholder="Enter your phone number"
                     placeholderTextColor={colours.text.soft}
-                    onChangeText={setPhoneNumber}
+                    onChangeText={(text) => setPhoneNumber(text.replace(/\s+/g, ''))}
                     value={phoneNumber}
                 />
             </View>
@@ -107,18 +125,17 @@ export default function LoginScreen() {
 
     return (
         <>
-        {step === 'profileSetup' ? (
-            <ProfileSetupScreen />
-        ) : (
-        <SafeAreaView style={styles.container}>
-            <RamaBackView style={styles.container}>
-                <KeyboardAvoidingView
-                    style={styles.container}
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-                >
-                    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-                    
+            {step === 'profileSetup' ? (
+                <SetupProfileScreen />
+            ) : (
+                <SafeAreaView style={styles.container}>
+                    <RamaBackView style={styles.container}>
+                        <KeyboardAvoidingView
+                            style={styles.container}
+                            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+                        >
+                            <ScrollView contentContainerStyle={styles.scrollViewContent}>
                                 <View style={styles.logoContainer}>
                                     <Image
                                         source={require("../assets/images/logo.png")}
@@ -141,279 +158,74 @@ export default function LoginScreen() {
                                 <View style={styles.registerContainer}>
                                     <RamaText>Please note that due to high frequency of requests, You may not receive an OTP today. Please bear with us as we try to cope with the demand for our service</RamaText>
                                 </View>
-                        
-                    </ScrollView>
-                </KeyboardAvoidingView>
+                            </ScrollView>
+                        </KeyboardAvoidingView>
 
-                {isLoading && (
-                    <View style={styles.loadingOverlay}>
-                        <ActivityIndicator size="large" color={colours.primary} />
-                    </View>
-                )}
-            </RamaBackView>
-        </SafeAreaView>
-        )}
+                        {isLoading && (
+                            <View style={styles.loadingOverlay}>
+                                <ActivityIndicator size="large" color={colours.primary} />
+                            </View>
+                        )}
+                    </RamaBackView>
+                </SafeAreaView>
+            )}
         </>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
+        flex: 1,
     },
     scrollViewContent: {
-      flexGrow: 1,
-      padding: 20,
-      paddingTop: 48,
+        flexGrow: 1,
+        padding: 20,
+        paddingTop: 48,
     },
     logoContainer: {
-      alignSelf: "center",
-      alignItems: "center",
-      paddingVertical: 24,
-      gap: 12,
+        alignSelf: "center",
+        alignItems: "center",
+        paddingVertical: 24,
+        gap: 12,
     },
     logo: {
-      height: 48,
-      width: 48,
+        height: 48,
+        width: 48,
     },
     title: {
-      fontSize: 28,
+        fontSize: 28,
     },
     formContainer: {
-      marginTop: 48,
-      gap: 24,
+        marginTop: 48,
+        gap: 24,
     },
     inputContainer: {
-      gap: 8,
+        gap: 8,
     },
     inputLabel: {
-      fontWeight: "bold",
+        fontWeight: "bold",
     },
     registerContainer: {
-      alignItems: "center",
-      justifyContent: "center",
-      marginTop: 24,
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 24,
     },
     errorContainer: {
-      marginTop: 16,
-      padding: 8,
-      borderRadius: 8,
-      backgroundColor: 'rgba(255, 0, 0, 0.1)',
+        marginTop: 16,
+        padding: 8,
+        borderRadius: 8,
+        backgroundColor: 'rgba(255, 0, 0, 0.1)',
     },
     errorText: {
-      color: 'red',
-      textAlign: 'center',
+        color: 'red',
+        textAlign: 'center',
     },
     loadingOverlay: {
-      ...StyleSheet.absoluteFillObject,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      justifyContent: 'center',
-      alignItems: 'center',
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-  });
+});
 
-  interface ProfileData {
-    displayName: string;
-    profilePicture: string | null;
-  }
-
-  const ProfileSetupScreen: React.FC = () => {
-    const [profileData, setProfileData] = useState<ProfileData>({
-      displayName: '',
-      profilePicture: null,
-    });
-    const [isPicLoading, setPicIsLoading] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const {colourTheme, colours} = useTheme();
-    const {user} = useAuth();
-
-    if (user?.displayName) {
-        return <Redirect href={"/(app)"} />
-    }
-  
-    const handleImagePicker = async () => {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
-      if (permissionResult.granted === false) {
-        Alert.alert("WTF", "You've refused to allow Rama to access your photos! How dare you! Still gonna access them forcefully :) ");
-        //return;
-      }
-  
-      setPicIsLoading(true);
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
-  
-      setPicIsLoading(false);
-  
-      if (!result.canceled) {
-        setProfileData({ ...profileData, profilePicture: result.assets[0].uri });
-      }
-    };
-
-    const uploadImage = async (uri: string): Promise<string> => {
-        const response = await fetch(uri);
-        const blob = await response.blob();
-        const filename = `${user?.uid}_${Date.now()}`;
-        const ref = storage().ref(`user_profile_pictures/${filename}`);
-        await ref.put(blob);
-        return await ref.getDownloadURL();
-    };
-  
-    const handleSubmit = async () => {
-
-      setIsLoading(true);
-
-      await auth().currentUser?.updateProfile({displayName: profileData.displayName})
-      .then(()=> {
-        setIsLoading(false)
-        router.replace("/(app)")
-      })
-      .catch((err) => console.error("Error updating profile", err) )
-      .finally(()=> setIsLoading(false))
-        
-      console.log('Submitting profile data:', profileData);
-    };
-
-    const styles = StyleSheet.create({
-        container: {
-          flex: 1,
-        },
-        scrollContainer: {
-          flexGrow: 1,
-          padding: 20,
-          paddingTop: 80,
-          alignItems: 'center',
-        },
-        imageContainer: {
-          alignItems: 'center',
-          marginBottom: 60,
-        },
-        profileImage: {
-          width: 150,
-          height: 150,
-          borderRadius: 75,
-        },
-        addPhotoButton: {
-          marginTop: 10,
-        },
-        addPhotoText: {
-          color: '#007AFF',
-          fontSize: 16,
-        },
-        inputContainer: {
-          width: '100%',
-          marginBottom: 20,
-        },
-        label: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          marginBottom: 5,
-        },
-        input: {
-          backgroundColor: 'white',
-          borderWidth: 1,
-          borderColor: '#ddd',
-          borderRadius: 5,
-          padding: 10,
-          fontSize: 16,
-        },
-        submitButton: {
-          backgroundColor: '#007AFF',
-          paddingVertical: 12,
-          paddingHorizontal: 30,
-          borderRadius: 5,
-          marginTop: 20,
-        },
-        submitButtonText: {
-          color: 'white',
-          fontSize: 18,
-          fontWeight: 'bold',
-        },
-        loadingOverlay: {
-          ...StyleSheet.absoluteFillObject,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          justifyContent: 'center',
-          alignItems: 'center',
-        },
-      });
-  
-    return (
-      <SafeAreaView style={{flex: 1}}>
-          <RamaBackView style={{
-            flex: 1,
-            backgroundColor: colours.background.strong
-          }}>
-          <KeyboardAvoidingView
-              style={styles.container}
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-              keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-              >
-              <ScrollView contentContainerStyle={styles.scrollContainer}>
-                  <View style={styles.imageContainer}>
-                  {isPicLoading ? (
-                      <ActivityIndicator size={"small"} color={colours.primary} />
-                  ) : profileData.profilePicture ? (
-                      <Image source={{ uri: profileData.profilePicture }} style={styles.profileImage} />
-                  ) : (
-                      <View style={{
-                          width: 150,
-                          height: 150,
-                          borderRadius: 45,
-                          backgroundColor: colours.background.soft,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                      }}>
-                      <RamaText style={{
-                          color: '#757575',
-                          fontSize: 16,
-                      }}>No Photo</RamaText>
-                      </View>
-                  )}
-                  <TouchableOpacity style={styles.addPhotoButton} onPress={handleImagePicker}>
-                      <RamaText variant={"h3"} style={{color: colours.primary}}>
-                      {profileData.profilePicture ? 'Change Photo' : 'Add Photo'}
-                      </RamaText>
-                  </TouchableOpacity>
-                  </View>
-  
-                  <View style={{
-                      width: "100%",
-                      marginBottom: 40,
-                      gap: 12
-                  }}>
-                      <RamaText variant={"h3"} style={{left: 2}}>Display Name</RamaText>
-                      <RamaInput
-                          placeholder="Enter your display name"
-                          showCharacterCount
-                          showClearButton
-                          maxLength={20}
-                          onChangeText={(text) => setProfileData({...profileData, displayName: text})}
-                          value={profileData.displayName}
-                          leftIcon={<Ionicons name={"at"} color={colours.text.soft} size={20} />}
-                      />
-                  </View>
-  
-                  <View style={{
-                      width: "100%"
-                  }}>
-                      <RamaButton onPress={handleSubmit}>Continue</RamaButton>
-                  </View>
-  
-              </ScrollView>
-              </KeyboardAvoidingView>
-          </RamaBackView>
-          {isLoading && (
-              <View style={styles.loadingOverlay}>
-                  <ActivityIndicator size="large" color={colours.primary} />
-              </View>
-          )}
-      </SafeAreaView>
-    );
-  };
-  
-  
-  
+export default LoginScreen;

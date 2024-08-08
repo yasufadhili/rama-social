@@ -243,15 +243,12 @@ const PostCard: React.FC<PostCardProps> = ({
           <RamaHStack style={styles.leftActionButtons}>
             <TouchableOpacity style={styles.actionButton} onPress={handleLike} accessibilityLabel="Like post">
               <Ionicons name={"heart-outline"} color={colours.text.soft} size={26} />
-              <RamaText style={styles.counterText}>{likesCount}</RamaText>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton} onPress={handleComment} accessibilityLabel="Comment on post">
               <Ionicons name={"chatbox-ellipses-outline"} color={colours.text.soft} size={26} />
-              <RamaText style={styles.counterText}>{commentsCount}</RamaText>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton} onPress={handleShare} accessibilityLabel="Share post">
               <Ionicons name={"share-outline"} color={colours.text.soft} size={26} />
-              <RamaText style={styles.counterText}>{sharesCount}</RamaText>
             </TouchableOpacity>
           </RamaHStack>
           <RectButton onPress={openReactionMenu} style={styles.addReactionButton}>

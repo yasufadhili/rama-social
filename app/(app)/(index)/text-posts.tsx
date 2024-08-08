@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
-import { useAuth } from '@/context/AuthProvider';
 import { useTheme } from '@/context/ThemeContext';
 import { RamaText } from '@/components/Themed';
 import Reanimated, { useSharedValue, useAnimatedStyle, interpolateColor, withTiming } from 'react-native-reanimated';
@@ -11,12 +10,13 @@ import { StatusBar } from 'expo-status-bar';
 import RightFAB from '@/components/RightFAB';
 import { formatDistanceToNow } from 'date-fns';
 import TextPostCard, { TextPost } from './components/text-post-card';
+import auth from "@react-native-firebase/auth"
 
 export default function TextPostsFeedScreen() {
   const [posts, setPosts] = useState<TextPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const { user } = useAuth();
+  const  user  = auth().currentUser;
   const { colourTheme, colours } = useTheme();
 
   const fetchPosts = useCallback(async () => {
