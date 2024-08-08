@@ -22,40 +22,22 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
-  const [initialising, setInitialising] = useState<boolean>(true);
+  const [initialising, setInitialising] = useState<boolean>(false);
   const [userExistsInCollection, setUserExistsInCollection] = useState<boolean | null>(null);
 
+  function onAuthStateChanged(user: FirebaseAuthTypes.User | null) {
+    setUser(user);
+    if (initialising) setInitialising(false);
+  }
+
   useEffect(() => {
-    const unsubscribe = auth().onAuthStateChanged(async (user) => {
-      if (user) {
-        setUser(user);
-
-        // Check if the user exists in the Firestore collection
-        const userDoc = await firestore().collection('users').doc(user.uid).get();
-        if (userDoc.exists) {
-          setUserExistsInCollection(true);
-        } else {
-          setUserExistsInCollection(false);
-          // Optionally create a user document if not exists
-          // await firestore().collection('users').doc(user.uid).set({ /* initial user data */ });
-        }
-      } else {
-        setUser(null);
-        setUserExistsInCollection(null);
-      }
-      setInitialising(false);
-    });
-
-    return unsubscribe;
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber; // unsubscribe on unmount
   }, []);
 
   const signOut = useCallback(async () => {
-    try {
-      await auth().signOut();
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  }, []);
+    auth().signOut().then(()=> console.error('Signed out:'));
+    }, []);
 
   const value = useMemo(() => ({
     user,
@@ -63,8 +45,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initialising,
     userExistsInCollection,
   }), [user, signOut, initialising, userExistsInCollection]);
-
-  if (initialising) return <RamaSplashScreen />;
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
