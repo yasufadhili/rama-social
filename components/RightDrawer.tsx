@@ -9,9 +9,10 @@ import { SCREEN_WIDTH } from "@/constants/window";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
+import auth from "@react-native-firebase/auth";
 
 export default function RightDrawer(){
-    const {user} = useAuth();
+    const user = auth().currentUser;
     const navigation = useNavigation();
     const {colourTheme, colours} = useTheme();
     return <SafeAreaView style={{flex: 1}}>

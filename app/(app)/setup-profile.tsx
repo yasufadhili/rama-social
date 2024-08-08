@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAvoidingView, Platform, View, StyleSheet, ActivityIndicator, Alert } from "react-native";
@@ -188,3 +189,8 @@ const SetupProfileScreen: React.FC = () => {
 };
 
 export default SetupProfileScreen;
+=======
+export default function SetupUserProfile(){
+    return <RamaText>Setup User profile</RamaText>
+}
+>>>>>>> nav

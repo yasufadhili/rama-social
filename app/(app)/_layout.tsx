@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { Redirect, Stack } from 'expo-router';
@@ -81,6 +82,22 @@ export default function AppLayout() {
       }} />
       <Stack.Screen name="setup-profile" />
       <Stack.Screen name="coming-soon" options={{headerShown: true, title: ""}} />
+=======
+import { RamaText } from "@/components/Themed";
+import { useAuth } from "@/context/AuthProvider";
+import { Redirect, Stack } from "expo-router";
+import RamaSplashScreen from "../splash";
+
+export default function AppLayout(){
+    const {user, initialising} = useAuth();
+    if (initialising) {
+        return <RamaSplashScreen/>
+    }
+    if (!user) {
+        return <Redirect href={"/sign-in"} />
+    }
+    return <Stack>
+        
+>>>>>>> nav
     </Stack>
-  );
 }

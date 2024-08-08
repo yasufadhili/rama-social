@@ -11,6 +11,7 @@ import { Drawer } from 'expo-router/drawer';
 import RightDrawer from '@/components/RightDrawer';
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@/constants/window';
 import { StatusBar } from "expo-status-bar";
+import RamaSplashScreen from "./splash";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -26,7 +27,9 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({});
+  const [loaded, error] = useFonts({
+    "logo": require("../assets/fonts/Quicksand-Bold.ttf")
+  });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -40,16 +43,16 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null;
+    return <RamaSplashScreen />;
   }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider>
-        <AuthProvider>
-          <RootLayoutNav />
-        </AuthProvider>
-      </ThemeProvider>
+     <ThemeProvider>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+     </ThemeProvider>
     </GestureHandlerRootView>
   );
 }
@@ -57,6 +60,7 @@ export default function RootLayout() {
 function RootLayoutNav(){
   const {colourTheme, colours} = useTheme();
   return <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
+<<<<<<< HEAD
     <Drawer  drawerContent={()=><RightDrawer />} screenOptions={{
       headerShown: false,
       drawerPosition: "right",
@@ -68,7 +72,9 @@ function RootLayoutNav(){
       drawerType: "back"
     }} />
     {/**<StatusBar style={colourTheme === "dark" ? "light-content": "dark-content"} backgroundColor={colourTheme === "dark" ?colours.background.strong : colours.background.default} /> */}
+=======
+      <Slot />
+>>>>>>> nav
     <StatusBar style={colourTheme === "dark" ? "light" : "dark"} />
-    
   </NavigationThemeProvider>
 }
