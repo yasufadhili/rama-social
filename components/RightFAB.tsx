@@ -1,7 +1,6 @@
 import React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import { Feather, Ionicons } from "@expo/vector-icons";
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { Feather } from "@expo/vector-icons";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,20 +8,17 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from "react-native-reanimated";
-import { useTheme } from "../context/ThemeContext";
-import { router } from "expo-router";
 
 const SIZE = 300;
-const BUTTON_SIZE = 60;
+const BUTTON_SIZE = 58;
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const actionButtons = [
-  { iconName: "home", color: "#4CAF50" },
-  { iconName: "settings", color: "#FF9800" },
-  { iconName: "users", color: "#2196F3" },
+  { iconName: "mic", color: "#4CAF50" },
+  { iconName: "edit-2", color: "#FF9800" },
+  { iconName: "edit", color: "#2196F3" },
 ];
 
 const RightFAB = () => {
-  const {colours} = useTheme();
   const animationProgress = useSharedValue(0);
   const rotation = useSharedValue(0);
   const toggleMenu = () => {
@@ -54,7 +50,7 @@ const RightFAB = () => {
   const styles = StyleSheet.create({
     container: {
       borderRadius: SIZE / 2,
-      backgroundColor: colours.primary,
+      backgroundColor: "#F73B71",
       justifyContent: "center",
       alignItems: "center",
       position: "absolute",
@@ -67,18 +63,11 @@ const RightFAB = () => {
       borderRadius: BUTTON_SIZE / 2,
       justifyContent: "center",
       alignItems: "center",
-      backgroundColor: colours.primary,
+      backgroundColor: "#D24271",
       position: "absolute",
       bottom: 50,
       zIndex: 2,
       right: 25,
-      elevation: 5,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      paddingLeft:4,
-      paddingBottom: 2
     },
     actionButton: {
       width: BUTTON_SIZE,
@@ -95,8 +84,7 @@ const RightFAB = () => {
 
   return (
     <>
-      {/***
-       * {actionButtons.map((button, index) => (
+      {actionButtons.map((button, index) => (
         <AnimatedPressable
           onPress={toggleMenu}
           key={button.iconName}
@@ -108,10 +96,9 @@ const RightFAB = () => {
         >
           <Feather name={button.iconName} color={"white"} size={25} />
         </AnimatedPressable>
-        ))}
-       */}
-      <AnimatedPressable style={[styles.button]} onPress={() => router.navigate("/(create)")}>
-        <FontAwesome6 name="pen-to-square" size={24} color="#ffffff" />
+      ))}
+      <AnimatedPressable style={[styles.button]} onPress={toggleMenu}>
+        <Feather name={"edit-3"} color={"white"} size={25} />
       </AnimatedPressable>
     </>
   );

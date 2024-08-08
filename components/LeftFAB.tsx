@@ -1,7 +1,6 @@
-
 import React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import { MenuIcon, XIcon, HomeIcon, SettingsIcon, UsersIcon, PlusIcon, FolderIcon, BoltIcon } from "lucide-react-native";
+import { Feather } from "@expo/vector-icons";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,33 +8,30 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from "react-native-reanimated";
-import { useNavigation } from "@react-navigation/native";
-import { useTheme } from "../context/ThemeContext";
-
+import { useTheme } from "@/context/ThemeContext";
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const SIZE = 340;
-const BUTTON_SIZE = 60;
+const SIZE = 300;
+const BUTTON_SIZE = 58;
 const ANGLE_STEP = 40;
 
-
 const actionButtons = [
-  { IconComponent: SettingsIcon, color: "#FF9800", goTo: "SettingsScreen" },
-  { IconComponent: FolderIcon, color: "#FF9800", goTo: "FilesScreen" },
-  { IconComponent: UsersIcon, color: "#2196F3", goTo: "ContactsScreen" },
+  { iconName: "settings", color: "#FF9800" },
+  { iconName: "folder", color: "#4CAF50" },
+  { iconName: "users", color: "#2196F3" },
 ];
 
 const LeftFAB = () => {
-  const navigation = useNavigation();
   const {colours} = useTheme();
   const animationProgress = useSharedValue(0);
-  const rotation = useSharedValue(0);
 
-  const toggleMenu = () => {
+  const rotation = useSharedValue(0);
+  const toggleLeftMenu = () => {
     if (animationProgress.value === 0) {
       rotation.value = withTiming(45, { duration: 200 });
       animationProgress.value = withTiming(1, { duration: 300 });
     } else {
       rotation.value = withTiming(0, { duration: 200 });
+
       animationProgress.value = withTiming(0, { duration: 300 });
     }
   };
@@ -69,12 +65,12 @@ const LeftFAB = () => {
 
   const getActionButtonAnimatedStyles = (index: number) => {
     return useAnimatedStyle(() => {
-      const angleOffset = 48;
+      const angleOffset = 36;
       const angle =
-        200 -
-        (index * ANGLE_STEP * Math.PI) / 200 +
-        (angleOffset * Math.PI) / 200;
-      const radius = (SIZE / 3.0) * animationProgress.value;
+        150 -
+        (index * ANGLE_STEP * Math.PI) / 170 +
+        (angleOffset * Math.PI) / 180;
+      const radius = (SIZE / 3) * animationProgress.value;
 
       const translateX = radius * Math.cos(angle);
       const translateY = radius * Math.sin(angle);
@@ -85,7 +81,6 @@ const LeftFAB = () => {
       };
     });
   };
-
   const buttonAStyle = useAnimatedStyle(() => {
     return {
       transform: [{ rotate: `${rotation.value}deg` }],
@@ -95,7 +90,7 @@ const LeftFAB = () => {
   const styles = StyleSheet.create({
     container: {
       borderRadius: SIZE / 2,
-      backgroundColor: colours.secondary,
+      backgroundColor: "rgba(1,123,254,0.8)",
       justifyContent: "center",
       alignItems: "center",
       position: "absolute",
@@ -106,17 +101,11 @@ const LeftFAB = () => {
       borderRadius: BUTTON_SIZE / 2,
       justifyContent: "center",
       alignItems: "center",
-      backgroundColor: colours.secondary,
+      backgroundColor: "rgba(1,123,254,0.8)",
       position: "absolute",
       bottom: 50,
       zIndex: 2,
       left: 25,
-      elevation: 5,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-  
     },
     actionButton: {
       width: BUTTON_SIZE,
@@ -131,17 +120,16 @@ const LeftFAB = () => {
   return (
     <>
       <Animated.View style={[styles.container, containerAnimatedStyle]}>
-        {actionButtons.map((button, index) => {
-          const ActionButtonIcon = button.IconComponent;
-          const actionButtonAnimatedStyles = getActionButtonAnimatedStyles(index);
+        {actionButtons.map((icon, index) => {
+          const actionButtonAnimatedStyles =
+            getActionButtonAnimatedStyles(index);
           return (
             <AnimatedPressable
               key={index}
-              onPress={toggleMenu}
+              onPress={toggleLeftMenu}
               style={[styles.actionButton, actionButtonAnimatedStyles]}
-              onPressIn={()=> navigation.navigate(button.goTo as never)}
             >
-              <ActionButtonIcon color="white" size={26} />
+              <Feather name={icon.iconName} color={"white"} size={25} />
             </AnimatedPressable>
           );
         })}
@@ -149,18 +137,13 @@ const LeftFAB = () => {
 
       <AnimatedPressable
         style={[styles.button, buttonAStyle]}
-        onPress={toggleMenu}
+        onPress={toggleLeftMenu}
       >
-        {animationProgress.value > 0 ? (
-          <BoltIcon color={"white"} size={25} />
-        ) : (
-          <BoltIcon color={"white"} size={25} />
-        )}
+        <Feather name="plus" color={"white"} size={25} />
       </AnimatedPressable>
     </>
   );
 };
 
 export default LeftFAB;
-
 

@@ -12,6 +12,7 @@ export default function AppLayout(){
         return <Redirect href={"/sign-in"} />
     }
     return <Stack>
+        <Stack.Screen name={"index"} options={{headerShown: false}} />
         <Stack.Screen name={"setup-profile"} options={{headerShown: false}} />
     </Stack>
 }
