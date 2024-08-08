@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Alert, Pressable, StyleSheet, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Animated, {
   useAnimatedStyle,
@@ -8,14 +8,16 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from "react-native-reanimated";
+import { router } from "expo-router";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const SIZE = 300;
 const BUTTON_SIZE = 58;
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const actionButtons = [
-  { iconName: "mic", color: "#4CAF50" },
-  { iconName: "edit-2", color: "#FF9800" },
-  { iconName: "edit", color: "#2196F3" },
+  { iconName: "mic", color: "#4CAF50", onPress : ()=> Alert.alert("Coming soon :)") },
+  { iconName: "edit-2", color: "#FF9800", onPress: ()=>router.navigate("/(create-post)/text-post") },
+  { iconName: "edit", color: "#2196F3", onPress: ()=>router.navigate("/(create-post)/default-post") },
 ];
 
 const RightFAB = () => {
@@ -86,15 +88,15 @@ const RightFAB = () => {
     <>
       {actionButtons.map((button, index) => (
         <AnimatedPressable
-          onPress={toggleMenu}
+          onPress={button.onPress}
           key={button.iconName}
           style={[
             styles.actionButton,
             { backgroundColor: button.color },
             actionButtonAnimatedStyles[index],
           ]}
-        >
-          <Feather name={button.iconName} color={"white"} size={25} />
+        > 
+        <Feather name={button.iconName} color={"white"} size={25} />
         </AnimatedPressable>
       ))}
       <AnimatedPressable style={[styles.button]} onPress={toggleMenu}>

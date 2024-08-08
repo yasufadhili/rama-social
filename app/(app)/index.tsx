@@ -11,7 +11,6 @@ import RightFAB from "@/components/RightFAB";
 export default function FeedScreen() {
     const { signOut, userExistsInCollection } = useAuth();
     const {colours} = useTheme();
-    const [overlayVisible, setOverlayVisible] = useState<boolean>(false);
     if (userExistsInCollection === null) {
         return (
             <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

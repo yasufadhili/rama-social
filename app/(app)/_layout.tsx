@@ -13,6 +13,7 @@ export default function AppLayout(){
     }
     return <Stack>
         <Stack.Screen name={"index"} options={{headerShown: false}} />
+        <Stack.Screen name={"(create-post)"} options={{headerShown: false}} />
         <Stack.Screen name={"setup-profile"} options={{headerShown: false}} />
     </Stack>
 }
