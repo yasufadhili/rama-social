@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import { useAuth } from '@/context/AuthProvider';
@@ -18,6 +18,7 @@ export default function AllPostsFeedList() {
   const { user } = useAuth();
   const { colourTheme, colours } = useTheme();
   const listRef = useRef<FlatList>(null);
+  const scrollPosition = useSharedValue(0);
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -46,7 +47,7 @@ export default function AllPostsFeedList() {
       const fetchedPosts = await Promise.all(postPromises);
 
       if (posts.length && fetchedPosts.length && fetchedPosts[0].id !== posts[0].id) {
-        setNewPostsAvailable(true); 
+        setNewPostsAvailable(true);
       }
 
       setPosts(fetchedPosts);
@@ -99,8 +100,10 @@ export default function AllPostsFeedList() {
   }, [fetchPosts, user]);
 
   const scrollToTop = () => {
-    listRef.current?.scrollToOffset({ offset: 0, animated: true });
-    setNewPostsAvailable(false); // Hide the button after scrolling
+    if (listRef.current) {
+      listRef.current.scrollToOffset({ offset: 0, animated: true });
+      setNewPostsAvailable(false); // Hide the button after scrolling
+    }
   };
 
   const animatedButtonStyle = useAnimatedStyle(() => {
@@ -108,7 +111,23 @@ export default function AllPostsFeedList() {
       opacity: withTiming(newPostsAvailable ? 1 : 0, { duration: 500 }),
       transform: [{ translateY: withTiming(newPostsAvailable ? 0 : 100, { duration: 500 }) }],
     };
-  }, [newPostsAvailable]);
+  }, [newPostsAvailable, scrollPosition]);
+  useEffect(() => {
+    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      scrollPosition.value = event.nativeEvent.contentOffset.y;
+    };
+
+    const flatList = listRef.current;
+    if (flatList) {
+      flatList.props.onScroll = handleScroll;
+    }
+
+    return () => {
+      if (flatList) {
+        flatList.props.onScroll = undefined;
+      }
+    };
+  }, [listRef, scrollPosition]);
 
   if (loading) {
     return (

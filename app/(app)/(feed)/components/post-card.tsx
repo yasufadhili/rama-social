@@ -52,7 +52,9 @@ export type TextBlock = {
       animationProgress.value = withTiming(1, { duration: 1000 });
     }, []);
   
-    const timeAgo = formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true });
+    const timeAgo = item.createdAt?.toDate()  
+    ? formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true })
+    : '';
   
     const renderContent = () => {
       switch (item.post_type) {
