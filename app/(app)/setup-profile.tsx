@@ -28,6 +28,19 @@ const SetupProfileScreen: React.FC = () => {
         return <Redirect href={"/(app)"} />;
     }
 
+    const uploadImage = async (assetUri: string): Promise<string> => {
+        try {
+            const response = await fetch(assetUri);
+            const blob = await response.blob();
+            const storageRef = storage().ref(`profile_pics/${user?.uid}/${Date.now()}`);
+            await storageRef.put(blob);
+            const downloadUrl = await storageRef.getDownloadURL();
+            return downloadUrl;
+        } catch (error) {
+            throw new Error("Image upload failed");
+        }
+    };
+
     const handleImagePicker = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -43,24 +56,9 @@ const SetupProfileScreen: React.FC = () => {
         });
 
         if (!result.canceled) {
-            setPicIsLoading(true);
-
-            try {
-                const asset = result.assets[0];
-                if (asset.uri) {
-                    const response = await fetch(asset.uri);
-                    const blob = await response.blob();
-                    const storageRef = storage().ref(`profile_pics/${user?.uid}/${Date.now()}`);
-                    await storageRef.put(blob);
-                    const downloadUrl = await storageRef.getDownloadURL();
-
-                    setProfileData({ ...profileData, profilePicture: downloadUrl });
-                }
-            } catch (error) {
-                Alert.alert("Upload Failed", "An error occurred while uploading the profile picture. Please try again.");
-                console.error("Image upload error:", error);
-            } finally {
-                setPicIsLoading(false);
+            const asset = result.assets[0];
+            if (asset.uri) {
+                setProfileData({ ...profileData, profilePicture: asset.uri });
             }
         }
     };
@@ -82,10 +80,21 @@ const SetupProfileScreen: React.FC = () => {
                 throw new Error("No authenticated user found.");
             }
 
-            await currentUser.updateProfile({ displayName, photoURL: profilePicture });
+            let downloadUrl = null;
+            if (profilePicture) {
+                setPicIsLoading(true);
+                downloadUrl = await uploadImage(profilePicture);
+                setPicIsLoading(false);
+            }
+
+            await currentUser.updateProfile({
+                displayName,
+                photoURL: downloadUrl,
+            });
+
             await firestore().collection('users').doc(currentUser.uid).set({
                 displayName,
-                profilePicture,
+                profilePicture: downloadUrl,
                 phoneNumber: currentUser.phoneNumber,
             });
 
@@ -130,12 +139,18 @@ const SetupProfileScreen: React.FC = () => {
                                 value={profileData.displayName}
                             />
                         </View>
-                        <RamaButton onPress={handleSaveProfile} disabled={isLoading}>
-                            {isLoading ? 'Saving...' : 'Save Profile'}
+                        <RamaButton onPress={handleSaveProfile} disabled={isLoading || isPicLoading}>
+                            {isLoading || isPicLoading ? 'Saving...' : 'Save Profile'}
                         </RamaButton>
                     </View>
                 </ScrollView>
+
             </RamaBackView>
+            {isLoading && (
+                        <View style={styles.loadingOverlay}>
+                            <ActivityIndicator size="large" color={colours.primary} />
+                        </View>
+                    )}
         </SafeAreaView>
     );
 };
@@ -147,7 +162,7 @@ const styles = StyleSheet.create({
     scrollViewContent: {
         flexGrow: 1,
         padding: 20,
-        paddingTop: 48,
+        paddingTop: 88,
     },
     formContainer: {
         marginTop: 48,
@@ -192,6 +207,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         alignSelf: "center",
         textAlign: "center"
+    },
+    loadingOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

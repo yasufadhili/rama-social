@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -15,13 +15,17 @@ const SECONDARY_COLOR = '#793BCC';
 const BACKGROUND_COLOR = '#070812';
 
 const RamaSplashScreen = () => {
+  const [isMinimumTimeReached, setIsMinimumTimeReached] = useState(false);
   const logoScale = useSharedValue(0);
   const fadeInOut = useSharedValue(0);
   const floatingY = useSharedValue(0);
   const floatingDirection = useRef(1);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const minimumTime = 5000;
+
+    // Start animations after a short delay
+    const animationTimer = setTimeout(() => {
       logoScale.value = withTiming(1, {
         duration: 1000,
         easing: Easing.out(Easing.ease),
@@ -45,7 +49,14 @@ const RamaSplashScreen = () => {
       floatingY.value = floatingAnimation;
     }, 500);
 
-    return () => clearTimeout(timer);
+    const minimumTimeTimer = setTimeout(() => {
+      setIsMinimumTimeReached(true);
+    }, minimumTime);
+
+    return () => {
+      clearTimeout(animationTimer);
+      clearTimeout(minimumTimeTimer);
+    };
   }, [logoScale, fadeInOut, floatingY]);
 
   const logoAnimatedStyle = useAnimatedStyle(() => ({
