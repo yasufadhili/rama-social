@@ -11,8 +11,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "../context/ThemeContext";
 import { router } from "expo-router";
-import { useAuth } from "@/context/AuthProvider";
-
 
 const SIZE = 300;
 const BUTTON_SIZE = 60;
@@ -25,7 +23,6 @@ const actionButtons = [
 
 const RightFAB = () => {
   const {colours} = useTheme();
-  const {user, signOut} = useAuth();
   const animationProgress = useSharedValue(0);
   const rotation = useSharedValue(0);
   const toggleMenu = () => {
@@ -113,7 +110,7 @@ const RightFAB = () => {
         </AnimatedPressable>
         ))}
        */}
-      <AnimatedPressable style={[styles.button]} onPress={()=> router.navigate("/(create)")}>
+      <AnimatedPressable style={[styles.button]} onPress={() => router.navigate("/(create)")}>
         <FontAwesome6 name="pen-to-square" size={24} color="#ffffff" />
       </AnimatedPressable>
     </>

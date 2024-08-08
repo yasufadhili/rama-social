@@ -60,21 +60,7 @@ export default function RootLayout() {
 function RootLayoutNav(){
   const {colourTheme, colours} = useTheme();
   return <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
-<<<<<<< HEAD
-    <Drawer  drawerContent={()=><RightDrawer />} screenOptions={{
-      headerShown: false,
-      drawerPosition: "right",
-      swipeEdgeWidth: SCREEN_WIDTH / SCREEN_WIDTH ,
-      drawerStyle: {
-        width: "100%",  
-      },
-      
-      drawerType: "back"
-    }} />
-    {/**<StatusBar style={colourTheme === "dark" ? "light-content": "dark-content"} backgroundColor={colourTheme === "dark" ?colours.background.strong : colours.background.default} /> */}
-=======
       <Slot />
->>>>>>> nav
     <StatusBar style={colourTheme === "dark" ? "light" : "dark"} />
   </NavigationThemeProvider>
 }
