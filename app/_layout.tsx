@@ -11,6 +11,7 @@ import { Drawer } from 'expo-router/drawer';
 import RightDrawer from '@/components/RightDrawer';
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@/constants/window';
 import { StatusBar } from "expo-status-bar";
+import RamaSplashScreen from "./splash";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -26,7 +27,9 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({});
+  const [loaded, error] = useFonts({
+    "logo": require("../assets/fonts/Quicksand-Bold.ttf")
+  });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -40,7 +43,7 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null;
+    return <RamaSplashScreen />;
   }
 
   return (
