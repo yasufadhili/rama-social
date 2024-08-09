@@ -13,10 +13,11 @@ export default function FeedScreen() {
     const {colours, colourTheme} = useTheme();
     const [fabState, setFabState] = useState({ open: false });
 
-  const onFabStateChange = ({ open }) => setFabState({ open });
+  const onFabStateChange = ({ open }: {open : boolean}) => setFabState({ open });
 
   const { open } = fabState;
-    if (userExistsInCollection === null) {
+    {/**
+        if (userExistsInCollection === null) {
         return (
             <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                 <ActivityIndicator color={colours.primary} size="large" />
@@ -27,6 +28,7 @@ export default function FeedScreen() {
     if (userExistsInCollection === false) {
         return <Redirect href={"/setup-profile"} />;
     }
+         */}
     return (
 
         <>

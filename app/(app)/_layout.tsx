@@ -15,7 +15,7 @@ export default function AppLayout(){
     if (!user) {
         return <Redirect href={"/sign-in"} />
     }
-    return <Stack>
+    return <Stack screenOptions={{headerShown: false}}>
         <Stack.Screen name={"index"} options={{
             headerLeft: ()=> <HomeHeaderLeft />,
             headerShown: true,
@@ -27,8 +27,9 @@ export default function AppLayout(){
             },
             
             }}  />
-        <Stack.Screen name={"(create-post)"} options={{headerShown: false}} />
-        <Stack.Screen name={"(settings)"} options={{headerShown: false}} />
-        <Stack.Screen name={"setup-profile"} options={{headerShown: false}} />
+        <Stack.Screen name={"(create-post)"}  />
+        <Stack.Screen name={"(settings)"}  />
+        <Stack.Screen name={"(profile)"}/>
+        <Stack.Screen name={"setup-profile"} />
     </Stack>
 }

@@ -4,6 +4,7 @@ import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Reanimated, { FadeIn } from 'react-native-reanimated';
 import { RamaButton, RamaCard, RamaText } from '@/components/Themed';
 import { useTheme } from '@/context/ThemeContext';
+import { router } from 'expo-router';
 
 type ListItemProps = {
   icon: React.ReactNode;
@@ -41,7 +42,10 @@ const Header: React.FC = () => {
   const { user } = useAuth();
   return (
     <RamaCard>
-      <TouchableOpacity activeOpacity={.5} style={styles.headerContainer}>
+      <TouchableOpacity onPress={()=> router.navigate({
+        pathname: "/(profile)/[userId]",
+        params: { userId:  user?.uid}
+      })} activeOpacity={.5} style={styles.headerContainer}>
         <View style={styles.profileContainer}>
           <Image
             source={{ uri: user?.photoURL ? `${user?.photoURL}` : 'https://via.placeholder.com/150' }}
@@ -68,6 +72,7 @@ const SettingsScreen: React.FC = () => {
     <Reanimated.ScrollView entering={FadeIn.duration(1000)} style={{flex: 1}} contentContainerStyle={{
       paddingVertical: 26,
       paddingHorizontal: 12,
+      backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default
     }}>
       <Header />
 
