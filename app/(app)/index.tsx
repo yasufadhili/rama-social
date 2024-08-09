@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert } from 'react-native';
-import { router } from 'expo-router';
-import { FAB, Modal, Portal } from 'react-native-paper';
-import { RamaBackView, RamaHStack, RamaText } from '@/components/Themed';
-import { useTheme } from '@/context/ThemeContext';
-import { useAuth } from '@/context/AuthProvider';
-import * as Contacts from 'expo-contacts';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import firestore from '@react-native-firebase/firestore';
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Alert } from "react-native";
+import { router } from "expo-router";
+import { FAB, Modal, Portal } from "react-native-paper";
+import { RamaBackView, RamaHStack, RamaText } from "@/components/Themed";
+import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthProvider";
+import * as Contacts from "expo-contacts";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import firestore from "@react-native-firebase/firestore";
 
 export default function FeedScreen() {
     const { user } = useAuth();
@@ -24,7 +24,7 @@ export default function FeedScreen() {
             try {
                 // Request contacts permission
                 const { status } = await Contacts.requestPermissionsAsync();
-                if (status !== 'granted') {
+                if (status !== "granted") {
                     Alert.alert("Permission Denied", "Cannot access contacts.");
                     return;
                 }
@@ -44,17 +44,17 @@ export default function FeedScreen() {
                         return acc;
                     }, [] as string[]);
 
-                    const cachedPhoneNumbers = await AsyncStorage.getItem('cachedPhoneNumbers');
+                    const cachedPhoneNumbers = await AsyncStorage.getItem("cachedPhoneNumbers");
                     const cachedData = cachedPhoneNumbers ? JSON.parse(cachedPhoneNumbers) : [];
 
-                    // Check if there's a change and update backend
+                    // Check if there"s a change and update backend
                     if (JSON.stringify(newPhoneNumbers) !== JSON.stringify(cachedData)) {
-                        await firestore().collection('user_contacts').doc(user?.uid).set({
+                        await firestore().collection("user_contacts").doc(user?.uid).set({
                             phoneNumbers: newPhoneNumbers,
                         });
 
                         // Update local cache
-                        await AsyncStorage.setItem('cachedPhoneNumbers', JSON.stringify(newPhoneNumbers));
+                        await AsyncStorage.setItem("cachedPhoneNumbers", JSON.stringify(newPhoneNumbers));
                         Alert.alert("Sync Complete", "Your contacts have been synced.");
                     }
                 }
