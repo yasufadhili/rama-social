@@ -1,6 +1,17 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode, useMemo, useCallback } from 'react';
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  ReactNode,
+  useMemo,
+  useCallback,
+} from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const USER_EXIXTS_IN_COLLECTION = "@user_exists_in_collection";
 
 type AuthContextType = {
   user: FirebaseAuthTypes.User | null;
@@ -26,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   function onAuthStateChanged(user: FirebaseAuthTypes.User | null) {
     setUser(user);
-    if (initialising) setTimeout(()=> {setInitialising(false)}, 5000); // Just to make the user at least se the splash screen
+    if (initialising) setTimeout(() => { setInitialising(false) }, 3000);
   }
 
   useEffect(() => {
@@ -38,8 +49,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkUserExists = async () => {
       if (user) {
         try {
-          const exists = await checkUserDocumentExists();
-          setUserExistsInCollection(exists);
+          const exists = await getUserExistsFromStorage();
+
+          if (exists === null) {
+            // No local data, check backend
+            const existsInBackend = await checkUserDocumentExists();
+            await saveUserExistsToStorage(existsInBackend);
+            setUserExistsInCollection(existsInBackend);
+          } else {
+            // Use local data
+            setUserExistsInCollection(exists);
+          }
         } catch (error) {
           console.error("Failed to check user document:", error);
         }
@@ -50,6 +70,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     checkUserExists();
   }, [user]);
+
+  const getUserExistsFromStorage = async (): Promise<boolean | null> => {
+    try {
+      const value = await AsyncStorage.getItem(USER_EXIXTS_IN_COLLECTION);
+      return value !== null ? JSON.parse(value) : null;
+    } catch (error) {
+      console.error("Error retrieving user existence from storage:", error);
+      return null;
+    }
+  };
+
+  const saveUserExistsToStorage = async (exists: boolean): Promise<void> => {
+    try {
+      await AsyncStorage.setItem(USER_EXIXTS_IN_COLLECTION, JSON.stringify(exists));
+    } catch (error) {
+      console.error("Error saving user existence to storage:", error);
+    }
+  };
 
   const checkUserDocumentExists = async (): Promise<boolean> => {
     try {
@@ -70,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     try {
       await auth().signOut();
+      await AsyncStorage.removeItem(USER_EXIXTS_IN_COLLECTION);
       console.log('Signed out successfully');
     } catch (error) {
       console.error('Sign out error:', error);
