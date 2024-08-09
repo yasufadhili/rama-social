@@ -7,6 +7,8 @@ import { useTheme } from "@/context/ThemeContext";
 import { useState } from "react";
 import AllPostsFeedList from "./(feed)";
 import { FAB } from "react-native-paper";
+import { RamaBackView } from "@/components/Themed";
+import MainFeedScreen from "./(feed)/main-feed";
 
 export default function FeedScreen() {
     const { signOut, userExistsInCollection } = useAuth();
@@ -32,10 +34,8 @@ export default function FeedScreen() {
     return (
 
         <>
-        <SafeAreaView style={{flex: 1, backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default}}>
-            
-
-
+        <RamaBackView style={{flex: 1, backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default}}>
+            <MainFeedScreen />
                 <FAB.Group
                 open={open}
                 color="#ffffff"
@@ -84,7 +84,7 @@ export default function FeedScreen() {
                     }
                 }}
                 />
-        </SafeAreaView>
+        </RamaBackView>
         </>
     );
 }

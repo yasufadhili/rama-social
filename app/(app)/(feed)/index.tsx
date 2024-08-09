@@ -1,5 +1,14 @@
+{/** This code as various issues, 
+  I need you to update it to follow best practices in react native expo, typescript to make sure that this screen is performant, functional and user friendly in all aspects
+  Improve everything that needs improvements, from the caching system, fetching system, online/offline utilities and more features you think are needed
+  
+  Only provide updated and improvements based on tcode from indutry experts. Make sure the code is fully functional in all ascpects.
+  Use typescriptlike an expert by getting from the experts.
+  
+  Get from top social media apps using react native to find ways to improve this code */}
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import { useAuth } from '@/context/AuthProvider';
@@ -8,56 +17,100 @@ import { RamaText } from '@/components/Themed';
 import Reanimated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import PostCard, { TPost } from './components/post-card';
+import _ from "lodash";
 
 export default function AllPostsFeedList() {
   const [posts, setPosts] = useState<TPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [newPostsAvailable, setNewPostsAvailable] = useState(false);
+  const [lastVisible, setLastVisible] = useState(null);
   const { user } = useAuth();
   const { colourTheme, colours } = useTheme();
   const listRef = useRef<FlatList>(null);
   const scrollPosition = useSharedValue(0);
+  const isConnected = true; 
 
-  const fetchPosts = useCallback(async () => {
+  const savePostsToCache = async (posts) => {
     try {
-      const snapshot = await firestore()
-        .collection('posts')
-        .orderBy('createdAt', 'desc')
-        .limit(20)
-        .get();
-
-      const postPromises = snapshot.docs.map(async (doc) => {
-        const postData = doc.data() as TPost;
-        const creatorSnapshot = await firestore().collection('users').doc(postData.creatorId).get();
-        const creatorData = creatorSnapshot.data();
-        return {
-          ...postData,
-          id: doc.id,
-          creatorName: creatorData?.displayName || 'Anonymous',
-          textBlocks: postData.textBlocks || [],
-          gradientColours: postData.gradientColours || ['#000000', '#000000'],
-          likes: postData.likes || 0,
-          comments: postData.comments || 0,
-          saves: postData.saves || 0,
-        };
-      });
-
-      const fetchedPosts = await Promise.all(postPromises);
-
-      if (posts.length && fetchedPosts.length && fetchedPosts[0].id !== posts[0].id) {
-        setNewPostsAvailable(true);
-      }
-
-      setPosts(fetchedPosts);
+      await AsyncStorage.setItem('cachedPosts', JSON.stringify(posts));
     } catch (error) {
-      console.error('Error fetching posts:', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+      console.error('Error saving posts to cache:', error);
     }
-  }, [posts]);
+  };
+
+  const getPostsFromCache = async () => {
+    try {
+      const cachedPosts = await AsyncStorage.getItem('cachedPosts');
+      return cachedPosts ? JSON.parse(cachedPosts) : [];
+    } catch (error) {
+      console.error('Error getting posts from cache:', error);
+      return [];
+    }
+  };
+
+  const fetchPosts = useCallback(async (refresh = false) => {
+    if (refresh) {
+        setLastVisible(null);
+        setPosts([]); // Ensure posts is always an array
+    }
+    setLoading(true);
+
+    try {
+        let query = firestore()
+            .collection('posts')
+            .orderBy('createdAt', 'desc')
+            .limit(20);
+
+        if (lastVisible) {
+            query = query.startAfter(lastVisible);
+        }
+
+        const snapshot = await query.get();
+
+        // Check if the snapshot contains any documents
+        if (snapshot && !snapshot.empty) {
+            const newPosts = snapshot.docs.map(doc => {
+                const postData = doc.data() as TPost;
+                return {
+                    ...postData,
+                    id: doc.id,
+                };
+            });
+
+            setPosts(prevPosts => [...(prevPosts || []), ...newPosts]);
+            setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
+            await savePostsToCache(newPosts);
+        } else if (!refresh) {
+            // If no new posts and not refreshing, use cached posts
+            const cachedPosts = await getPostsFromCache();
+            setPosts(cachedPosts);
+        }
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        const cachedPosts = await getPostsFromCache();
+        setPosts(cachedPosts || []);
+        Alert.alert(
+            'Error',
+            'Failed to load posts. Please try again.',
+            [
+                { text: 'Retry', onPress: () => fetchPosts() },
+                { text: 'Cancel', style: 'cancel' }
+            ]
+        );
+    } finally {
+        setLoading(false);
+        setRefreshing(false);
+    }
+  }, [lastVisible]);
+
+  const loadMorePosts = () => {
+    if (!loading && lastVisible) {
+      fetchPosts();
+    }
+  };
 
   useEffect(() => {
     fetchPosts();
@@ -71,33 +124,28 @@ export default function AllPostsFeedList() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    fetchPosts();
+    fetchPosts(true);
   }, [fetchPosts]);
 
   const handlePostAction = useCallback(async (action: string, postId: string) => {
+    const originalPosts = [...posts];
+    setPosts(prevPosts =>
+      prevPosts.map(post =>
+        post.id === postId ? { ...post, [action]: post[action] + 1 } : post
+      )
+    );
+
     try {
-      const postRef = firestore().collection('posts').doc(postId);
       const userId = user?.uid;
-
-      if (action === 'like') {
-        await firestore().collection('post_likes').doc(postId).update({
-          likes: firestore.FieldValue.arrayUnion(userId),
-        });
-      } else if (action === 'save') {
-        await firestore().collection('post_saves').doc(postId).update({
-          saves: firestore.FieldValue.arrayUnion(userId),
-        });
-      } else if (action === 'star') {
-        await firestore().collection('post_stars').doc(postId).update({
-          stars: firestore.FieldValue.arrayUnion(userId),
-        });
-      }
-
-      fetchPosts();
+      const postRef = firestore().collection('posts').doc(postId);
+      await postRef.update({
+        [action]: firestore.FieldValue.increment(1),
+      });
     } catch (error) {
       console.error(`Error handling ${action} action:`, error);
+      setPosts(originalPosts); // Revert state if update fails
     }
-  }, [fetchPosts, user]);
+  }, [posts, user]);
 
   const scrollToTop = () => {
     if (listRef.current) {
@@ -112,6 +160,7 @@ export default function AllPostsFeedList() {
       transform: [{ translateY: withTiming(newPostsAvailable ? 0 : 100, { duration: 500 }) }],
     };
   }, [newPostsAvailable, scrollPosition]);
+
   useEffect(() => {
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       scrollPosition.value = event.nativeEvent.contentOffset.y;
@@ -129,17 +178,22 @@ export default function AllPostsFeedList() {
     };
   }, [listRef, scrollPosition]);
 
-  if (loading) {
+  if (loading && !refreshing) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colours.primary} />
+        <ActivityIndicator size="small" color={colours.primary} />
+        <RamaText style={styles.loadingText}>Loading posts...</RamaText>
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colours.background.default }]}>
-      <StatusBar style={colourTheme === 'dark' ? 'light' : 'dark'} />
+    <>
+      {!isConnected && (
+        <View style={styles.offlineBanner}>
+          <RamaText style={styles.offlineText}>You are offline. Showing cached posts.</RamaText>
+        </View>
+      )}
       <FlatList
         ref={listRef}
         data={posts}
@@ -147,12 +201,9 @@ export default function AllPostsFeedList() {
         keyExtractor={(item) => item.id}
         refreshing={refreshing}
         onRefresh={onRefresh}
+        onEndReached={loadMorePosts}
+        onEndReachedThreshold={0.5}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
-        ListHeaderComponent={
-          <RamaText style={styles.headerText} variant="h1">
-            Latest Posts
-          </RamaText>
-        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <RamaText style={styles.emptyText}>No posts found.</RamaText>
@@ -164,23 +215,20 @@ export default function AllPostsFeedList() {
           <Ionicons name="arrow-up-circle" size={50} color={colours.primary} />
         </TouchableOpacity>
       </Reanimated.View>
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    padding: 16,
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#999',
   },
   separator: {
     height: 1,
@@ -201,5 +249,13 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 20,
     backgroundColor: 'transparent',
+  },
+  offlineBanner: {
+    backgroundColor: '#f8d7da',
+    padding: 10,
+  },
+  offlineText: {
+    color: '#721c24',
+    textAlign: 'center',
   },
 });
