@@ -15,6 +15,7 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from 'react-native-reanimated';
+import { router } from 'expo-router';
 
 interface ShortCutsSectionProps {
   isOpen: boolean;
@@ -108,17 +109,19 @@ const HomeHeader: React.FC = () => {
         <RNImage source={require('../assets/images/logo.png')} style={styles.logo} />
         <RamaText style={styles.logoText}>Rama</RamaText>
       </View>
-      <RectButton
-        onPress={toggleShortcutsSection}
-        style={[styles.profileButton, { borderColor: isOnline ? '#3a9d29' : '#e77723' }]}
-      >
-        <Image
-          style={styles.profileButtonImage}
-          source="https://picsum.photos/seed/696/3000/2000"
-          contentFit="cover"
-          transition={1000}
-        />
-      </RectButton>
+      <RamaHStack>
+        <RectButton
+          onPress={()=> router.navigate("/(settings)")}
+          style={[styles.profileButton, { borderColor: isOnline ? '#3a9d29' : '#e77723' }]}
+        >
+          <Image
+            style={styles.profileButtonImage}
+            source="https://picsum.photos/seed/696/3000/2000"
+            contentFit="cover"
+            transition={1000}
+          />
+        </RectButton>
+      </RamaHStack>
     </View>
   );
 };

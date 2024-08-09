@@ -8,6 +8,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { useState } from "react";
 import RightFAB from "@/components/RightFAB";
 import AllPostsFeedList from "./(feed)";
+import HomeHeader from "@/components/HomeHeader";
 
 export default function FeedScreen() {
     const { signOut, userExistsInCollection } = useAuth();
@@ -25,6 +26,7 @@ export default function FeedScreen() {
     }
     return (
         <SafeAreaView style={{flex: 1}}>
+            <HomeHeader />
             <AllPostsFeedList />
             <RightFAB />
         </SafeAreaView>
