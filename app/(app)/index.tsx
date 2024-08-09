@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthProvider";
 import * as Contacts from "expo-contacts";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import firestore from "@react-native-firebase/firestore";
+import PostFeed from "./(feed)/main-feed";
 
 export default function FeedScreen() {
     const { user } = useAuth();
@@ -83,6 +84,7 @@ export default function FeedScreen() {
                 </Modal>
             </Portal>
             <RamaBackView style={{ flex: 1, backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default }}>
+                <PostFeed />
                 <FAB.Group
                     open={fabState.open}
                     color="#ffffff"

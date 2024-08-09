@@ -2,11 +2,9 @@ import { RamaText } from "@/components/Themed";
 import { Ionicons } from "@expo/vector-icons";
 import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { formatDistanceToNow } from "date-fns";
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import firestore from '@react-native-firebase/firestore';
-
 import Reanimated, { 
     interpolateColor, useAnimatedStyle, useSharedValue, withTiming 
 } from "react-native-reanimated";
@@ -21,9 +19,9 @@ export type TextBlock = {
       textDecorationLine: 'none' | 'underline';
       fontSize: number;
     };
-  };
+};
   
-  export type TPost = {
+export type TPost = {
     id: string;
     textBlocks: TextBlock[];
     gradientColours: string[];
@@ -34,10 +32,10 @@ export type TextBlock = {
     comments: number;
     saves: number;
     post_type: 'text' | 'default' | 'audio';
-  };
+};
 
-  const PostCard = React.memo(({ item, onAction }: { item: TPost; onAction: (action: string, postId: string) => void }) => {
-    const {user} = useAuth();
+const PostCard: React.FC<{ item: TPost; onAction: (action: string, postId: string) => void }> = ({ item, onAction }) => {
+    const { user } = useAuth();
     const animationProgress = useSharedValue(0);
   
     const gradientStyle = useAnimatedStyle(() => ({
@@ -46,15 +44,15 @@ export type TextBlock = {
         [0, 1],
         item.gradientColours
       ),
-    }));
+    }), [item.gradientColours]);
   
     useEffect(() => {
       animationProgress.value = withTiming(1, { duration: 1000 });
     }, []);
   
-    const timeAgo = item.createdAt?.toDate()  
-    ? formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true })
-    : '';
+    const timeAgo = item.createdAt.toDate()  
+      ? formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true })
+      : '';
   
     const renderContent = () => {
       switch (item.post_type) {
@@ -65,12 +63,6 @@ export type TextBlock = {
             </RamaText>
           ));
         case 'default':
-          return (
-            <View style={styles.audioContainer}>
-              <Ionicons name="musical-notes-outline" size={40} color="#ffffff" />
-              <RamaText style={styles.audioText}>Audio Post</RamaText>
-            </View>
-          );
         case 'audio':
           return (
             <View style={styles.audioContainer}>
@@ -97,40 +89,20 @@ export type TextBlock = {
           {renderContent()}
         </View>
         <View style={styles.actionsContainer}>
-          <TouchableOpacity onPress={() => onAction('like', item.id)} style={styles.actionButton}>
-            <Ionicons name="heart-outline" size={24} color="#ffffff" />
-            <RamaText style={styles.actionText}>{item.likes}</RamaText>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => onAction('comment', item.id)} style={styles.actionButton}>
-            <Ionicons name="chatbubble-outline" size={24} color="#ffffff" />
-            <RamaText style={styles.actionText}>{item.comments}</RamaText>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => onAction('save', item.id)} style={styles.actionButton}>
-            <Ionicons name="bookmark-outline" size={24} color="#ffffff" />
-            <RamaText style={styles.actionText}>{item.saves}</RamaText>
-          </TouchableOpacity>
+          {['like', 'comment', 'save'].map(action => (
+            <TouchableOpacity key={action} onPress={() => onAction(action, item.id)} style={styles.actionButton}>
+              <Ionicons name={`${action}-outline`} size={24} color="#ffffff" />
+              <RamaText style={styles.actionText}>{item[`${action}s`]}</RamaText>
+            </TouchableOpacity>
+          ))}
         </View>
       </Reanimated.View>
     );
-  });
+};
 
 export default PostCard;
 
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    headerText: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      padding: 16,
-    },
+const styles = StyleSheet.create({
     postContainer: {
       marginHorizontal: 16,
       marginVertical: 8,
@@ -173,20 +145,6 @@ export default PostCard;
       color: '#ffffff',
       marginLeft: 4,
     },
-    separator: {
-      height: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    },
-    emptyContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 16,
-    },
-    emptyText: {
-      fontSize: 18,
-      textAlign: 'center',
-    },
     audioContainer: {
       alignItems: 'center',
       justifyContent: 'center',
@@ -201,4 +159,4 @@ export default PostCard;
       textAlign: 'center',
       padding: 16,
     },
-  });
+});

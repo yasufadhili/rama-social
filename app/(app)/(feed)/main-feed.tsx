@@ -1,7 +1,10 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { FlatList, Text, View, ActivityIndicator, RefreshControl, Button } from "react-native";
+import React, { useEffect, useState, useCallback, memo } from "react";
+import { FlatList, Text, View, ActivityIndicator, RefreshControl, Button, StyleSheet } from "react-native";
 import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import debounce from "lodash.debounce";
+import { useAuth } from "@/context/AuthProvider";
+import { useTheme } from "@/context/ThemeContext";
 
 const PAGE_SIZE = 10;
 const CACHE_KEY = "POST_FEED_CACHE";
@@ -20,7 +23,23 @@ interface Post {
   createdAt: FirebaseFirestoreTypes.Timestamp;
 }
 
+const PostItem: React.FC<{ post: Post; likes: number; comments: Comment[]; onLike: () => void; onComment: () => void }> = memo(({ post, likes, comments, onLike, onComment }) => (
+  <View style={styles.postItem}>
+    <Text>{post.content}</Text>
+    <Text>Likes: {likes}</Text>
+    <Button title="Like" onPress={onLike} />
+    <Button title="Comment" onPress={onComment} />
+    {comments.map(comment => (
+      <View key={comment.id} style={styles.comment}>
+        <Text>{comment.comment}</Text>
+      </View>
+    ))}
+  </View>
+));
+
 const PostFeed: React.FC = () => {
+  const {colourTheme, colours} = useTheme();
+  const {user} = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [likes, setLikes] = useState<{ [key: string]: number }>({});
   const [comments, setComments] = useState<{ [key: string]: Comment[] }>({});
@@ -40,6 +59,7 @@ const PostFeed: React.FC = () => {
   const loadCachedPosts = async () => {
     try {
       const cachedData = await AsyncStorage.getItem(CACHE_KEY);
+      console.log("Cached posts", cachedData)
       return cachedData ? JSON.parse(cachedData) : [];
     } catch (error) {
       console.error("Failed to load cached posts:", error);
@@ -47,11 +67,12 @@ const PostFeed: React.FC = () => {
     }
   };
 
-  const fetchPosts = useCallback(async (isRefreshing = false) => {
+  const fetchPosts = useCallback(debounce(async (isRefreshing = false) => {
     setLoading(true);
     try {
+      let cachedPosts = [];
       if (!isRefreshing) {
-        const cachedPosts = await loadCachedPosts();
+        cachedPosts = await loadCachedPosts();
         setPosts(cachedPosts);
       }
 
@@ -73,7 +94,6 @@ const PostFeed: React.FC = () => {
         const newLikes: { [key: string]: number } = {};
         const newComments: { [key: string]: Comment[] } = {};
 
-        // Fetch likes and comments for each post
         await Promise.all(fetchedPosts.map(async (post) => {
           const likesSnapshot = await firestore()
             .collection("likes")
@@ -88,7 +108,7 @@ const PostFeed: React.FC = () => {
             .orderBy("createdAt", "asc")
             .get();
 
-            newComments[post.id] = commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Comment[];
+          newComments[post.id] = commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Comment[];
         }));
 
         setLikes(prevLikes => ({ ...prevLikes, ...newLikes }));
@@ -110,7 +130,7 @@ const PostFeed: React.FC = () => {
         setRefreshing(false);
       }
     }
-  }, [lastVisible]);
+  }, 500), [lastVisible]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -126,7 +146,7 @@ const PostFeed: React.FC = () => {
 
   const handleLike = async (postId: string) => {
     try {
-      const userId = "currentUserId";
+      const userId = user?.uid; 
       const likeRef = firestore().collection("likes").doc(`${userId}_${postId}`);
 
       const likeDoc = await likeRef.get();
@@ -152,7 +172,7 @@ const PostFeed: React.FC = () => {
 
   const handleComment = async (postId: string, commentText: string) => {
     try {
-      const userId = "currentUserId"; // Replace with the actual current user ID
+      const userId = user?.uid;
       const commentRef = firestore().collection("comments").doc();
 
       const newComment: Comment = {
@@ -190,39 +210,44 @@ const PostFeed: React.FC = () => {
     fetchPosts();
 
     return () => unsubscribe();
-  }, []);
+  }, [fetchPosts]);
 
   return (
-    <View style={{ flex: 1 }}>
-      {newPostsAvailable && (
-        <Button title="New Posts Available" onPress={onRefresh} />
-      )}
+    <View style={styles.container}>
 
       <FlatList
         data={posts}
         renderItem={({ item }) => (
-          <View style={{ padding: 16, borderBottomWidth: 1, borderColor: "#ccc" }}>
-            <Text>{item.content}</Text>
-            <Text>Likes: {likes[item.id] || 0}</Text>
-            <Button title="Like" onPress={() => handleLike(item.id)} />
-            <Button title="Comment" onPress={() => handleComment(item.id, "Great post!")} />
-            {comments[item.id]?.map(comment => (
-              <View key={comment.id} style={{ marginTop: 8 }}>
-                <Text>{comment.comment}</Text>
-              </View>
-            ))}
-          </View>
+          <PostItem
+            post={item}
+            likes={likes[item.id] || 0}
+            comments={comments[item.id] || []}
+            onLike={() => handleLike(item.id)}
+            onComment={() => handleComment(item.id, "Great post!")}
+          />
         )}
         keyExtractor={(item) => item.id}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={()=> loading && <ActivityIndicator size="large" />}
+        ListFooterComponent={() => loading && <ActivityIndicator color={colours.primary} size="small" />}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       />
     </View>
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  postItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+  },
+  comment: {
+    marginTop: 8,
+  },
+});
+
 export default PostFeed;
-
-
