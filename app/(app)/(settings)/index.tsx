@@ -62,6 +62,7 @@ const Header: React.FC = () => {
 
 const SettingsScreen: React.FC = () => {
   const { colourTheme, colours } = useTheme();
+  const {signOut} = useAuth();
 
   return (
     <Reanimated.ScrollView entering={FadeIn.duration(1000)} style={{flex: 1}} contentContainerStyle={{
@@ -102,9 +103,7 @@ const SettingsScreen: React.FC = () => {
 
       {/* Sign Out Section */}
       <Section title="">
-        <RamaButton variant={"primary"} onPress={() => {
-            
-        }}>Sign Out</RamaButton>
+        <RamaButton variant={"primary"} onPress={signOut}>Sign Out</RamaButton>
       </Section>
     </Reanimated.ScrollView>
   );
@@ -139,7 +138,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#FFFFFF',
     borderRadius: 8,
     marginBottom: 8,
   },

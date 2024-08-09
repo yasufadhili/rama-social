@@ -30,8 +30,9 @@ export default function FeedScreen() {
     return (
 
         <>
-        <SafeAreaView style={{flex: 1}}>
-                <AllPostsFeedList />
+        <SafeAreaView style={{flex: 1, backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default}}>
+            
+
 
                 <FAB.Group
                 open={open}
