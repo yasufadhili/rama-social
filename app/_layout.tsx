@@ -1,15 +1,11 @@
 import "@/gesture-handler";
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { router, Slot, SplashScreen, Stack, useSegments } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { Slot, SplashScreen } from 'expo-router';
+import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ThemeProvider, { useTheme } from '@/context/ThemeContext';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import AuthProvider from '@/context/AuthProvider';
-import { Drawer } from 'expo-router/drawer';
-import RightDrawer from '@/components/RightDrawer';
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@/constants/window';
 import { StatusBar } from "expo-status-bar";
 import RamaSplashScreen from "./splash";
 
