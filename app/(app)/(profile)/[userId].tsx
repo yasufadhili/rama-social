@@ -104,7 +104,6 @@ const ProfileDetailsScreen = () => {
         displayName: {
             fontSize: 24,
             fontWeight: 'bold',
-            color: '#333',
             marginBottom: 4,
         },
         phoneNumber: {
@@ -200,7 +199,7 @@ const ProfileDetailsScreen = () => {
                     </View>
 
                     <View style={styles.profileSection}>
-                        <TouchableWithoutFeedback style={{width: 120, height: 120, marginBottom: 24, borderRadius: 45, backgroundColor: colours.background.soft}}>
+                        <TouchableWithoutFeedback style={{width: 120, borderWidth: 1, borderColor: "#f1f1f1", height: 120, marginBottom: 24, borderRadius: 45, backgroundColor: colours.background.soft}}>
                         <Image
                             source={{ uri: `${profileData.profilePicture}` }}
                             style={{

@@ -9,6 +9,7 @@ import {
 import {Image} from "expo-image";
 import { useTheme } from "../context/ThemeContext";
 import { router } from "expo-router";
+import { useAuth } from "@/context/AuthProvider";
 
 
 const blurhash =
@@ -16,6 +17,7 @@ const blurhash =
 
 
 export default function HomeHeaderRight(){
+    const {user} = useAuth();
     const {colours} = useTheme();
     /** Have a utility to determine if the user has an internet connection or not and then update in real time basing on the connectivity status */
     const isOnline = false;
@@ -26,17 +28,17 @@ export default function HomeHeaderRight(){
 
     }} >
 
-        <RectButton onPress={()=> router.navigate("/(settings)")} style={{
-            width: 32,
-            height: 32,
+        <RectButton onPress={()=> router.navigate(`/(profile)/${user?.uid}`)} style={{
+            width: 38,
+            height: 38,
             alignItems: "center",
             justifyContent: "center",
             alignContent: "center",
             borderRadius: 24,
             backgroundColor: "#ddd",
             borderWidth: 1,
-            borderColor: isOnline ? "#3a9d29" : "#e77723"
-            
+            //borderColor: isOnline ? "#3a9d29" : "#e77723"
+            borderColor: colours.primary
         }}>
         <Image
             style={{
@@ -47,7 +49,7 @@ export default function HomeHeaderRight(){
                 borderWidth: 1,
                 borderColor: "transparent"
             }}
-            source="https://picsum.photos/seed/696/3000/2000"
+            source={user?.photoURL}
             placeholder={{ blurhash }}
             contentFit="cover"
             transition={1000}
