@@ -35,7 +35,7 @@ export default function HomeHeaderRight(){
             alignItems: "center",
             justifyContent: "center",
             alignContent: "center",
-            borderRadius: 24,
+            borderRadius: 14,
             backgroundColor: "#ddd",
             borderWidth: 1,
             //borderColor: isOnline ? "#3a9d29" : "#e77723"
@@ -46,7 +46,7 @@ export default function HomeHeaderRight(){
                 flex: 1,
                 width: '100%',
                 backgroundColor: '#0553',
-                borderRadius: 24,
+                borderRadius: 14,
                 borderWidth: 1,
                 borderColor: "transparent"
             }}

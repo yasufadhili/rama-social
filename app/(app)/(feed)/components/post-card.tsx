@@ -6,38 +6,11 @@ import { useTheme } from "@/context/ThemeContext";
 import { RamaHStack, RamaText, RamaVStack } from "@/components/Themed";
 import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import firestore from "@react-native-firebase/firestore";
+import { Post } from "../types";
 
 const screenWidth = Dimensions.get("window").width;
 
 
-export interface TextBlock {
-  id: string;
-  text: string;
-  style: {
-    fontWeight: "normal" | "bold";
-    fontStyle: "normal" | "italic";
-    textDecorationLine: "none" | "underline";
-    fontSize: number;
-  };
-}
-
-export interface Post {
-  id: string;
-  creator: PostCreator;
-  content: string;
-  textBlocks: TextBlock[];
-  gradientColours: string[];
-  mediaUrls: string[];
-  post_type: "text" | "default" | "audio" | "image" | "video";
-  createdAt: FirebaseFirestoreTypes.Timestamp;
-}
-
-export interface PostCreator {
-  uid: string;
-  displayName: string;
-  pictureUrl: string;
-  phoneNumber: string;
-}
 
 export interface PostCardProps {
   item: Post;
@@ -49,11 +22,6 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
   const [shared, setShared] = useState(false);
   const [replied, setReplied] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [authorData, setAuthorData] = useState({
-    profilePicture: '',
-    displayName: '',
-    phoneNumber: '',
-});
   const { colours } = useTheme();
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -180,15 +148,15 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
         <RamaHStack style={styles.userContainer}>
           <TouchableOpacity 
             onPress={() => router.navigate(`/(profile)`)} 
-            style={styles.userImageContainer}
+            style={[{backgroundColor: colours.background.soft},styles.userImageContainer]}
             accessible
             accessibilityLabel={""}
           >
-            <Image source={{ uri: "https://firebasestorage.googleapis.com/v0/b/rama-social.appspot.com/o/posts%2FAK8w9gWqMCclFprn2tjawMP5ZJm2%2F1723271508458_0?alt=media&token=dab4492f-0b10-4e49-9852-16fa66ae9be0" }} style={styles.userImage} />
+            <Image source={{ uri: item.creatorPictureUrl || "https://picsum.photos/40" }} style={styles.userImage} />
           </TouchableOpacity>
           <RamaVStack>
             <RamaText style={{ ...styles.userName, color: colours.text.default }}>
-              {authorData.displayName}
+              {item.creatorDisplayName || "Anonymous"}
             </RamaText>
             <RamaText style={{ ...styles.userHandle, color: colours.text.soft }} variant={"p4"}>
               2 minutes ago
@@ -298,6 +266,7 @@ const styles = StyleSheet.create({
       width: 42,
       height: 42,
       borderRadius: 12,
+      borderWidth: 1
     },
     userImage: {
       width: 42,
@@ -306,7 +275,7 @@ const styles = StyleSheet.create({
     },
     userName: {
       fontFamily: "Bold",
-      fontSize: 14,
+      fontSize: 16,
     },
     userHandle: {
       fontFamily: "Medium",
