@@ -1,13 +1,25 @@
-import React, { useEffect, useState, useCallback, memo } from "react";
-import { FlatList, Text, View, ActivityIndicator, RefreshControl, Button, StyleSheet } from "react-native";
+{/** Restructure this code to be well organised and styled */}
+
+import React, { useEffect, useState, useCallback, memo, useMemo, useRef } from "react";
+import { FlatList, Text, View, ActivityIndicator, RefreshControl, Modal, Button, StyleSheet, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import debounce from "lodash.debounce";
 import { useAuth } from "@/context/AuthProvider";
 import { useTheme } from "@/context/ThemeContext";
+import { RamaCard, RamaHStack, RamaText, RamaVStack } from "@/components/Themed";
+import { Image } from "expo-image";
+import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
+import Animated, { Easing, interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { Video } from 'expo-av';
+import { SCREEN_WIDTH } from "@/constants/window";
+import PagerView from "react-native-pager-view";
 
-const PAGE_SIZE = 10;
-const CACHE_KEY = "POST_FEED_CACHE";
+
+const BATCH_SIZE = 10;
+const screenWidth = Dimensions.get("window").width;
+
 
 interface Comment {
   id: string;
@@ -16,227 +28,481 @@ interface Comment {
   createdAt: FirebaseFirestoreTypes.Timestamp;
 }
 
-interface Post {
+export interface TextBlock {
+  id: string;
+  text: string;
+  style: {
+    fontWeight: "normal" | "bold";
+    fontStyle: "normal" | "italic";
+    textDecorationLine: "none" | "underline";
+    fontSize: number;
+  };
+}
+
+export interface Post {
   id: string;
   userId: string;
   content: string;
+  textBlocks: TextBlock[];
+  gradientColours: string[];
+  mediaUrls: string[];
+  post_type: "text" | "default" | "audio" | "image" | "video";
   createdAt: FirebaseFirestoreTypes.Timestamp;
 }
 
-const PostItem: React.FC<{ post: Post; likes: number; comments: Comment[]; onLike: () => void; onComment: () => void }> = memo(({ post, likes, comments, onLike, onComment }) => (
-  <View style={styles.postItem}>
-    <Text>{post.content}</Text>
-    <Text>Likes: {likes}</Text>
-    <Button title="Like" onPress={onLike} />
-    <Button title="Comment" onPress={onComment} />
-    {comments.map(comment => (
-      <View key={comment.id} style={styles.comment}>
-        <Text>{comment.comment}</Text>
+export interface User {
+  id: string;
+  name: string;
+  avatar: string;
+}
+
+export interface PostCardProps {
+  item: Post;
+  onImagePress: (images: string[], index: number) => void;
+}
+
+interface ImageViewerProps {
+  images: string[];
+  initialIndex: number;
+  onClose: () => void;
+}
+
+
+const ImageViewer: React.FC<ImageViewerProps> = ({ images, initialIndex, onClose }) => {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [loading, setLoading] = useState(true);
+
+  const handleImageLoad = () => {
+    setLoading(false);
+  };
+
+  return (
+    <Modal statusBarTranslucent visible={true} transparent={true}>
+      <View style={{
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.9)",
+        justifyContent: "center",
+        alignItems: "center",
+      }}>
+        
+        <PagerView
+          style={styles.pagerView}
+          initialPage={initialIndex}
+          onPageSelected={e => {
+            setCurrentIndex(e.nativeEvent.position);
+            setLoading(true);
+          }}
+        >
+          {images.map((image, index) => (
+            <View key={index} style={{
+              flex: 1,
+            }}>
+              {loading && (
+                <View style={styles.loaderContainer}>
+                  <ActivityIndicator size="large" color="#ffffff" />
+                </View>
+              )}
+              <Image
+                source={{ uri: image }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  resizeMode: "contain",
+                }}
+                onLoad={handleImageLoad}
+              />
+            </View>
+          ))}
+        </PagerView>
+
+        <TouchableOpacity onPress={onClose} style={{
+          position: "absolute",
+          top: 20,
+          right: 20,
+          padding: 10,
+          backgroundColor: "white",
+          borderRadius: 5,
+        }}>
+          <AntDesign name="close" color="#000" size={16} />
+        </TouchableOpacity>
+
+        <RamaText style={{
+          position: "absolute",
+          bottom: 40,
+          color: "white",
+          fontSize: 16,
+        }}>{`${currentIndex + 1} / ${images.length}`}</RamaText>
+
+        {/* Modal Image Carousel Indicators */}
+        <View style={styles.modalIndicatorContainer}>
+          {images.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.modalIndicator,
+                { backgroundColor: index === currentIndex ? "#fff" : "#ccc" },
+              ]}
+            />
+          ))}
+        </View>
       </View>
-    ))}
-  </View>
-));
+    </Modal>
+  );
+};
+
+
+const PostCard: React.FC<PostCardProps> = React.memo(({ item, onImagePress }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const { colours } = useTheme();
+
+  const handleImagePress = useCallback((index: number) => {
+    setCurrentImageIndex(index);
+    onImagePress(item.mediaUrls, index);
+  }, [item.mediaUrls, onImagePress]);
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    const index = Math.round(contentOffsetX / screenWidth);
+    setCurrentImageIndex(index);
+  }, []);
+
+  const renderImages = () => (
+    <View style={{flex: 1, }}>
+      <ScrollView
+        ref={scrollViewRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        style={{ width: screenWidth, height: screenWidth }}
+      >
+        {item.mediaUrls.map((image, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => handleImagePress(index)}
+            style={{
+              width: screenWidth,
+              height: screenWidth,
+            }}
+            accessible
+            accessibilityLabel={`Image ${index + 1} of ${item.mediaUrls.length}`}
+            activeOpacity={.8}
+          >
+            <Image
+              source={{ uri: image }}
+              style={{width: "100%",
+                height: "100%",}}
+            />
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+      {item.mediaUrls.length > 1 && renderImageCount()}
+    </View>
+  );
+
+  const renderIndicators = () => (
+    <View style={styles.indicatorsContainer}>
+      {item.mediaUrls.map((_, index) => (
+        <View
+          key={index}
+          style={{
+            ...styles.indicator,
+            backgroundColor: index === currentImageIndex ? colours.primary : colours.text.soft,
+          }}
+        />
+      ))}
+    </View>
+  );
+
+  const renderImageCount = () => (
+    <View style={styles.imageCountContainer}>
+      <RamaText style={{ color: "#f1f1f1", fontSize: 14 }}>{`${currentImageIndex + 1}/${item.mediaUrls.length}`}</RamaText>
+    </View>
+  );
+
+
+  const renderContent = useMemo(() => {
+    switch (item.post_type) {
+      case "text":
+        return (
+          <Animated.View style={[styles.textContent]}>
+            <Animated.View style={{}} />
+            {item.textBlocks.map((block: any, index: number) => (
+              <RamaText key={index} style={[styles.textBlock, block.style]}>
+                {block.text}
+              </RamaText>
+            ))}
+          </Animated.View>
+        );
+      case "default":
+        return (
+          <>
+          {item.mediaUrls.length > 0 && renderImages()}
+
+          <View>
+            {item.mediaUrls.length > 1 && renderIndicators()}
+          </View>
+          </>
+        );
+      case "audio":
+        return (
+          <View>
+            <Ionicons name="musical-notes-outline" size={40} color="#ffffff" />
+            <RamaText>Audio Post</RamaText>
+          </View>
+        );
+      default:
+        return (
+          <RamaText>
+            Media type not yet supported on this version of Rama :) Working on it though
+          </RamaText>
+        );
+    }
+  }, [item]);
+
+  {/**
+    const handleLike = useCallback(() => {
+    onLike(item.id);
+  }, [item.id, onLike]); */}
+
+  return (
+    <RamaCard style={styles.card}>
+      <RamaHStack style={styles.header}>
+        <RamaHStack>
+          <TouchableOpacity style={[styles.avatar, { backgroundColor: colours.background.soft }]}>
+            <Image
+              source={{ uri: "https://via.placeholder.com/40" }}
+              style={styles.avatarImage}
+              accessibilityLabel="User avatar"
+            />
+          </TouchableOpacity>
+          <RamaVStack>
+            <RamaText variant="h3" numberOfLines={1}>Yasu Fadhili</RamaText>
+            <RamaText variant="p2">A few moments ago</RamaText>
+          </RamaVStack>
+        </RamaHStack>
+        <TouchableOpacity onPress={()=> console.log("Liking")} accessibilityLabel="Like post">
+          <Ionicons name="heart-outline" color={colours.text.soft} size={20} style={styles.likeIcon} />
+        </TouchableOpacity>
+      </RamaHStack>
+      <View style={styles.body}>
+        {renderContent}
+      </View>
+    </RamaCard>
+  );
+});
+
+
 
 const PostFeed: React.FC = () => {
   const {colourTheme, colours} = useTheme();
   const {user} = useAuth();
+  
   const [posts, setPosts] = useState<Post[]>([]);
-  const [likes, setLikes] = useState<{ [key: string]: number }>({});
-  const [comments, setComments] = useState<{ [key: string]: Comment[] }>({});
-  const [loading, setLoading] = useState<boolean>(false);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [lastVisible, setLastVisible] = useState<any>(null);
-  const [newPostsAvailable, setNewPostsAvailable] = useState<boolean>(false);
+  const [lastVisible, setLastVisible] = useState<FirebaseFirestoreTypes.QueryDocumentSnapshot | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [endReached, setEndReached] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<string[] | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);  
 
-  const cachePosts = async (posts: Post[]) => {
-    try {
-      await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(posts));
-    } catch (error) {
-      console.error("Failed to cache posts:", error);
-    }
-  };
+  const fetchPosts = useCallback(async (refresh: boolean = false) => {
+    if (loading || (endReached && !refresh)) return;
 
-  const loadCachedPosts = async () => {
-    try {
-      const cachedData = await AsyncStorage.getItem(CACHE_KEY);
-      console.log("Cached posts", cachedData)
-      return cachedData ? JSON.parse(cachedData) : [];
-    } catch (error) {
-      console.error("Failed to load cached posts:", error);
-      return [];
-    }
-  };
-
-  const fetchPosts = useCallback(debounce(async (isRefreshing = false) => {
     setLoading(true);
     try {
-      let cachedPosts = [];
-      if (!isRefreshing) {
-        cachedPosts = await loadCachedPosts();
-        setPosts(cachedPosts);
-      }
+      let query = firestore().collection("posts").orderBy("createdAt", "desc").limit(BATCH_SIZE);
 
-      let query = firestore()
-        .collection("posts")
-        .orderBy("createdAt", "desc")
-        .limit(PAGE_SIZE);
-
-      if (lastVisible && !isRefreshing) {
+      if (!refresh && lastVisible) {
         query = query.startAfter(lastVisible);
       }
 
       const snapshot = await query.get();
 
-      if (!snapshot.empty) {
-        const fetchedPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Post[];
-        setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
-
-        const newLikes: { [key: string]: number } = {};
-        const newComments: { [key: string]: Comment[] } = {};
-
-        await Promise.all(fetchedPosts.map(async (post) => {
-          const likesSnapshot = await firestore()
-            .collection("likes")
-            .where("postId", "==", post.id)
-            .get();
-
-          newLikes[post.id] = likesSnapshot.size;
-
-          const commentsSnapshot = await firestore()
-            .collection("comments")
-            .where("postId", "==", post.id)
-            .orderBy("createdAt", "asc")
-            .get();
-
-          newComments[post.id] = commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Comment[];
-        }));
-
-        setLikes(prevLikes => ({ ...prevLikes, ...newLikes }));
-        setComments(prevComments => ({ ...prevComments, ...newComments }));
-
-        if (isRefreshing) {
-          setPosts(fetchedPosts);
-        } else {
-          setPosts(prevPosts => [...prevPosts, ...fetchedPosts]);
-        }
-
-        cachePosts(isRefreshing ? fetchedPosts : [...posts, ...fetchedPosts]);
+      if (snapshot.empty) {
+        setEndReached(true);
+        setLoading(false);
+        return;
       }
+
+      const newPosts = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Post));
+
+      setPosts(prevPosts => refresh ? newPosts : [...prevPosts, ...newPosts]);
+      setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
+      setEndReached(false);
     } catch (error) {
-      console.error("Failed to fetch posts:", error);
+      console.error("Error fetching posts:", error);
     } finally {
       setLoading(false);
-      if (isRefreshing) {
-        setRefreshing(false);
-      }
+      setRefreshing(false);
     }
-  }, 500), [lastVisible]);
+  }, [lastVisible, loading, endReached]);
 
-  const onRefresh = () => {
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const handleRefresh = useCallback(() => {
     setRefreshing(true);
     setLastVisible(null);
+    setEndReached(false);
     fetchPosts(true);
-  };
+  }, [fetchPosts]);
 
-  const onEndReached = () => {
-    if (!loading) {
+  const handleEndReached = () => {
+    if (!endReached) {
       fetchPosts();
     }
   };
 
-  const handleLike = async (postId: string) => {
-    try {
-      const userId = user?.uid; 
-      const likeRef = firestore().collection("likes").doc(`${userId}_${postId}`);
+  const renderItem = useCallback(({ item }: { item: Post }) => (
+    <PostCard onImagePress={handleImagePress} item={item} />
+  ), []);
+  
 
-      const likeDoc = await likeRef.get();
-
-      if (!likeDoc.exists) {
-        await likeRef.set({
-          postId,
-          userId,
-          createdAt: firestore.FieldValue.serverTimestamp(),
-        });
-
-        setLikes(prevLikes => ({
-          ...prevLikes,
-          [postId]: (prevLikes[postId] || 0) + 1,
-        }));
-      } else {
-        console.log("User already liked this post");
-      }
-    } catch (error) {
-      console.error("Failed to like post:", error);
-    }
+  const renderFooter = () => {
+    if (!loading) return null;
+    return (
+      <View style={{
+        padding: 16,
+        alignItems: "center",
+      }}>
+        <ActivityIndicator size="small" />
+      </View>
+    );
   };
 
-  const handleComment = async (postId: string, commentText: string) => {
-    try {
-      const userId = user?.uid;
-      const commentRef = firestore().collection("comments").doc();
 
-      const newComment: Comment = {
-        id: commentRef.id,
-        userId,
-        comment: commentText,
-        createdAt: firestore.FieldValue.serverTimestamp() as any,
-      };
-
-      await commentRef.set({
-        postId,
-        ...newComment,
-      });
-
-      setComments(prevComments => ({
-        ...prevComments,
-        [postId]: [...(prevComments[postId] || []), newComment],
-      }));
-    } catch (error) {
-      console.error("Failed to add comment:", error);
-    }
+  const handleImagePress = (images: string[], index: number) => {
+    setSelectedImages(images);
+    setSelectedImageIndex(index);
   };
 
-  useEffect(() => {
-    const unsubscribe = firestore()
-      .collection("posts")
-      .orderBy("createdAt", "desc")
-      .limit(1)
-      .onSnapshot(snapshot => {
-        if (!snapshot.empty) {
-          setNewPostsAvailable(true);
-        }
-      });
-
-    fetchPosts();
-
-    return () => unsubscribe();
-  }, [fetchPosts]);
+  const closeImageViewer = () => {
+    setSelectedImages(null);
+  };
+  
+  
 
   return (
     <View style={styles.container}>
 
       <FlatList
         data={posts}
-        renderItem={({ item }) => (
-          <PostItem
-            post={item}
-            likes={likes[item.id] || 0}
-            comments={comments[item.id] || []}
-            onLike={() => handleLike(item.id)}
-            onComment={() => handleComment(item.id, "Great post!")}
-          />
-        )}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        onEndReached={onEndReached}
+        onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
         ListFooterComponent={() => loading && <ActivityIndicator color={colours.primary} size="small" />}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+        contentContainerStyle={{paddingTop: 14}}
       />
+      {selectedImages && (
+        <ImageViewer
+          images={selectedImages}
+          initialIndex={selectedImageIndex}
+          onClose={closeImageViewer}
+        />
+      )}
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // ImageViewer styles
+  modalIndicatorContainer: {
+    position: "absolute",
+    bottom: 20,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+  },
+  modalIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginHorizontal: 4,
+  },
+  loaderContainer: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -25 }, { translateY: -25 }],
+    zIndex: 10,
+  },
+  pagerView: {
+    flex: 1,
+    width: SCREEN_WIDTH,
+  },
+
+  // PostCard styles
+  card: {
+    marginBottom: 4,
+    paddingTop: 12,
+  },
+  header: {
+    width: "100%",
+    justifyContent: "space-between",
+  },
+  avatar: {
+    height: 48,
+    width: 48,
+    borderRadius: 24,
+  },
+  avatarImage: {
+    height: "100%",
+    width: "100%",
+    flex: 1,
+    borderRadius: 24,
+  },
+  likeIcon: {
+    marginRight: 12,
+  },
+  body: {
+    paddingTop: 8,
+  },
+  textContent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 12,
+    borderRadius: 24,
+    paddingVertical: 48,
+  },
+  textBlock: {
+    color: "#ffffff",
+    textAlign: "center",
+  },
+  indicatorsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 8,
+    marginTop: -24,
+  },
+  indicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+  },
+  imageCountContainer: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    backgroundColor: "#333",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+
+  // PostFeed styles
   container: {
     flex: 1,
   },
@@ -244,9 +510,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderColor: "#ccc",
-  },
-  comment: {
-    marginTop: 8,
   },
 });
 
