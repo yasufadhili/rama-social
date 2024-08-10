@@ -18,7 +18,7 @@ import Reanimated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import PostCard, { TPost } from './components/post-card';
+import PostCard, { TPost } from './components/post-card1';
 import _ from "lodash";
 
 export default function AllPostsFeedList() {

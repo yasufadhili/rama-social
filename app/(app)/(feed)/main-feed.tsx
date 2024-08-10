@@ -78,13 +78,24 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ images, initialIndex, onClose
 
   return (
     <Modal statusBarTranslucent visible={true} transparent={true}>
+      
       <View style={{
         flex: 1,
         backgroundColor: "rgba(0, 0, 0, 0.9)",
         justifyContent: "center",
         alignItems: "center",
       }}>
-        
+        <TouchableOpacity onPress={onClose} style={{
+          position: "absolute",
+          top: 20,
+          right: 20,
+          padding: 10,
+          backgroundColor: "white",
+          borderRadius: 5,
+          justifyContent: "flex-start"
+        }}>
+          <AntDesign name="close" color="#000" size={16} />
+        </TouchableOpacity>
         <PagerView
           style={styles.pagerView}
           initialPage={initialIndex}
@@ -93,6 +104,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ images, initialIndex, onClose
             setLoading(true);
           }}
         >
+          
           {images.map((image, index) => (
             <View key={index} style={{
               flex: 1,
@@ -109,22 +121,12 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ images, initialIndex, onClose
                   height: "100%",
                   resizeMode: "contain",
                 }}
+                contentFit={"contain"}
                 onLoad={handleImageLoad}
               />
             </View>
           ))}
         </PagerView>
-
-        <TouchableOpacity onPress={onClose} style={{
-          position: "absolute",
-          top: 20,
-          right: 20,
-          padding: 10,
-          backgroundColor: "white",
-          borderRadius: 5,
-        }}>
-          <AntDesign name="close" color="#000" size={16} />
-        </TouchableOpacity>
 
         <RamaText style={{
           position: "absolute",
@@ -243,6 +245,9 @@ const PostCard: React.FC<PostCardProps> = React.memo(({ item, onImagePress }) =>
 
           <View>
             {item.mediaUrls.length > 1 && renderIndicators()}
+          </View>
+          <View style={{marginVertical: 12}}>
+            <RamaText variant="p1">{item.content}</RamaText>
           </View>
           </>
         );
