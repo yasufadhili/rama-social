@@ -116,7 +116,7 @@ export const RamaCard: React.FC<RamaCardProps> = ({ elevation = 2, style, childr
       paddingHorizontal: 8,
       paddingVertical: 16,
       borderRadius: 8,
-      backgroundColor: colourTheme === "dark" ? colours.background.soft : colours.background.strong,
+      backgroundColor: colourTheme === "dark" ? colours.background.default : colours.background.strong,
       elevation: elevation,
       shadowColor: colours.text.soft,
       shadowOffset: { width: 0, height: 2 },
