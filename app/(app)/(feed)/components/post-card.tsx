@@ -16,7 +16,7 @@ const screenWidth = Dimensions.get("window").width;
 export type Post = {
   id: string,
   creatorId: string;
-  creatorPictureUrl: string;
+  creatorProfilePicture: string;
   creatorPhoneNumber: string;
   creatorDisplayName: string;
   content: string;
@@ -97,13 +97,13 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
     switch (item.post_type) {
       case 'text':
         const contentLength = item.textBlocks.reduce((acc, block) => acc + block.text.length, 0);
-        const gradientHeight = Math.min(280, Math.max(100, contentLength * 2)); // Adjust height based on content length
+        const gradientHeight = Math.min(480, Math.max(320, contentLength * 2)); // Adjust height based on content length
         return (
           <LinearGradient
             colors={[item.gradientColours[0], item.gradientColours[1]]}
             start={{x: 1, y: 2}}
             end={{x: 0, y:0}}
-            style={{alignItems: "center", height: gradientHeight, justifyContent: "center", alignContent: "center"}}
+            style={{alignItems: "center", paddingVertical: 18, height: gradientHeight, justifyContent: "center", alignContent: "center"}}
           >
             {item.textBlocks.map((block, index) => (
               <RamaText key={index} style={[{
@@ -232,7 +232,7 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
             accessible
             accessibilityLabel={`View profile of ${item.creatorDisplayName || "Anonymous"}`}
           >
-            <Image source={{ uri: item.creatorPictureUrl || "https://picsum.photos/40" }} style={styles.userImage} />
+            <Image source={{ uri: item.creatorProfilePicture || "https://picsum.photos/40" }} style={styles.userImage} />
           </TouchableOpacity>
           <RamaVStack>
             <RamaText variant={"h3"} style={{ ...{}, color: colours.text.default }}>
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
       alignItems: "center",
     },
     userContainer: {
-      gap: 12,
+      gap: 4,
     },
     userImageContainer: {
       width: 42,

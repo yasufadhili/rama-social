@@ -22,14 +22,8 @@ const SetupProfileScreen: React.FC = () => {
     const [isPicLoading, setPicIsLoading] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { colours } = useTheme();
-    const { userExistsInCollection } = useAuth();
 
     const user = auth().currentUser;
-
-    {/**
-        if (user?.displayName && user?.photoURL) {
-        return <Redirect href={"/(app)"} />;
-    } */}
 
     const uploadImage = async (assetUri: string): Promise<string> => {
         try {

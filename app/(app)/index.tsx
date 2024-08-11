@@ -1,10 +1,10 @@
 import { RamaBackView } from "@/components/Themed";
 import AllPostsFeedList from "./(feed)";
-import { FAB, Portal } from "react-native-paper";
+import { FAB } from "react-native-paper";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { router } from "expo-router";
-import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useAuth } from "@/context/AuthProvider";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SetupProfileScreen from "./setup-profile";

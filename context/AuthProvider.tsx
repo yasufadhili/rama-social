@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     checkUserExists();
-  }, [user]);
+  }, [user, userExistsInCollection]);
 
   const getUserExistsFromStorage = async (): Promise<boolean | null> => {
     try {
@@ -99,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const userDoc = await firestore().collection('users').doc(currentUser.uid).get();
       return userDoc.exists;
+      
     } catch (error) {
       console.error("Error checking user document:", error);
       throw new Error("Failed to check user document.");

@@ -13,7 +13,7 @@ const POSTS_PER_PAGE = 10;
 
 export default function AllPostsFeedList() {
   const { colourTheme, colours } = useTheme();
-  const { user } = useAuth();
+  const { user, userExistsInCollection } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -48,8 +48,8 @@ export default function AllPostsFeedList() {
         return {
           ...postData,
           id: doc.id,
-          creatorName: creatorData?.displayName || 'Anonymous',
-          creatorpictureUrl: creatorData?.pictureUrl || '',
+          creatorDisplayName: creatorData?.displayName || 'Anonymous',
+          creatorProfilePicture: creatorData?.profilePicture || '',
           createdAt: postData?.createdAt,
           post_type: postData?.post_type,
           textBlocks: postData?.textBlocks || [],
@@ -60,8 +60,7 @@ export default function AllPostsFeedList() {
       });
 
       const fetchedPosts = await Promise.all(postPromises);
-
-      setPosts((prevPosts) => (loadMore ? [...prevPosts, ...fetchedPosts] : fetchedPosts));
+      setPosts((prevPosts) => (loadMore ? [...prevPosts, ...fetchedPosts] : fetchedPosts))
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {

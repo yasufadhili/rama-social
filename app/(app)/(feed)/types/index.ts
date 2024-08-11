@@ -3,7 +3,7 @@ import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 export type Post = {
     id: string,
     creatorId: string;
-    creatorPictureUrl: string;
+    creatorProfilePicture: string;
     creatorPhoneNumber: string;
     creatorDisplayName: string;
     content: string;
