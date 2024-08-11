@@ -133,7 +133,6 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
                 style={{
                   fontFamily: "Medium",
                   fontSize: 17,
-                  textAlign: "center",
                   color: colours.text.default
                 }}
               >
@@ -241,7 +240,7 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
               {item.creatorDisplayName || "Anonymous"}
             </RamaText>
             <RamaText style={{ ...{}, color: colours.text.soft }} variant={"p4"}>
-              {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true },)}
+              
             </RamaText>
           </RamaVStack>
         </RamaHStack>

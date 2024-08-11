@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { View, FlatList, ActivityIndicator, Animated } from 'react-native';
-import { ProgressBar } from 'react-native-paper';
+import { View, FlatList, ActivityIndicator, Animated, ListRenderItem, RefreshControl } from 'react-native';
+import { Button } from 'react-native-paper';
 import { useFocusEffect } from 'expo-router';
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { RamaBackView, RamaText } from '@/components/Themed';
@@ -8,95 +8,141 @@ import { useAuth } from '@/context/AuthProvider';
 import { useTheme } from '@/context/ThemeContext';
 import PostCard from './components/post-card';
 import { Post } from './types';
-import { RectButton } from 'react-native-gesture-handler';
+import { useNetInfo } from '@react-native-community/netinfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const POSTS_PER_PAGE = 10;
+const CACHE_KEY = 'POSTS_CACHE_2';
 
 export default function AllPostsFeedList() {
   const { colours } = useTheme();
   const { user } = useAuth();
+  const netInfo = useNetInfo();
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [loadingMore, setLoadingMore] = useState<boolean>(false);
-  const [hasMore, setHasMore] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
-  const [showNewPostsButton, setShowNewPostsButton] = useState<boolean>(false);
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const lastDocRef = useRef<FirebaseFirestoreTypes.DocumentSnapshot | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState("");
+  const [newPostsAvailable, setNewPostsAvailable] = useState(false);
+  const lastDocRef = useRef<FirebaseFirestoreTypes.QueryDocumentSnapshot | null>(null);
+  const flatListRef = useRef<FlatList<Post>>(null);
+  const unsubscribeRef = useRef<() => void | null>(null);
 
   const fetchPosts = useCallback(async (loadMore: boolean = false) => {
     try {
+      setError("");
+      if (!netInfo.isConnected) {
+        const cachedPosts = await AsyncStorage.getItem(CACHE_KEY);
+        if (cachedPosts) {
+          setPosts(JSON.parse(cachedPosts));
+          setLoading(false);
+          return;
+        }
+      }
+
       let query = firestore()
         .collection('posts')
         .orderBy('createdAt', 'desc')
         .limit(POSTS_PER_PAGE);
-  
+
       if (loadMore && lastDocRef.current) {
         query = query.startAfter(lastDocRef.current);
       }
-  
+
       const postsSnapshot = await query.get();
-  
+
       if (postsSnapshot.empty) {
         setHasMore(false);
         return;
       }
-  
+
       lastDocRef.current = postsSnapshot.docs[postsSnapshot.docs.length - 1];
-  
-      const postPromises = postsSnapshot.docs.map(async (doc) => {
-        const postData = doc.data() as Post;
-        const creatorSnapshot = await firestore().collection('users').doc(postData.creatorId).get();
-        const creatorData = creatorSnapshot.data();
-        return {
-          ...postData,
-          id: doc.id,
-          creatorDisplayName: creatorData?.displayName || 'Anonymous',
-          creatorProfilePicture: creatorData?.profilePicture || '',
-          createdAt: postData?.createdAt,
-          post_type: postData?.post_type,
-          textBlocks: postData?.textBlocks || [],
-          imageUrls: postData?.mediaUrls,
-          content: postData?.content,
-          gradientColours: postData?.gradientColours || ['#000000', '#000000'],
-        };
-      });
-  
-      const fetchedPosts = await Promise.all(postPromises);
-  
+
+      const fetchedPosts = await Promise.all(
+        postsSnapshot.docs.map(async (doc) => {
+          const postData = doc.data() as Post;
+          const creatorSnapshot = await firestore().collection('users').doc(postData.creatorId).get();
+          const creatorData = creatorSnapshot.data();
+          return {
+            ...postData,
+            id: doc.id,
+            creatorDisplayName: creatorData?.displayName || 'Anonymous',
+            creatorProfilePicture: creatorData?.profilePicture || '',
+            createdAt: postData?.createdAt,
+            post_type: postData?.post_type,
+            textBlocks: postData?.textBlocks || [],
+            imageUrls: postData?.mediaUrls,
+            content: postData?.content,
+            gradientColours: postData?.gradientColours || ['#000000', '#000000'],
+          };
+        })
+      );
+
       setPosts((prevPosts) => {
-        // Filter out any duplicates by checking IDs
-        const newPosts = fetchedPosts.filter(
-          (newPost) => !prevPosts.some((post) => post.id === newPost.id)
+        const newPosts = loadMore
+          ? [...prevPosts, ...fetchedPosts]
+          : fetchedPosts;
+        const uniquePosts = newPosts.filter(
+          (post, index, self) =>
+            index === self.findIndex((t) => t.id === post.id)
         );
-        return loadMore ? [...prevPosts, ...newPosts] : newPosts;
+        AsyncStorage.setItem(CACHE_KEY, JSON.stringify(uniquePosts));
+        return uniquePosts;
       });
-    } catch (error) {
-      console.error('Error fetching posts:', error);
+    } catch (err) {
+      console.error('Error fetching posts:', err);
       setError("Error fetching feed");
     } finally {
       setLoading(false);
       setRefreshing(false);
       setLoadingMore(false);
     }
-  }, []);
-  
+  }, [netInfo.isConnected]);
+
+  const subscribeToNewPosts = useCallback(() => {
+    const latestPostDate = posts[0]?.createdAt;
+    
+    unsubscribeRef.current = firestore()
+      .collection('posts')
+      .orderBy('createdAt', 'desc')
+      .limitToLast(1)
+      .onSnapshot((snapshot) => {
+        if (!snapshot.empty) {
+          const latestPost = snapshot.docs[0].data();
+          if (latestPost.createdAt?.toDate() > latestPostDate) {
+            setNewPostsAvailable(true);
+          }
+        }
+      });
+  }, [posts]);
 
   useEffect(() => {
     fetchPosts();
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
+    };
   }, [fetchPosts]);
 
   useFocusEffect(
     useCallback(() => {
       fetchPosts();
-    }, [fetchPosts])
+      subscribeToNewPosts();
+      return () => {
+        if (unsubscribeRef.current) {
+          unsubscribeRef.current();
+        }
+      };
+    }, [fetchPosts, subscribeToNewPosts])
   );
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
     lastDocRef.current = null;
     setHasMore(true);
+    setNewPostsAvailable(false);
     fetchPosts();
   }, [fetchPosts]);
 
@@ -107,56 +153,75 @@ export default function AllPostsFeedList() {
     }
   }, [loadingMore, hasMore, fetchPosts]);
 
-  {/**
-    const handleScroll = useCallback(
-        (event) => {
-        const currentOffset = event.nativeEvent.contentOffset.y;
-        if (currentOffset <= 0) {
-            setShowNewPostsButton(false);
-        }
-        },
-        []
-    );
+  const renderItem: ListRenderItem<Post> = useCallback(
+    ({ item }) => <PostCard onImagePress={() => {}} item={item} />,
+    []
+  );
 
-    const handleScrollUp = () => {
-        setShowNewPostsButton(false);
-        flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
-    };
-   */}
+  const keyExtractor = useCallback((item: Post) => item.id, []);
 
-  const flatListRef = useRef<FlatList>(null);
-
-  const renderFooter = () => {
+  const renderFooter = useCallback(() => {
     if (!loadingMore) return null;
     return <ActivityIndicator size="small" color={colours.primary} style={{ marginVertical: 48 }} />;
-  };
+  }, [loadingMore, colours.primary]);
+
+  const ListEmptyComponent = useCallback(() => (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <RamaText>No posts available</RamaText>
+    </View>
+  ), []);
+
+  const renderHeader = useCallback(() => (
+    newPostsAvailable ? (
+      <Button mode="contained" onPress={handleRefresh} style={{ margin: 10 }}>
+        New posts available
+      </Button>
+    ) : null
+  ), [newPostsAvailable, handleRefresh]);
+
+  if (loading) {
+    return (
+      <RamaBackView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={colours.primary} />
+      </RamaBackView>
+    );
+  }
 
   return (
-    <RamaBackView>
-      {(loading || refreshing) && (
-        <ProgressBar style={{ marginVertical: 4 }} color={colours.primary} indeterminate />
-      )}
+    <RamaBackView style={{ flex: 1 }}>
       {error ? (
         <RamaBackView style={{ alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <RamaText style={{ color: "#800" }}>{error}</RamaText>
+          <Button mode="contained" onPress={handleRefresh} style={{ marginTop: 10 }}>
+            Retry
+          </Button>
         </RamaBackView>
       ) : (
         <FlatList
-          showsVerticalScrollIndicator={false}
+          ref={flatListRef}
           data={posts}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <PostCard onImagePress={() => {}} item={item} />}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
           onRefresh={handleRefresh}
           refreshing={refreshing}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.1}
+          //ListHeaderComponent={renderHeader}
           ListFooterComponent={renderFooter}
+          ListEmptyComponent={ListEmptyComponent}
           contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 0 }}
-          ListEmptyComponent={() => (
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-              
-            </View>
-          )}
+          showsVerticalScrollIndicator={false}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={5}
+          updateCellsBatchingPeriod={50}
+          initialNumToRender={10}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={[colours.primary]}
+            />
+          }
         />
       )}
     </RamaBackView>
