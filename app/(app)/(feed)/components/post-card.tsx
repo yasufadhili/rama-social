@@ -42,6 +42,7 @@ export interface PostCardProps {
   item: Post;
   onImagePress: (mediaUrls: string[], index: number) => void;
 }
+const FONT_SIZE_RANGE = { min: 18, max: 38 };
 
 const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
   const [liked, setLiked] = useState(false);
@@ -97,7 +98,8 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
     switch (item.post_type) {
       case 'text':
         const contentLength = item.textBlocks.reduce((acc, block) => acc + block.text.length, 0);
-        const gradientHeight = Math.min(480, Math.max(320, contentLength * 2)); // Adjust height based on content length
+        const gradientHeight = Math.min(540, Math.max(280, contentLength * 3)); // Adjust height based on content length
+        
         return (
           <LinearGradient
             colors={[item.gradientColours[0], item.gradientColours[1]]}
@@ -108,7 +110,7 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
             {item.textBlocks.map((block, index) => (
               <RamaText key={index} style={[{
                 fontFamily: "Medium",
-                fontSize: Math.max(14, Math.min(24, 30 - contentLength / 20)), // Adjust font size based on content length
+                fontSize: Math.max( FONT_SIZE_RANGE.min, Math.min(FONT_SIZE_RANGE.max, FONT_SIZE_RANGE.max - block.text.length / 10)), // Adjust font size based on content length
                 textAlign: "center",
                 color: "#ffffff",
                 padding: 10,

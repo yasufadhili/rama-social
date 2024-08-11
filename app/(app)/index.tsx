@@ -65,7 +65,7 @@ export default function Index(){
                     },
                     {
                         icon: "note-plus",
-                        label: "Text Post",
+                        label: "Text Card",
                         color: colours.text.default,
                         size: "medium",
                         onPress: () => router.navigate("/(create-post)/text-post"),
