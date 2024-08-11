@@ -185,7 +185,7 @@ export default function AllPostsFeedList() {
     <RamaBackView style={{ flex: 1 }}>
       {error ? (
         <RamaBackView style={{ alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <RamaText style={{ color: "#800", textAlign: 'center', marginBottom: 10 }}>{error}</RamaText>
+          <RamaText style={{ textAlign: 'center', marginBottom: 10 }}>{error}</RamaText>
           <Button mode="contained" onPress={handleRefresh}>
             Retry
           </Button>
