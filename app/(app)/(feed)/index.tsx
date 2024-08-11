@@ -77,7 +77,7 @@ export default function AllPostsFeedList(){
                 onRefresh={handleRefresh}
                 refreshing={refreshing}
                 
-                contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 4 }}
+                contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 0 }}
                 ListEmptyComponent={()=> (<View><RamaText>No Posts found</RamaText></View>)}
             />
         </View>

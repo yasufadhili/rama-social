@@ -6,11 +6,36 @@ import { useTheme } from "@/context/ThemeContext";
 import { RamaHStack, RamaText, RamaVStack } from "@/components/Themed";
 import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import firestore from "@react-native-firebase/firestore";
-import { Post } from "../types";
+import { LinearGradient } from "expo-linear-gradient";
+import { formatDistanceToNow } from 'date-fns';
+import auth from "@react-native-firebase/auth";
 
 const screenWidth = Dimensions.get("window").width;
 
+export type Post = {
+  id: string,
+  creatorId: string;
+  creatorPictureUrl: string;
+  creatorPhoneNumber: string;
+  creatorDisplayName: string;
+  content: string;
+  post_type: string;
+  mediaUrls: string[];
+  textBlocks: TextBlock[];
+  gradientColours: string[];
+  createdAt: FirebaseFirestoreTypes.Timestamp;
+};
 
+export type TextBlock = {
+  id: string;
+  text: string;
+  style: {
+    fontWeight: 'normal' | 'bold';
+    fontStyle: 'normal' | 'italic';
+    textDecorationLine: 'none' | 'underline';
+    fontSize: number;
+  };
+};
 
 export interface PostCardProps {
   item: Post;
@@ -25,7 +50,6 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
   const { colours } = useTheme();
   const scrollViewRef = useRef<ScrollView>(null);
 
-
   const handleImagePress = useCallback((index: number) => {
     setCurrentImageIndex(index);
     onImagePress(item.mediaUrls, index);
@@ -37,7 +61,6 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
     setCurrentImageIndex(index);
   }, []);
 
-  // Renders the mediaUrls inside a scrollable container
   const rendermediaUrls = () => (
     <View style={styles.imageContainer}>
       <ScrollView
@@ -52,7 +75,7 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
         {item.mediaUrls.map((image, index) => (
           <TouchableOpacity
             key={index}
-            //onPress={() => handleImagePress(index)}
+            onPress={() => handleImagePress(index)}
             style={styles.imageWrapper}
             accessible
             accessibilityLabel={`Image ${index + 1} of ${item.mediaUrls.length}`}
@@ -72,50 +95,66 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
   const renderContent = () => {
     switch (item.post_type) {
       case 'text':
-        return item.textBlocks.map((block, index) => (
-          <RamaText key={index} style={[styles.postText, block.style]}>
-            {block.text}
-          </RamaText>
-        ));
+        const contentLength = item.textBlocks.reduce((acc, block) => acc + block.text.length, 0);
+        const gradientHeight = Math.min(280, Math.max(100, contentLength * 2)); // Adjust height based on content length
+        return (
+          <LinearGradient
+            colors={[item.gradientColours[0], item.gradientColours[1]]}
+            start={{x: 1, y: 2}}
+            end={{x: 0, y:0}}
+            style={{alignItems: "center", height: gradientHeight, justifyContent: "center", alignContent: "center"}}
+          >
+            {item.textBlocks.map((block, index) => (
+              <RamaText key={index} style={[{
+                fontFamily: "Medium",
+                fontSize: Math.max(14, Math.min(24, 30 - contentLength / 20)), // Adjust font size based on content length
+                textAlign: "center",
+                color: "#ffffff",
+                padding: 10,
+              }, block.style]}>
+                {block.text}
+              </RamaText>
+            ))}
+          </LinearGradient>
+        );
       case 'default':
         return <>
           {item.mediaUrls.length > 0 && rendermediaUrls()}
-
-            <View>
-              {item.mediaUrls.length > 1 && renderIndicators()}
+          <View>
+            {item.mediaUrls.length > 1 && renderIndicators()}
+          </View>
+          {item.content && (
+            <View style={styles.textContainer}>
+              <RamaText 
+                numberOfLines={4}
+                style={{
+                  fontFamily: "Medium",
+                  fontSize: 17,
+                  textAlign: "center",
+                  color: colours.text.default
+                }}
+              >
+                {item.content}
+              </RamaText>
             </View>
-
-            {item.content && (
-              <View style={styles.textContainer}>
-                <RamaText 
-                  numberOfLines={4}
-                  style={{
-                    ...styles.postText,
-                    color: colours.text.default
-                  }}
-                >
-                  {item.content}
-                </RamaText>
-              </View>
           )}
-        </>
+        </>;
       case 'audio':
         return (
-          <View style={{}}>
-            <Ionicons name="musical-notes-outline" size={40} color="#ffffff" />
-            <RamaText style={{}}>Audio Post</RamaText>
+          <View style={{ alignItems: 'center', padding: 20 }}>
+            <Ionicons name="musical-notes-outline" size={40} color={colours.text.default} />
+            <RamaText style={{ marginTop: 10, color: colours.text.default }}>Audio Post</RamaText>
           </View>
         );
       default:
         return (
-          <RamaText style={{}}>
+          <RamaText style={{ padding: 20, textAlign: 'center', color: colours.text.default }}>
             Media type not yet supported on this version of Rama :) Working on it though
           </RamaText>
         );
     }
   };
 
-  // Renders indicators for mediaUrls
   const renderIndicators = () => (
     <View style={styles.indicatorsContainer}>
       {item.mediaUrls.map((_, index) => (
@@ -130,14 +169,51 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
     </View>
   );
 
-  // Renders image count indicator
   const renderImageCount = () => (
     <View style={styles.imageCountContainer}>
       <RamaText style={{ color: "#f1f1f1", fontSize: 14 }}>{`${currentImageIndex + 1}/${item.mediaUrls.length}`}</RamaText>
     </View>
   );
 
+  const handleLike = useCallback(() => {
+    setLiked(!liked);
+    if (!liked) {
+      firestore().collection('post_likes').doc(item.id).set({
+        userId: auth().currentUser?.uid,
+        postId: item.id,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+    } else {
+      firestore().collection('post_likes').doc(item.id).delete();
+    }
+  }, [liked, item.id]);
 
+  const handleStar = useCallback(() => {
+    setShared(!shared);
+    if (!shared) {
+      firestore().collection('post_stars').doc(item.id).set({
+        userId: auth().currentUser?.uid,
+        postId: item.id,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+    } else {
+      firestore().collection('post_stars').doc(item.id).delete();
+    }
+  }, [shared, item.id]);
+
+  const handleReply = useCallback(() => {
+    setReplied(!replied);
+    // Add placeholder comment to post_comments collection
+    if (!replied) {
+      firestore().collection('post_comments').add({
+        userId: auth().currentUser?.uid,
+        postId: item.id,
+        content: 'Placeholder comment',
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  }, [replied, item.id]);
+  
   return (
     <View style={{
       ...styles.cardContainer,
@@ -147,10 +223,10 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
       <RamaHStack style={styles.headerContainer}>
         <RamaHStack style={styles.userContainer}>
           <TouchableOpacity 
-            onPress={() => router.navigate(`/(profile)`)} 
+            onPress={() => router.navigate(`/(profile)/${item.creatorId}`)} 
             style={[{backgroundColor: colours.background.soft},styles.userImageContainer]}
             accessible
-            accessibilityLabel={""}
+            accessibilityLabel={`View profile of ${item.creatorDisplayName || "Anonymous"}`}
           >
             <Image source={{ uri: item.creatorPictureUrl || "https://picsum.photos/40" }} style={styles.userImage} />
           </TouchableOpacity>
@@ -159,90 +235,67 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
               {item.creatorDisplayName || "Anonymous"}
             </RamaText>
             <RamaText style={{ ...styles.userHandle, color: colours.text.soft }} variant={"p4"}>
-              2 minutes ago
+              {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true })}
             </RamaText>
           </RamaVStack>
         </RamaHStack>
-        <RamaText style={{ ...styles.timeStamp, color: colours.text.soft }} variant={"p3"}>
-          <Ionicons name={"heart-outline"} color={colours.text.soft} size={24} />
-        </RamaText>
+        <TouchableOpacity
+          onPress={() => {/* Implement unfollow logic */}}
+          accessible
+          accessibilityLabel={`Unfollow ${item.creatorDisplayName || "Anonymous"}`}
+        >
+          <Ionicons name={"person-remove-outline"} color={colours.text.soft} size={24} />
+        </TouchableOpacity>
       </RamaHStack>
       
       {renderContent()}
 
-      {/** POST FOOTER **/}
-        <RamaHStack  >
-
-          <RamaHStack>
-
-            <TouchableOpacity 
-              style={styles.actionButton} 
-              onPress={() => {
-                
-              }}
-              accessible
-              accessibilityLabel={shared ? "Undo share" : "Share post"}
-            >
-              <Ionicons name={"ellipsis-vertical"} size={24} color={colours.text.soft} strokeWidth={1.5} />
-            </TouchableOpacity>
-
-            
-
-          </RamaHStack>
-
-          <RamaHStack style={{justifyContent: "space-between"}}>
-
-            <TouchableOpacity 
-              style={styles.actionButton} 
-              onPress={() => {}}
-              accessible
-              accessibilityLabel={shared ? "Undo star" : "Star post"}
-            >
-              <AntDesign name="staro" color={shared ? colours.primary : colours.text.soft} size={23} />
-            </TouchableOpacity>
-
+      <RamaHStack style={{marginVertical: 12, justifyContent: "space-between"}} >
+        <RamaHStack style={{justifyContent: "space-between"}}>
           <TouchableOpacity 
             style={styles.actionButton} 
-            onPress={() => setShared(!shared)}
+            onPress={handleStar}
             accessible
-            accessibilityLabel={shared ? "Undo share" : "Share post"}
+            accessibilityLabel={shared ? "Undo star" : "Star post"}
           >
-            <AntDesign name="sync" color={shared ? colours.primary : colours.text.soft} size={21} />
+            <AntDesign name="staro" color={shared ? colours.primary : colours.text.soft} size={24} />
           </TouchableOpacity>
-
+        
           <TouchableOpacity 
             style={styles.actionButton} 
-            onPress={() => setLiked(!liked)}
+            onPress={handleLike}
             accessible
             accessibilityLabel={liked ? "Unlike post" : "Like post"}
           >
-            <AntDesign name={liked ? "heart" : "hearto"} color={liked ? "#ed3486" : colours.text.soft} size={22} />
+            <Ionicons name={liked ? "heart" : "heart-outline"} color={liked ? "#ed3486" : colours.text.soft} size={25} />
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.actionButton} 
-            onPress={() => setReplied(!replied)}
+            onPress={handleReply}
             accessible
             accessibilityLabel={replied ? "Undo reply" : "Reply to post"}
           >
-            <AntDesign name="message1" color={replied ? colours.primary : colours.text.soft} size={21} />
-            {/**<RamaText style={{ ...styles.actionText, color: colours.text.default }}>Reply</RamaText>**/}
+            <Ionicons name={"chatbox-ellipses-outline"} color={replied ? colours.primary : colours.text.soft} size={25} />
           </TouchableOpacity>
-
-          </RamaHStack>
-
         </RamaHStack>
 
-        
-
+        <RamaHStack>
+          <TouchableOpacity 
+            style={styles.actionButton} 
+            onPress={() => {/* Implement share logic */}}
+            accessible
+            accessibilityLabel={"Share post"}
+          >
+            <Ionicons name="share-outline" color={colours.text.soft} size={25} />
+          </TouchableOpacity>
+        </RamaHStack>
+      </RamaHStack>
     </View>
   );
 };
 
-
-
 export default memo(PostCard);
-
 
 const styles = StyleSheet.create({
     cardContainer: {
@@ -322,10 +375,6 @@ const styles = StyleSheet.create({
     textContainer: {
       paddingHorizontal: 12,
       paddingVertical: 8,
-    },
-    postText: {
-      fontFamily: "Medium",
-      fontSize: 17,
     },
     actionsContainer: {
       flexDirection: "row",
