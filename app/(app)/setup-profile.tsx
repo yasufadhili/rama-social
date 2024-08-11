@@ -10,6 +10,7 @@ import storage from '@react-native-firebase/storage';
 import { Redirect, router } from 'expo-router';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '@/context/AuthProvider';
 
 interface ProfileData {
     displayName: string;
@@ -21,12 +22,14 @@ const SetupProfileScreen: React.FC = () => {
     const [isPicLoading, setPicIsLoading] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { colours } = useTheme();
+    const { userExistsInCollection } = useAuth();
 
     const user = auth().currentUser;
 
-    if (user?.displayName && user?.photoURL) {
+    {/**
+        if (user?.displayName && user?.photoURL) {
         return <Redirect href={"/(app)"} />;
-    }
+    } */}
 
     const uploadImage = async (assetUri: string): Promise<string> => {
         try {
@@ -98,6 +101,8 @@ const SetupProfileScreen: React.FC = () => {
                 phoneNumber: currentUser.phoneNumber,
             });
 
+
+
             router.replace('/(app)');
         } catch (error) {
             Alert.alert("Save Failed", "An error occurred while saving the profile. Please try again.");
@@ -108,7 +113,7 @@ const SetupProfileScreen: React.FC = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <>
             <RamaBackView style={styles.container}>
                 <ScrollView contentContainerStyle={styles.scrollViewContent}>
                     <RamaText style={styles.title}>Setup Profile</RamaText>
@@ -147,11 +152,11 @@ const SetupProfileScreen: React.FC = () => {
 
             </RamaBackView>
             {isLoading && (
-                        <View style={styles.loadingOverlay}>
-                            <ActivityIndicator size="large" color={colours.primary} />
-                        </View>
-                    )}
-        </SafeAreaView>
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color={colours.primary} />
+                </View>
+            )}
+        </>
     );
 };
 
@@ -162,7 +167,7 @@ const styles = StyleSheet.create({
     scrollViewContent: {
         flexGrow: 1,
         padding: 20,
-        paddingTop: 88,
+        paddingTop: 48,
     },
     formContainer: {
         marginTop: 48,

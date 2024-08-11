@@ -1,7 +1,7 @@
-import React, { useState, FC, memo, useRef, useCallback, useEffect } from "react";
-import { View, Image, TouchableOpacity, StyleSheet, ScrollView, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import { View, TouchableOpacity, StyleSheet, ScrollView, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
+import React, { useState, FC, memo, useRef, useCallback, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { RamaHStack, RamaText, RamaVStack } from "@/components/Themed";
 import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
@@ -9,6 +9,7 @@ import firestore from "@react-native-firebase/firestore";
 import { LinearGradient } from "expo-linear-gradient";
 import { formatDistanceToNow } from 'date-fns';
 import auth from "@react-native-firebase/auth";
+import { Image } from "expo-image";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -143,7 +144,7 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
         return (
           <View style={{ alignItems: 'center', padding: 20 }}>
             <Ionicons name="musical-notes-outline" size={40} color={colours.text.default} />
-            <RamaText style={{ marginTop: 10, color: colours.text.default }}>Audio Post</RamaText>
+            <RamaText style={{ marginTop: 0, color: colours.text.default }}>Audio Post</RamaText>
           </View>
         );
       default:
@@ -223,7 +224,10 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
       <RamaHStack style={styles.headerContainer}>
         <RamaHStack style={styles.userContainer}>
           <TouchableOpacity 
-            onPress={() => router.navigate(`/(profile)/${item.creatorId}`)} 
+            onPress={() => router.navigate({
+              pathname: "/(profile)/[userId]",
+              params: {creatorId: item.creatorId}
+            })} 
             style={[{backgroundColor: colours.background.soft},styles.userImageContainer]}
             accessible
             accessibilityLabel={`View profile of ${item.creatorDisplayName || "Anonymous"}`}
@@ -231,11 +235,11 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
             <Image source={{ uri: item.creatorPictureUrl || "https://picsum.photos/40" }} style={styles.userImage} />
           </TouchableOpacity>
           <RamaVStack>
-            <RamaText style={{ ...styles.userName, color: colours.text.default }}>
+            <RamaText variant={"h3"} style={{ ...{}, color: colours.text.default }}>
               {item.creatorDisplayName || "Anonymous"}
             </RamaText>
-            <RamaText style={{ ...styles.userHandle, color: colours.text.soft }} variant={"p4"}>
-              {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true })}
+            <RamaText style={{ ...{}, color: colours.text.soft }} variant={"p4"}>
+              {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true },)}
             </RamaText>
           </RamaVStack>
         </RamaHStack>
@@ -243,6 +247,8 @@ const PostCard: FC<PostCardProps> = ({ item, onImagePress }) => {
           onPress={() => {/* Implement unfollow logic */}}
           accessible
           accessibilityLabel={`Unfollow ${item.creatorDisplayName || "Anonymous"}`}
+          style={{marginRight: 4, padding: 8, borderRadius: 12}}
+
         >
           <Ionicons name={"person-remove-outline"} color={colours.text.soft} size={24} />
         </TouchableOpacity>
@@ -299,10 +305,10 @@ export default memo(PostCard);
 
 const styles = StyleSheet.create({
     cardContainer: {
-      shadowOffset: { width: 0, height: 2 },
+      shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.1,
       shadowRadius: 4,
-      elevation: 3,
+      elevation: 2,
       marginBottom: 8,
       overflow: "hidden",
     },
@@ -325,14 +331,6 @@ const styles = StyleSheet.create({
       width: 42,
       height: 42,
       borderRadius: 12,
-    },
-    userName: {
-      fontFamily: "Bold",
-      fontSize: 16,
-    },
-    userHandle: {
-      fontFamily: "Medium",
-      fontSize: 12,
     },
     timeStamp: {
       fontFamily: "Medium",

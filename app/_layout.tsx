@@ -9,6 +9,7 @@ import AuthProvider from '@/context/AuthProvider';
 import { StatusBar } from "expo-status-bar";
 import RamaSplashScreen from "./splash";
 import { PaperProvider } from 'react-native-paper';
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -45,11 +46,12 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-     <ThemeProvider>
-        <AuthProvider>
-          <RootLayoutNav />
-        </AuthProvider>
-     </ThemeProvider>
+      
+        <ThemeProvider>
+          <AuthProvider>
+            <RootLayoutNav />
+          </AuthProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }
@@ -58,7 +60,9 @@ function RootLayoutNav(){
   const {colourTheme, colours} = useTheme();
   return <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
       <PaperProvider>
+      <BottomSheetModalProvider>
       <Slot />
+        </BottomSheetModalProvider>
       <StatusBar style={colourTheme === "dark" ? "light" : "dark"} />
       </PaperProvider>
   </NavigationThemeProvider>
