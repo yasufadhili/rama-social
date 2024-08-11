@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { View, FlatList, ActivityIndicator, Animated, ListRenderItem, RefreshControl } from 'react-native';
+import { View, FlatList, ActivityIndicator, ListRenderItem, RefreshControl } from 'react-native';
 import { Button } from 'react-native-paper';
 import { useFocusEffect } from 'expo-router';
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
@@ -9,10 +9,8 @@ import { useTheme } from '@/context/ThemeContext';
 import PostCard from './components/post-card';
 import { Post } from './types';
 import { useNetInfo } from '@react-native-community/netinfo';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const POSTS_PER_PAGE = 10;
-const CACHE_KEY = 'POSTS_CACHE_2';
 
 export default function AllPostsFeedList() {
   const { colours } = useTheme();
@@ -30,17 +28,16 @@ export default function AllPostsFeedList() {
   const unsubscribeRef = useRef<() => void | null>(null);
 
   const fetchPosts = useCallback(async (loadMore: boolean = false) => {
+    if (!netInfo.isConnected) {
+      setError("No internet connection. Please check your network and try again.");
+      setLoading(false);
+      setRefreshing(false);
+      setLoadingMore(false);
+      return;
+    }
+
     try {
       setError("");
-      if (!netInfo.isConnected) {
-        const cachedPosts = await AsyncStorage.getItem(CACHE_KEY);
-        if (cachedPosts) {
-          setPosts(JSON.parse(cachedPosts));
-          setLoading(false);
-          return;
-        }
-      }
-
       let query = firestore()
         .collection('posts')
         .orderBy('createdAt', 'desc')
@@ -69,30 +66,25 @@ export default function AllPostsFeedList() {
             id: doc.id,
             creatorDisplayName: creatorData?.displayName || 'Anonymous',
             creatorProfilePicture: creatorData?.profilePicture || '',
-            createdAt: postData?.createdAt,
-            post_type: postData?.post_type,
-            textBlocks: postData?.textBlocks || [],
-            imageUrls: postData?.mediaUrls,
-            content: postData?.content,
-            gradientColours: postData?.gradientColours || ['#000000', '#000000'],
+            createdAt: postData.createdAt?.toDate() || new Date(),
+            post_type: postData.post_type,
+            textBlocks: postData.textBlocks || [],
+            imageUrls: postData.mediaUrls,
+            content: postData.content,
+            gradientColours: postData.gradientColours || ['#000000', '#000000'],
           };
         })
       );
 
       setPosts((prevPosts) => {
-        const newPosts = loadMore
-          ? [...prevPosts, ...fetchedPosts]
-          : fetchedPosts;
-        const uniquePosts = newPosts.filter(
-          (post, index, self) =>
-            index === self.findIndex((t) => t.id === post.id)
+        const newPosts = loadMore ? [...prevPosts, ...fetchedPosts] : fetchedPosts;
+        return newPosts.filter((post, index, self) => 
+          index === self.findIndex((t) => t.id === post.id)
         );
-        AsyncStorage.setItem(CACHE_KEY, JSON.stringify(uniquePosts));
-        return uniquePosts;
       });
     } catch (err) {
       console.error('Error fetching posts:', err);
-      setError("Error fetching feed");
+      setError("Error fetching feed. Please try again.");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -106,7 +98,7 @@ export default function AllPostsFeedList() {
     unsubscribeRef.current = firestore()
       .collection('posts')
       .orderBy('createdAt', 'desc')
-      .limitToLast(1)
+      .limit(1)
       .onSnapshot((snapshot) => {
         if (!snapshot.empty) {
           const latestPost = snapshot.docs[0].data();
@@ -114,6 +106,8 @@ export default function AllPostsFeedList() {
             setNewPostsAvailable(true);
           }
         }
+      }, (error) => {
+        console.error("Error in real-time subscription:", error);
       });
   }, [posts]);
 
@@ -147,11 +141,11 @@ export default function AllPostsFeedList() {
   }, [fetchPosts]);
 
   const handleLoadMore = useCallback(() => {
-    if (!loadingMore && hasMore) {
+    if (!loadingMore && hasMore && !refreshing) {
       setLoadingMore(true);
       fetchPosts(true);
     }
-  }, [loadingMore, hasMore, fetchPosts]);
+  }, [loadingMore, hasMore, refreshing, fetchPosts]);
 
   const renderItem: ListRenderItem<Post> = useCallback(
     ({ item }) => <PostCard onImagePress={() => {}} item={item} />,
@@ -162,11 +156,11 @@ export default function AllPostsFeedList() {
 
   const renderFooter = useCallback(() => {
     if (!loadingMore) return null;
-    return <ActivityIndicator size="small" color={colours.primary} style={{ marginVertical: 48 }} />;
+    return <ActivityIndicator size="small" color={colours.primary} style={{ marginVertical: 16 }} />;
   }, [loadingMore, colours.primary]);
 
   const ListEmptyComponent = useCallback(() => (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 50 }}>
       <RamaText>No posts available</RamaText>
     </View>
   ), []);
@@ -191,8 +185,8 @@ export default function AllPostsFeedList() {
     <RamaBackView style={{ flex: 1 }}>
       {error ? (
         <RamaBackView style={{ alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <RamaText style={{ color: "#800" }}>{error}</RamaText>
-          <Button mode="contained" onPress={handleRefresh} style={{ marginTop: 10 }}>
+          <RamaText style={{ color: "#800", textAlign: 'center', marginBottom: 10 }}>{error}</RamaText>
+          <Button mode="contained" onPress={handleRefresh}>
             Retry
           </Button>
         </RamaBackView>
@@ -205,11 +199,15 @@ export default function AllPostsFeedList() {
           onRefresh={handleRefresh}
           refreshing={refreshing}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.1}
-          //ListHeaderComponent={renderHeader}
+          onEndReachedThreshold={0.5}
+          ListHeaderComponent={renderHeader}
           ListFooterComponent={renderFooter}
           ListEmptyComponent={ListEmptyComponent}
-          contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 0 }}
+          contentContainerStyle={{ 
+            paddingVertical: 12, 
+            paddingHorizontal: 0,
+            flexGrow: 1,
+          }}
           showsVerticalScrollIndicator={false}
           removeClippedSubviews={true}
           maxToRenderPerBatch={5}
