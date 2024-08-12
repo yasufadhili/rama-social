@@ -8,6 +8,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useAuth } from "@/context/AuthProvider";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SetupProfileScreen from "./setup-profile";
+import PostCard from "./(feed)/components/post-card";
 
 
 export default function Index(){
@@ -43,7 +44,7 @@ export default function Index(){
     return <>
         
         <RamaBackView style={{flex: 1}}>
-            <AllPostsFeedList />
+            <AllPostsFeedList  />
             <FAB.Group
                 visible
                 open={fabState.open}
