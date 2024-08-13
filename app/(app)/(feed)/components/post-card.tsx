@@ -75,11 +75,11 @@ const PostCard:React.FC<PostCardProps> = ({item, onPress}) => {
         return (
           <>
             <LinearGradient
-            colors={[item.gradientColours[0], item.gradientColours[1]]}
-            start={{x: 1, y: 2}}
-            end={{x: 0, y:0}}
-            style={[{borderRadius: 18, overflow: "hidden", paddingBottom: 24, marginBottom: 6, marginHorizontal: 2, }, { height: gradientHeight }]}
-          >
+              colors={[item.gradientColours[0], item.gradientColours[1]]}
+              start={{x: 1, y: 2}}
+              end={{x: 0, y:0}}
+              style={[{borderRadius: 18, overflow: "hidden", paddingBottom: 4, marginBottom: 6, marginHorizontal: 2, }, {/**height: gradientHeight*/}]}
+            >
           {/** Post Header */}
             {/** Blur view should have a borderRadius */}
             <BlurView intensity={60} tint={"dark"} style={{paddingHorizontal: 4, paddingVertical: 8}}>
@@ -94,23 +94,29 @@ const PostCard:React.FC<PostCardProps> = ({item, onPress}) => {
                     </RamaVStack>
                   </RamaHStack>
                   <RamaVStack>
-                    <Ionicons name={"person-add-outline"} size={22} color={colours.text.default} />
+                    <Ionicons name={"person-add-outline"} size={22} color={"#f1f1f1"} />
                   </RamaVStack>
               </RamaHStack>
             </BlurView>
-            <View style={{alignItems: "center", paddingRight: 48, justifyContent: "center", alignContent: "center", marginTop: 48,}}>
-                {item.textBlocks.map((block: TextBlock, index: number) => (
-                  <RamaText key={index} style={[{
-                    textAlign: "center",
-                    color: "#ffffff",
-                    padding: 10,
-                  }, {
-                    fontSize: Math.max(FONT_SIZE_RANGE.min, Math.min(FONT_SIZE_RANGE.max, FONT_SIZE_RANGE.max - block.text.length / 10)),
-                  }, block.style]}>
-                    {block.text}
-                  </RamaText>
-                ))}
-              </View>
+            <View style={{
+              alignItems: "center",
+              paddingRight: 48,
+              justifyContent: "center",
+              alignContent: "center",
+              paddingVertical: item.textBlocks[0].text.length < 120 ? 88 : item.textBlocks[0].text.length < 30 ? 24 : 12
+            }}>
+              {item.textBlocks.map((block: TextBlock, index: number) => (
+                <RamaText key={index} style={[{
+                  textAlign: "center",
+                  color: "#ffffff",
+                  padding: 10,
+                }, {
+                  fontSize: Math.max(FONT_SIZE_RANGE.min, Math.min(FONT_SIZE_RANGE.max, FONT_SIZE_RANGE.max - block.text.length / 10)),
+                }, block.style]}>
+                  {block.text.slice(0,255)}
+                </RamaText>
+              ))}
+            </View>
           </LinearGradient>
           </>
         );

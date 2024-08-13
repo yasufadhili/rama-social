@@ -101,7 +101,7 @@ export default function AllPostsFeedList() {
 
   return (
     <RamaBackView>
-      {loading && <ProgressBar style={{ marginVertical: 4 }} color={colours.primary} indeterminate />}
+      {loading && <ProgressBar style={{ marginVertical: 0 }} color={colours.primary} indeterminate />}
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id}
