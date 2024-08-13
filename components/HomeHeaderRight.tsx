@@ -25,7 +25,7 @@ export default function HomeHeaderRight(){
         flexDirection: "row",
         gap: 14,
         alignItems: "center",
-
+        paddingRight: 12
     }} >
 
         {/**<RectButton onPress={()=> router.navigate(`/(profile)/${user?.uid}`)} style={{**/}

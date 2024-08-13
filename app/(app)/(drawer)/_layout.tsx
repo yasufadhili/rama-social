@@ -10,6 +10,7 @@ import { Image } from "expo-image";
 import { View, ViewStyle } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import HomeHeaderRight from '@/components/HomeHeaderRight';
 
 export default function AppLayout() {
     const { user, initialising } = useAuth();
@@ -24,27 +25,36 @@ export default function AppLayout() {
     }
 
     return (
-        <Drawer 
-            initialRouteName="index" 
-            screenOptions={{
-                headerShown: true,
-                drawerPosition: "left",
-                drawerStyle: {
-                    width: "15%",
-                },
-                drawerType: "permanent",
-                drawerHideStatusBarOnOpen: false
-            }}
-            defaultStatus="open"
-            drawerContent={() => <DrawerLayout />}
-        >
-            <Drawer.Screen 
-                name="index" 
-            />
-            <Drawer.Screen name="stars" />
-            <Drawer.Screen name="likes" />
-            <Drawer.Screen name="contacts" />
-        </Drawer>
+        <>
+            <Drawer 
+                initialRouteName="feed" 
+                screenOptions={{
+                    headerShown: true,
+                    drawerPosition: "left",
+                    drawerStyle: {
+                        width: "15%",
+                    },
+                    drawerType: "permanent",
+                    drawerHideStatusBarOnOpen: false,
+                    headerLeft: ()=> <></>,
+                    headerRight: ()=> <HomeHeaderRight />,
+                    headerStyle: {
+                        backgroundColor: colours.background.strong,
+                    },
+                    headerTitleStyle: {
+                        fontSize: 23,
+                        fontWeight: "bold",
+                    },
+                }}
+                defaultStatus="open"
+                drawerContent={() => <DrawerLayout />}
+            >
+                <Drawer.Screen name="feed" options={{title: "Feed"}}  />
+                <Drawer.Screen name="stars" options={{title: "Starred Posts"}} />
+                <Drawer.Screen name="likes" options={{title: "Liked Posts"}} />
+                <Drawer.Screen name="contacts" options={{title: "Contacts"}} />
+            </Drawer>
+        </>
     );
 }
 
@@ -60,7 +70,7 @@ function DrawerLayout() {
     const pathname = usePathname();
 
     const drawerItems: DrawerItem[] = [
-        { name: "index", icon: "home", label: "Home" },
+        { name: "feed", icon: "home", label: "Home" },
         { name: "stars", icon: "star", label: "Stars" },
         { name: "likes", icon: "heart", label: "Likes" },
         { name: "contacts", icon: "account-group", label: "Contacts" },
@@ -141,4 +151,10 @@ function DrawerItem({ name, icon, label, isActive, colours }: DrawerItemProps) {
              */}
         </RectButton>
     );
+}
+
+export function RightCreateFAB(){
+    return <>
+    
+    </>
 }

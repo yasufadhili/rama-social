@@ -1,5 +1,7 @@
-import { RamaText } from "@/components/Themed";
+import { RamaBackView, RamaText } from "@/components/Themed";
 
 export default function StaredPostsScreen(){
-    return <RamaText>Starred Posts</RamaText>
+    return <RamaBackView>
+        
+    </RamaBackView>
 }
