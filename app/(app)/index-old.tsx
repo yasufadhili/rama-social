@@ -1,5 +1,5 @@
 import { RamaBackView, RamaVStack } from "@/components/Themed";
-import AllPostsFeedList from "./(feed)";
+import AllPostsFeedList from "./(feed)/main";
 import { FAB, Portal } from "react-native-paper";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
