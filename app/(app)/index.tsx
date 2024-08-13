@@ -1,6 +1,6 @@
-import { RamaBackView } from "@/components/Themed";
+import { RamaBackView, RamaVStack } from "@/components/Themed";
 import AllPostsFeedList from "./(feed)";
-import { FAB } from "react-native-paper";
+import { FAB, Portal } from "react-native-paper";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { router } from "expo-router";
@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthProvider";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SetupProfileScreen from "./setup-profile";
 import PostCard from "./(feed)/components/post-card";
+import RamaLeftBar from "@/components/left-bar";
 
 
 export default function Index(){
@@ -44,7 +45,10 @@ export default function Index(){
     return <>
         
         <RamaBackView style={{flex: 1}}>
-            <AllPostsFeedList  />
+            {/** */}
+            <Portal>
+              <RamaLeftBar />
+            </Portal>
             <FAB.Group
                 visible
                 open={fabState.open}
