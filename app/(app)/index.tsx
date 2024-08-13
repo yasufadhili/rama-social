@@ -58,14 +58,14 @@ export default function Index(){
                 actions={[
                     { icon: "chevron-down", onPress: () => console.log("Pressed down") },
                     {
-                        icon: "pencil",
-                        label: "Post",
+                        icon: "image-plus",
+                        label: "Media Post",
                         color: colours.text.default,
                         size: "medium",
-                        onPress: () => router.navigate("/(create-post)/default-post"),
+                        onPress: () => router.navigate("/(create-post)/media-post"),
                     },
                     {
-                        icon: "note-plus",
+                        icon: "sticker-text",
                         label: "Text Card",
                         color: colours.text.default,
                         size: "medium",

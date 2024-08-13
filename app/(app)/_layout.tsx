@@ -18,7 +18,7 @@ export default function AppLayout(){
     return <Stack screenOptions={{headerShown: false}}>
         <Stack.Screen name={"index"} options={{
             headerLeft: ()=> <HomeHeaderLeft />,
-            headerShown: true,
+            headerShown: false,
             headerTitle: "",
             headerRight: ()=> <HomeHeaderRight />,
             headerStyle: {

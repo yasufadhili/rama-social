@@ -7,6 +7,7 @@ export type Post = {
     creatorPhoneNumber: string;
     creatorDisplayName: string;
     content: string;
+    caption: string;
     post_type: string;
     mediaUrls: string[];
     textBlocks: TextBlock[];

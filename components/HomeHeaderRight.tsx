@@ -30,8 +30,8 @@ export default function HomeHeaderRight(){
 
         {/**<RectButton onPress={()=> router.navigate(`/(profile)/${user?.uid}`)} style={{**/}
         <RectButton style={{
-            width: 38,
-            height: 38,
+            width: 34,
+            height: 34,
             alignItems: "center",
             justifyContent: "center",
             alignContent: "center",

@@ -12,8 +12,8 @@ export default function HomeHeaderLeft(){
     }}>
         <Image
             source={require("../assets/images/logo.png")}
-            style={{ width: 28, height: 28,  }}
+            style={{ width: 22, height: 22,  }}
         />
-        <RamaText style={{fontSize: 28}} variant={"h1"}>Rama</RamaText>
+        <RamaText style={{fontSize: 24}} variant={"h1"}>Rama</RamaText>
     </View>
 }
