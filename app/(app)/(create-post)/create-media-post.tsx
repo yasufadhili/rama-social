@@ -26,6 +26,7 @@ import HeaderBack from '@/components/HeaderBack';
 import { useAuth } from '@/context/AuthProvider';
 import storage from "@react-native-firebase/storage";
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { RectButton } from 'react-native-gesture-handler';
 
 interface Post {
   id?: string;
@@ -139,7 +140,7 @@ const CreateMediaPostScreen = ({  }: {  }) => {
           setCaption('');
           setMedia([]);
           setIsPublic(true);
-          router.back();
+          router.navigate("/");
     
         } catch (error) {
           console.error('Error posting:', error);
@@ -190,7 +191,15 @@ const CreateMediaPostScreen = ({  }: {  }) => {
             borderBottomColor: colours.background.soft,
           }}>
             <RamaHStack  >
-                <HeaderBack />
+              <RectButton onPress={() => router.navigate("/")} style={{
+                height: 48,
+                width: 48,
+                borderRadius: 12,
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <Ionicons name="close" size={32} color={colours.text.default} />
+              </RectButton>
                 <RamaText
                     variant={"h1"}
                     style={{fontSize: 23}}>Create

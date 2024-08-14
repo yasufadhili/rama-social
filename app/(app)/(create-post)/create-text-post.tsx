@@ -222,7 +222,7 @@ export default function CreateTextPostScreen() {
           <Reanimated.View style={[styles.gradientContainer, animatedStyle]}>
             <Reanimated.View style={gradientStyle} />
             <View style={styles.topBar}>
-              <RectButton onPress={() => router.back()} style={styles.closeButton}>
+              <RectButton onPress={() => router.navigate("/")} style={styles.closeButton}>
                 <Ionicons name="close" size={32} color="#ffffff" />
               </RectButton>
               <RamaButton disabled={textBlocks[0].text.length < 1} onPress={handlePost}>Post</RamaButton>

@@ -71,23 +71,23 @@ const PostCard: React.FC<PostCardProps> = ({ item, onImagePress }) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / SCREEN_WIDTH);
     setCurrentImageIndex(index);
-  }, []);
+  }, [])
 
   const renderHeader = () => (
-    <BlurView intensity={60} tint={"dark"} style={{ paddingLeft: 0, paddingVertical: 12 }}>
+    <BlurView intensity={80} tint={item?.post_type === "text" ? "dark" : colourTheme} style={{ paddingLeft: 0, paddingVertical: 12 }}>
       <RamaHStack style={{ justifyContent: "space-between", paddingHorizontal: 12 }}>
         <RamaHStack>
           <TouchableOpacity style={{ height: 38, width: 38, borderRadius: 12, borderWidth: 1, borderColor: colours.text.soft }}>
             <Image source={{ uri: item?.creatorProfilePicture || "https://picsum.photos/40" }} style={{ height: "100%", width: "100%", borderRadius: 12 }} />
           </TouchableOpacity>
           <RamaVStack>
-            <RamaText style={{ color: "#ffffff" }} variant={"h3"}>{item?.creatorDisplayName}</RamaText>
-            <RamaText style={{ color: "#ffffff" }} variant={"p3"}>{item && formatTimeSince(item.createdAt.toMillis())}</RamaText>
+            <RamaText style={{ color: item?.post_type === "text" ? "#f1f1f1" : colours.text.default }} variant={"h3"}>{item?.creatorDisplayName}</RamaText>
+            <RamaText style={{ color: item?.post_type === "text" ? "#f1f1f1" : colours.text.default }} variant={"p3"}>{item && formatTimeSince(item.createdAt.toMillis())}</RamaText>
           </RamaVStack>
         </RamaHStack>
         <RamaVStack>
           <RectButton style={{ padding: 8, borderRadius: 14 }}>
-            <Ionicons name={"heart"} size={24} color={"#f1f1f1"} />
+            <Ionicons name={"heart"} size={24} color={colours.text.soft} />
           </RectButton>
         </RamaVStack>
       </RamaHStack>
@@ -104,7 +104,7 @@ const PostCard: React.FC<PostCardProps> = ({ item, onImagePress }) => {
           colors={item?.gradientColours || ["#000000", "#333333"]}
           start={{ x: 1, y: 2 }}
           end={{ x: 0, y: 0 }}
-          style={[{ borderRadius: 4, overflow: "hidden", paddingBottom: 8, marginBottom: 4, marginHorizontal: 0 }]}
+          style={[{ marginBottom: 8, borderRadius: 4, overflow: "hidden", paddingBottom: 8,marginHorizontal: 0 }]}
         >
           {renderHeader()}
           <View style={{
@@ -145,7 +145,7 @@ const PostCard: React.FC<PostCardProps> = ({ item, onImagePress }) => {
   };
 
   const renderMediaContent = () => (
-    <View style={{ borderRadius: 4, overflow: "hidden", marginHorizontal: 0, marginBottom: 4, backgroundColor: colourTheme === "dark" ? colours.background.soft : colours.background.strong }}>
+    <View style={{ marginBottom: 8, borderRadius: 4, overflow: "hidden", marginHorizontal: 0, backgroundColor: colourTheme === "dark" ? colours.background.soft : colours.background.strong }}>
       {renderHeader()}
       {(item?.mediaUrls?.length ?? 0) > 0 &&
         <ScrollView

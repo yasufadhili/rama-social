@@ -51,6 +51,10 @@ export default function AppLayout() {
                 drawerContent={() => <DrawerLayout />}
             >
                 <Drawer.Screen name="index" options={{title: "Feed", headerShown: false}} />
+                <Drawer.Screen name="(create-post)" options={{
+                    drawerType: "back",
+                    headerShown: false,
+                    }}  />
                 <Drawer.Screen name="(profile)" options={{
                     title: "Profile",
                     drawerType: "back",
@@ -129,7 +133,7 @@ function DrawerLayout() {
                     
                     <RamaVStack style={{ paddingBottom: 12 }}>
                     <RectButton
-                        style={{padding: 12}}
+                        style={{padding: 12, paddingBottom: 4}}
                         onPress={() => { setSignoutVisible(true) }}
                     >
                         <MaterialCommunityIcons name={"logout"} size={28} color={"#7c868b"} />

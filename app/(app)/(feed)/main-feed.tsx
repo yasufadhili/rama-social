@@ -101,7 +101,7 @@ export default function AllPostsFeedList() {
     if (!loadingMore) return null;
     return <ActivityIndicator size="small" color={colours.primary} style={{ marginVertical: 20 }} />;
   };
-
+  
   const renderHeader = () => {
     return <RamaHStack style={{
         justifyContent: "space-between", 
