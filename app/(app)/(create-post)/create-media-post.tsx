@@ -2,8 +2,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { 
   View, 
-  Text, 
-  TextInput, 
   StyleSheet, 
   ScrollView, 
   Image, 
@@ -16,9 +14,9 @@ import {
   Keyboard
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Feather, AntDesign, Ionicons } from '@expo/vector-icons';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import { router } from 'expo-router';
+import {  AntDesign, Ionicons } from '@expo/vector-icons';
+import { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RamaButton, RamaHStack, RamaInput, RamaText, RamaVStack } from '@/components/Themed';
 import { useTheme } from '@/context/ThemeContext';
@@ -28,16 +26,9 @@ import storage from "@react-native-firebase/storage";
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { RectButton } from 'react-native-gesture-handler';
 import { useBottomSheet } from '@/context/BottomSheetContext';
-
-interface Post {
-  id?: string;
-  caption: string;
-  mediaUrls: string[];
-  isPublic: boolean;
-  creatorId: string;
-  createdAt: FirebaseFirestoreTypes.Timestamp;
-  post_type: "media";
-}
+import { TMediaPost } from '@/types/Post';
+import { useToast } from '@/context/ToastContext';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 const MAX_CHARACTERS = 280;
 const MAX_VIDEO_DURATION = 300; 
@@ -46,18 +37,18 @@ const CreateMediaPostScreen = ({  }: {  }) => {
     const { colours } = useTheme();
     const {user} = useAuth();
     const [caption, setCaption] = useState('');
-    const [media, setMedia] = useState<string[]>([]);
+    const [images, setMedia] = useState<string[]>([]);
     const [isPublic, setIsPublic] = useState(true);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [isDraftSaved, setIsDraftSaved] = useState(false);
     const [loadingMedia, setLoadingMedia] = useState(false);
     const [isPosting, setIsPosting] = useState(false);
     const {closeBottomSheet} = useBottomSheet();
+    const {showToast} = useToast();
 
     const toolbarTranslateY = useSharedValue(50);
 
-    //const isPostButtonDisabled = !caption.trim() && media.length === 0;
-    const isPostButtonDisabled = !media.length && true ;
+    const isPostButtonDisabled = !images.length && true ;
     
     useEffect(() => {
         const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -95,7 +86,7 @@ const CreateMediaPostScreen = ({  }: {  }) => {
           setMedia(prevMedia => [...prevMedia, ...newMedia].slice(0, 5));
         }
       } catch (error) {
-        Alert.alert('Error', 'Something went wrong while picking media.');
+        Alert.alert('Error', 'Something went wrong while picking images.');
       } finally {
         setLoadingMedia(false);
       }
@@ -106,7 +97,7 @@ const CreateMediaPostScreen = ({  }: {  }) => {
       };
   
       const handlePost = async () => {
-        if (isPostButtonDisabled || isPosting) return Alert.alert("Please add some photos to your post ");
+        if (isPostButtonDisabled || isPosting) return <> {showToast({variant: "error", heading: "Error",  text: "Add images to your post"})} </>;
     
         setIsPosting(true);
     
@@ -115,22 +106,21 @@ const CreateMediaPostScreen = ({  }: {  }) => {
             throw new Error('User not authenticated');
           }
     
-          let mediaUrls: string[] = [];
+          let images: string[] = [];
     
-          // Upload media files to Firebase Storage
-          if (media.length > 0) {
-            mediaUrls = await Promise.all(
-              media.map(async (mediaUri, index) => {
-                const reference = storage().ref(`posts/${user.uid}/${Date.now()}_${index}`);
-                await reference.putFile(mediaUri);
+          if (images.length > 0) {
+            images = await Promise.all(
+              images.map(async (imagesUri, index) => {
+                const reference = storage().ref(`post_images/${user.uid}/${Date.now()}_${index}`);
+                await reference.putFile(imagesUri);
                 return await reference.getDownloadURL();
               })
             );
           }
     
-          const post: Post = {
+          const post: TMediaPost = {
             caption,
-            mediaUrls,
+            images,
             isPublic,
             creatorId: user?.uid,
             createdAt: firestore.Timestamp.now(),
@@ -162,7 +152,6 @@ const CreateMediaPostScreen = ({  }: {  }) => {
       const words = text.split(' ');
       const lastWord = words[words.length - 1];
       if (lastWord.startsWith('#') || lastWord.startsWith('@')) {
-        // Fetch suggestions (implement this based on our data source) // likely hashtags
         setSuggestions(['Hashtags', 'Coming', 'Soon']);
       } else {
         setSuggestions([]);
@@ -209,12 +198,12 @@ const CreateMediaPostScreen = ({  }: {  }) => {
                 </RamaText>
             </RamaHStack>
 
-            <RamaButton size={"sm"} onPress={handlePost} disabled={isPosting}>
+            <RamaButton size={"md"} onPress={handlePost} disabled={isPosting}>
               {isPosting ? <ActivityIndicator color={"#ffffff"}  size={"small"}/> : 'Post'}
             </RamaButton>
           </View>
   
-          <ScrollView style={styles.scrollView}>
+          <BottomSheetScrollView style={styles.scrollView}>
             <View style={styles.userProfile}>
               <View style={{
                 width: 38,
@@ -249,72 +238,18 @@ const CreateMediaPostScreen = ({  }: {  }) => {
               </View>
             </View>
   
-            <RamaInput
-              style={{
-                fontSize: 18,
-                padding: 16,
-                minHeight: 120,
-                color: colours.text.default,
-                fontFamily: "Medium",
-              }}
-              cursorColor={colours.primary}
-              placeholderTextColor={colours.text.soft}
-              placeholder="Add post caption"
-              value={caption}
-              onChangeText={handleCaptionChange}
-              multiline
-              maxLength={MAX_CHARACTERS}
-            />
-  
-            {/**
-             * {suggestions.length > 0 && (
-              <FlatList
-                data={suggestions}
-                renderItem={({ item }) => (
-                  <TouchableOpacity 
-                    style={styles.suggestionItem}
-                    onPress={() => {
-                      setCaption(caption + item);
-                      setSuggestions([]);
-                    }}
-                  >
-                    <RamaText>{item}</RamaText>
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item) => item}
-                horizontal
-                style={styles.suggestionList}
-              />
-            )}
-              
-             */}
-  
             {loadingMedia ? (
               <ActivityIndicator size="small" color={colours.text.soft} />
             ) : (
                 <FlatList
-                  data={media}
+                  data={images}
                   renderItem={({ item, index }) => (
-                    <View style={styles.mediaWrapper}>
-                      {item.endsWith('.mp4') ? (
-                        <>
-                            {/**
-                             * <Video
-                                source={{ uri: item }}
-                                style={styles.video}
-                                useNativeControls
-                                resizeMode="contain"
-                                isLooping
-                                />
-                        **/}
-                        </>
-                      ) : (
+                    <View style={styles.imagesWrapper}>
                         <Image source={{ uri: item }} style={{
                           height: 180,
                           width: 140,
                           borderRadius: 12
                         }} />
-                      )}
                       <TouchableOpacity 
                         style={styles.removeButton} 
                         onPress={() => removeMedia(index)}
@@ -326,7 +261,7 @@ const CreateMediaPostScreen = ({  }: {  }) => {
                   keyExtractor={(item, index) => index.toString()}
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  style={styles.mediaGallery}
+                  style={styles.imagesGallery}
                   ListHeaderComponent={()=> (
                         <TouchableOpacity activeOpacity={.6} onPress={pickMedia} style={{backgroundColor: colours.background.soft, borderRadius: 14, paddingHorizontal: 14, paddingVertical:64, gap: 12, alignContent: "center", alignItems: "center", justifyContent: "center", marginRight: 12}}>
                             <Ionicons name={"add"} size={22} color={colours.text.soft} />
@@ -335,7 +270,26 @@ const CreateMediaPostScreen = ({  }: {  }) => {
                   )}
                 />
             )}
-          </ScrollView>
+
+            <RamaInput
+              style={{
+                fontSize: 18,
+                padding: 16,
+                minHeight: 60,
+                color: colours.text.default,
+                fontFamily: "Medium",
+              }}
+              cursorColor={colours.primary}
+              placeholderTextColor={colours.text.soft}
+              placeholder="Add post caption"
+              value={caption}
+              onChangeText={handleCaptionChange}
+              multiline
+              maxLength={MAX_CHARACTERS}
+            />
+
+
+          </BottomSheetScrollView>
 
           {isDraftSaved && (
             <View style={styles.draftSavedNotification}>
@@ -384,12 +338,12 @@ const styles = StyleSheet.create({
   postVisibility: {
     color: '#666',
   },
-  mediaContainer: {
+  imagesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     padding: 8,
   },
-  mediaWrapper: {
+  imagesWrapper: {
     position: 'relative',
     margin: 4,
   },
@@ -420,8 +374,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginRight: 8,
   },
-  mediaGallery: {
-    marginTop: 16,
+  imagesGallery: {
+    marginTop: 12,
+    marginBottom: 24,
   },
   draftSavedNotification: {
     position: 'absolute',
