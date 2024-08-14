@@ -43,8 +43,9 @@ export default function FeedScreen(){
       }
 
     return <>
-        <RamaBackView style={{paddingTop: 65}}>
-          
+        <RamaBackView>
+
+          <AllPostsFeedList />          
 
           <RightCreateFAB />
             

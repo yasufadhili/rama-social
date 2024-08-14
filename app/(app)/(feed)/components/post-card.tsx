@@ -5,11 +5,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { Image } from "expo-image";
 import { NativeScrollEvent, NativeSyntheticEvent, View } from "react-native";
-import { RectButton, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import { RectButton, ScrollView, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler";
 import {BlurView} from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useState } from "react";
 import { SCREEN_WIDTH } from "@/constants/window";
+import { useBottomSheet } from "@/context/BottomSheetContext";
 
 
 export type Post = {
@@ -49,6 +50,7 @@ interface PostCardProps {
 const PostCard: React.FC<PostCardProps> = ({ item, onImagePress }) => {
   const { colourTheme, colours } = useTheme();
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const {openBottomSheet, closeBottomSheet} = useBottomSheet();
 
   const formatTimeSince = (timestamp: number) => {
     const now = Date.now();
