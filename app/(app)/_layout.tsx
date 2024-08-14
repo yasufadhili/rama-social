@@ -56,13 +56,17 @@ export default function AppLayout() {
                     drawerType: "back",
                     headerShown: false,
                     }}  />
+                    <Drawer.Screen name="(circles)" options={{
+                    headerShown: false,
+                    drawerType: "back"
+                    }}  />
                 <Drawer.Screen name="stars" options={{title: "Starred Posts"}} />
                 <Drawer.Screen name="likes" options={{title: "Liked Posts"}} />
                 <Drawer.Screen 
                     name="circles" 
                     options={{
                         title: "Circles",
-                        headerRight: ()=> (<RectButton onPress={()=> {}} style={{
+                        headerRight: ()=> (<RectButton onPress={()=> {router.push("/create-circle")}} style={{
                             alignContent: "center",
                             alignItems: "center",
                             justifyContent: "center",
