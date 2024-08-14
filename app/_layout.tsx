@@ -10,6 +10,7 @@ import { StatusBar } from "expo-status-bar";
 import RamaSplashScreen from "./splash";
 import { PaperProvider } from 'react-native-paper';
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { BottomSheetProvider } from "@/context/BottomSheetContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -61,7 +62,9 @@ function RootLayoutNav(){
   return <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
       <PaperProvider>
       <BottomSheetModalProvider>
-        <Slot  />
+        <BottomSheetProvider>
+          <Slot  />
+        </BottomSheetProvider>
         </BottomSheetModalProvider>
       <StatusBar style={colourTheme === "dark" ? "light" : "dark"} />
       </PaperProvider>

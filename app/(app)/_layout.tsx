@@ -1,3 +1,5 @@
+{/** Re organise this code to be well structured and implemented needed functionality */}
+{/** Create Context for a bottomsheet that will be from gorhom bottom sheet, should have a bottomsheet component, with props for the bottomsheet and the id of the profile to open, so that it can be opened from any part of the app */}
 import React from 'react';
 import { RamaBackView, RamaButton, RamaText, RamaVStack } from "@/components/Themed";
 import { useAuth } from "@/context/AuthProvider";
@@ -10,7 +12,8 @@ import { Alert, View, ViewStyle } from "react-native";
 import { RectButton, TouchableOpacity } from "react-native-gesture-handler";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import RamaSplashScreen from '../splash';
-import { Dialog, Portal } from 'react-native-paper';
+import { Dialog, Divider, Menu, Portal } from 'react-native-paper';
+import { useBottomSheet } from '@/context/BottomSheetContext';
 
 export default function AppLayout() {
     const { user, initialising } = useAuth();
@@ -73,10 +76,10 @@ export default function AppLayout() {
                             alignContent: "center",
                             alignItems: "center",
                             justifyContent: "center",
-                            padding: 6,
+                            padding: 4,
                             borderRadius: 12,
                             backgroundColor: colours.background.soft,
-                            marginRight: 8
+                            marginRight: 12
                         }}>
                             <MaterialCommunityIcons name={"plus"} color={colours.text.soft} size={28} />
                         </RectButton>)
@@ -99,9 +102,17 @@ function DrawerLayout() {
     const pathname = usePathname();
     const [signoutVisible, setSignoutVisible] = React.useState(false);
 
+    const {openBottomSheet} = useBottomSheet();
+
     const showSignoutDialog = () => setSignoutVisible(true);
 
     const hideSignoutDialog = () => setSignoutVisible(false);
+
+    const [bottomMenuVisible, setBottomMenuVisible] = React.useState(false);
+
+    const openBottomMenu = () => setBottomMenuVisible(true);
+
+    const closeBottomMenu = () => setBottomMenuVisible(false);
 
     const drawerItems: DrawerItem[] = [
         { name: "", icon: "home", label: "Home" },
@@ -113,12 +124,7 @@ function DrawerLayout() {
         <SafeAreaView style={{ flex: 1, backgroundColor: colours.background.strong }}>
                 <RamaVStack style={{ alignItems: "center", paddingVertical: 14, flex: 1, justifyContent: "space-between" }}>
                     <RamaVStack style={{alignItems: "center", gap: 28}}>
-                        <TouchableOpacity activeOpacity={.5} onPress={()=> {router.push(`/profile`)}}>
-                            <Image
-                                source={{uri: `${user?.photoURL}`}}
-                                style={{ height: 32, width: 32, borderRadius: 12 }}
-                            />
-                        </TouchableOpacity>
+                        
                         <RamaVStack style={{ gap: 14 }}>
                         {drawerItems.slice(0, 4).map((item) => (
                             <DrawerItem
@@ -130,14 +136,17 @@ function DrawerLayout() {
                         ))}
                     </RamaVStack>
                     </RamaVStack>
-                    
-                    <RamaVStack style={{ paddingBottom: 12 }}>
-                    <RectButton
-                        style={{padding: 12, paddingBottom: 4}}
-                        onPress={() => { setSignoutVisible(true) }}
-                    >
-                        <MaterialCommunityIcons name={"logout"} size={28} color={"#7c868b"} />
+                    <RamaVStack style={{gap: 18, paddingBottom: 18}}>
+                        <Divider />
+                        <RectButton onPress={()=> openBottomSheet("Settings")} style={{padding: 12}}>
+                            <MaterialCommunityIcons size={28}color={colours.text.soft} name={"cog-outline"} />
                         </RectButton>
+                        <TouchableOpacity activeOpacity={.5} onPress={()=> openBottomSheet("Profile", {userId : "123"})} style={{alignItems: "center"}}>
+                            <Image
+                                source={{uri: `${user?.photoURL}`}}
+                                style={{ height: 42, width: 42, borderRadius: 12 }}
+                            />
+                        </TouchableOpacity>
                     </RamaVStack>
                 </RamaVStack>
             {/** Sign out dialog */}

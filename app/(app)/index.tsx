@@ -15,10 +15,7 @@ export default function FeedScreen(){
     const pathname = usePathname();
     const {colourTheme, colours} = useTheme();
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-    const [fabState, setFabState] = useState({ open: false });
     const { user, userExistsInCollection } = useAuth();
-    const onFabStateChange = ({ open }: {open: boolean}) => setFabState({ open });
-    const { open } = fabState;
 
     useEffect(() => {
         if (userExistsInCollection === false) {
@@ -44,41 +41,51 @@ export default function FeedScreen(){
 
     return <>
         <RamaBackView>
-            <AllPostsFeedList />
-            <FAB.Group
-                visible
-                open={fabState.open}
-                color="#ffffff"
-                backdropColor={colourTheme === "dark" ? colours.background.soft : colours.background.soft}
-                fabStyle={{
-                    backgroundColor: colours.primary,
-                    bottom: 8,
-                }}
-                icon={fabState.open ? "close" : "plus"}
-                actions={[
-                    { icon: "chevron-down", onPress: () => console.log("Pressed down") },
-                    {
-                        icon: "image-plus",
-                        label: "Media Post",
-                        color: colours.text.default,
-                        size: "medium",
-                        onPress: () => router.navigate("/create-media-post"),
-                    },
-                    {
-                        icon: "sticker-text",
-                        label: "Text Card",
-                        color: colours.text.default,
-                        size: "medium",
-                        onPress: () => router.navigate("/create-text-post"),
-                    },
-                ]}
-                onStateChange={onFabStateChange}
-                onPress={() => {
-                    if (fabState.open) {
-                        // Do something if the speed dial is open
-                    }
-                }}
-            />
+          
+            
         </RamaBackView>
     </>
+}
+
+export const RightCreateFAB = () => {
+  const {colourTheme, colours} = useTheme();
+  const { user, userExistsInCollection } = useAuth();
+  const [fabState, setFabState] = useState({ open: false });
+  const onFabStateChange = ({ open }: {open: boolean}) => setFabState({ open });
+  const { open } = fabState;
+
+  return  <FAB.Group
+      visible
+      open={fabState.open}
+      color="#ffffff"
+      backdropColor={colourTheme === "dark" ? colours.background.soft : colours.background.soft}
+      fabStyle={{
+          backgroundColor: colours.primary,
+          bottom: 8,
+      }}
+      icon={fabState.open ? "close" : "plus"}
+      actions={[
+          { icon: "chevron-down", onPress: () => console.log("Pressed down") },
+          {
+              icon: "image-plus",
+              label: "Media Post",
+              color: colours.text.default,
+              size: "medium",
+              onPress: () => router.navigate("/create-media-post"),
+          },
+          {
+              icon: "sticker-text",
+              label: "Text Card",
+              color: colours.text.default,
+              size: "medium",
+              onPress: () => router.navigate("/create-text-post"),
+          },
+      ]}
+      onStateChange={onFabStateChange}
+      onPress={() => {
+          if (fabState.open) {
+              // Do something if the speed dial is open
+          }
+      }}
+  />
 }
