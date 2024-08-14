@@ -12,6 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { RamaButton, RamaText } from '@/components/Themed';
 import { useTheme } from '@/context/ThemeContext';
+import { useBottomSheet } from '@/context/BottomSheetContext';
 
 type TextBlock = {
   id: string;
@@ -41,6 +42,7 @@ export default function CreateTextPostScreen() {
   const [error, setError] = useState<string | null>(null);
   const {user} = useAuth();
   const {colourTheme, colours} = useTheme();
+  const {closeBottomSheet} = useBottomSheet();
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const animationProgress = useSharedValue(0);
@@ -122,7 +124,7 @@ export default function CreateTextPostScreen() {
       await firestore().collection('posts').add(postData);
       console.log(postData);
       resetPostState();
-      router.back();
+      closeBottomSheet();
     } catch (err) {
       console.error('Error posting:', err);
       setError('Failed to publish post. Please try again.');
@@ -216,13 +218,13 @@ export default function CreateTextPostScreen() {
   );
 
   return (
-    <BottomSheetModalProvider>
+    <>
       <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <GestureDetector gesture={composedGestures}>
           <Reanimated.View style={[styles.gradientContainer, animatedStyle]}>
             <Reanimated.View style={gradientStyle} />
             <View style={styles.topBar}>
-              <RectButton onPress={() => router.navigate("/")} style={styles.closeButton}>
+              <RectButton onPress={() => closeBottomSheet()} style={styles.closeButton}>
                 <Ionicons name="close" size={32} color="#ffffff" />
               </RectButton>
               <RamaButton disabled={textBlocks[0].text.length < 1} onPress={handlePost}>Post</RamaButton>
@@ -289,7 +291,7 @@ export default function CreateTextPostScreen() {
         </View>
       )}
       <StatusBar style="light" />
-    </BottomSheetModalProvider>
+      </>
   );
 }
 

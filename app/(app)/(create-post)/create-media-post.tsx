@@ -27,6 +27,7 @@ import { useAuth } from '@/context/AuthProvider';
 import storage from "@react-native-firebase/storage";
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { RectButton } from 'react-native-gesture-handler';
+import { useBottomSheet } from '@/context/BottomSheetContext';
 
 interface Post {
   id?: string;
@@ -51,6 +52,7 @@ const CreateMediaPostScreen = ({  }: {  }) => {
     const [isDraftSaved, setIsDraftSaved] = useState(false);
     const [loadingMedia, setLoadingMedia] = useState(false);
     const [isPosting, setIsPosting] = useState(false);
+    const {closeBottomSheet} = useBottomSheet();
 
     const toolbarTranslateY = useSharedValue(50);
 
@@ -140,7 +142,7 @@ const CreateMediaPostScreen = ({  }: {  }) => {
           setCaption('');
           setMedia([]);
           setIsPublic(true);
-          router.navigate("/");
+          closeBottomSheet();
     
         } catch (error) {
           console.error('Error posting:', error);
@@ -187,26 +189,27 @@ const CreateMediaPostScreen = ({  }: {  }) => {
             alignItems: 'center',
             paddingHorizontal: 16,
             paddingVertical: 8,
+            paddingLeft: 9,
             borderBottomWidth: 1,
             borderBottomColor: colours.background.soft,
           }}>
             <RamaHStack  >
-              <RectButton onPress={() => router.navigate("/")} style={{
+              <RectButton onPress={() => closeBottomSheet()} style={{
                 height: 48,
                 width: 48,
                 borderRadius: 12,
                 alignItems: "center",
                 justifyContent: "center"
               }}>
-                <Ionicons name="close" size={32} color={colours.text.default} />
+                <Ionicons name="close" size={28} color={colours.text.default} />
               </RectButton>
                 <RamaText
                     variant={"h1"}
-                    style={{fontSize: 23}}>Create
+                    style={{fontSize: 20}}>Create
                 </RamaText>
             </RamaHStack>
 
-            <RamaButton onPress={handlePost} disabled={isPosting}>
+            <RamaButton size={"sm"} onPress={handlePost} disabled={isPosting}>
               {isPosting ? <ActivityIndicator color={"#ffffff"}  size={"small"}/> : 'Post'}
             </RamaButton>
           </View>

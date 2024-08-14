@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthProvider";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SetupProfileScreen from "./setup-profile";
 import AllPostsFeedList from "./(feed)/main-feed";
+import { useBottomSheet } from "@/context/BottomSheetContext";
 
 export default function FeedScreen(){
     const segments = useSegments();
@@ -42,6 +43,8 @@ export default function FeedScreen(){
     return <>
         <RamaBackView>
           
+
+          <RightCreateFAB />
             
         </RamaBackView>
     </>
@@ -53,6 +56,7 @@ export const RightCreateFAB = () => {
   const [fabState, setFabState] = useState({ open: false });
   const onFabStateChange = ({ open }: {open: boolean}) => setFabState({ open });
   const { open } = fabState;
+  const {openBottomSheet} = useBottomSheet();
 
   return  <FAB.Group
       visible
@@ -71,14 +75,14 @@ export const RightCreateFAB = () => {
               label: "Media Post",
               color: colours.text.default,
               size: "medium",
-              onPress: () => router.navigate("/create-media-post"),
+              onPress: () => openBottomSheet("create-media-post", {}, false),
           },
           {
               icon: "sticker-text",
               label: "Text Card",
               color: colours.text.default,
               size: "medium",
-              onPress: () => router.navigate("/create-text-post"),
+              onPress: () => openBottomSheet("create-text-post", {}, true),
           },
       ]}
       onStateChange={onFabStateChange}
