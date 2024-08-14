@@ -11,6 +11,7 @@ import RamaSplashScreen from "./splash";
 import { PaperProvider } from 'react-native-paper';
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { BottomSheetProvider } from "@/context/BottomSheetContext";
+import { ToastProvider } from "@/context/ToastContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -50,7 +51,9 @@ export default function RootLayout() {
       
         <ThemeProvider>
           <AuthProvider>
-            <RootLayoutNav />
+            <ToastProvider>
+              <RootLayoutNav />
+            </ToastProvider>
           </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
@@ -63,7 +66,7 @@ function RootLayoutNav(){
       <PaperProvider>
       <BottomSheetModalProvider>
         <BottomSheetProvider>
-          <Slot  />
+            <Slot  />
         </BottomSheetProvider>
         </BottomSheetModalProvider>
       <StatusBar style={colourTheme === "dark" ? "light" : "dark"} />

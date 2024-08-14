@@ -1,6 +1,6 @@
-import { RamaBackView } from "@/components/Themed";
+import { RamaBackView, RamaButton } from "@/components/Themed";
 import { usePathname, useSegments } from "expo-router";
-import { FAB } from "react-native-paper";
+import { Button, FAB } from "react-native-paper";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { router } from "expo-router";
@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import SetupProfileScreen from "./setup-profile";
 import AllPostsFeedList from "./(feed)/main-feed";
 import { useBottomSheet } from "@/context/BottomSheetContext";
+import { useToast } from "@/context/ToastContext";
 
 export default function FeedScreen(){
     const segments = useSegments();
@@ -17,6 +18,7 @@ export default function FeedScreen(){
     const {colourTheme, colours} = useTheme();
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
     const { user, userExistsInCollection } = useAuth();
+    const {showToast} = useToast();
 
     useEffect(() => {
         if (userExistsInCollection === false) {
@@ -41,7 +43,7 @@ export default function FeedScreen(){
       }
 
     return <>
-        <RamaBackView>
+        <RamaBackView style={{paddingTop: 65}}>
           
 
           <RightCreateFAB />
@@ -57,6 +59,7 @@ export const RightCreateFAB = () => {
   const onFabStateChange = ({ open }: {open: boolean}) => setFabState({ open });
   const { open } = fabState;
   const {openBottomSheet} = useBottomSheet();
+
 
   return  <FAB.Group
       visible

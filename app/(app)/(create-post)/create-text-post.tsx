@@ -13,6 +13,7 @@ import { router } from 'expo-router';
 import { RamaButton, RamaText } from '@/components/Themed';
 import { useTheme } from '@/context/ThemeContext';
 import { useBottomSheet } from '@/context/BottomSheetContext';
+import { useToast } from '@/context/ToastContext';
 
 type TextBlock = {
   id: string;
@@ -43,7 +44,7 @@ export default function CreateTextPostScreen() {
   const {user} = useAuth();
   const {colourTheme, colours} = useTheme();
   const {closeBottomSheet} = useBottomSheet();
-
+  const {showToast} = useToast();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const animationProgress = useSharedValue(0);
   const scale = useSharedValue(1);
@@ -124,9 +125,20 @@ export default function CreateTextPostScreen() {
       await firestore().collection('posts').add(postData);
       console.log(postData);
       resetPostState();
+      showToast({
+        variant: 'success',
+        heading: 'Success!',
+        text: 'Your post was created successfully.',
+      });
       closeBottomSheet();
     } catch (err) {
       console.error('Error posting:', err);
+      showToast({
+        variant: 'error',
+        heading: 'Error',
+        text: 'Something went wrong. Please try again.',
+        duration: 3000
+      });
       setError('Failed to publish post. Please try again.');
     } finally {
       setIsLoading(false);
