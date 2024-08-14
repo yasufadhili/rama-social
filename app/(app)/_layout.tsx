@@ -110,7 +110,7 @@ function DrawerLayout() {
             <RamaBackView>
                 <RamaVStack style={{ alignItems: "center", paddingVertical: 14, flex: 1, justifyContent: "space-between" }}>
                     <RamaVStack style={{alignItems: "center", gap: 28}}>
-                        <TouchableOpacity activeOpacity={.5} onPress={()=> {router.push("/(app)/(profile)")}}>
+                        <TouchableOpacity activeOpacity={.5} onPress={()=> {router.push(`/profile`)}}>
                             <Image
                                 source={{uri: `${user?.photoURL}`}}
                                 style={{ height: 32, width: 32, borderRadius: 12 }}

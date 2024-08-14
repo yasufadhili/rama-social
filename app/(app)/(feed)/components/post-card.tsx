@@ -78,7 +78,7 @@ const PostCard:React.FC<PostCardProps> = ({item, onPress}) => {
               colors={[item.gradientColours[0], item.gradientColours[1]]}
               start={{x: 1, y: 2}}
               end={{x: 0, y:0}}
-              style={[{borderRadius: 18, overflow: "hidden", paddingBottom: 4, marginBottom: 6, marginHorizontal: 2, }, {/**height: gradientHeight*/}]}
+              style={[{borderRadius: 8, overflow: "hidden", paddingBottom: 4, marginBottom: 6, marginHorizontal: 2, }, {/**height: gradientHeight*/}]}
             >
           {/** Post Header */}
             {/** Blur view should have a borderRadius */}
@@ -100,7 +100,6 @@ const PostCard:React.FC<PostCardProps> = ({item, onPress}) => {
             </BlurView>
             <View style={{
               alignItems: "center",
-              paddingRight: 48,
               justifyContent: "center",
               alignContent: "center",
               paddingVertical: item.textBlocks[0].text.length < 120 ? 88 : item.textBlocks[0].text.length < 30 ? 24 : 12
@@ -145,18 +144,6 @@ const PostCard:React.FC<PostCardProps> = ({item, onPress}) => {
   return <>
     <View style={{}}>
       {renderContent()}
-      {/** Post Right */}
-      <RamaVStack style={{position: "absolute", right: 14, bottom: 45, gap: 18}}>
-        <RectButton style={{padding: 8, backgroundColor: colours.background.soft, borderRadius: 14}}>
-          <Ionicons name={"heart"} size={24} color={colours.text.default} />
-        </RectButton>
-        <RectButton style={{padding: 8, backgroundColor: colours.background.soft, borderRadius: 14}}>
-          <Ionicons name={"star"} size={24} color={colours.text.default} />
-        </RectButton>
-        <RectButton style={{padding: 8, backgroundColor: colours.background.soft, borderRadius: 14}}>
-          <Ionicons name={"chatbox"} size={24} color={colours.text.default} />
-        </RectButton>
-      </RamaVStack>
     </View>
   </>
 }
