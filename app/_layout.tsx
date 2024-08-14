@@ -61,7 +61,7 @@ function RootLayoutNav(){
   return <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
       <PaperProvider>
       <BottomSheetModalProvider>
-      <Slot initialRouteName={"(drawer)"} />
+      <Slot  />
         </BottomSheetModalProvider>
       <StatusBar style={colourTheme === "dark" ? "light" : "dark"} />
       </PaperProvider>
