@@ -3,11 +3,14 @@ import { View, FlatList, ActivityIndicator } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
 import { useFocusEffect } from 'expo-router';
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
-import { RamaBackView, RamaText } from '@/components/Themed';
+import { RamaBackView, RamaHStack, RamaText } from '@/components/Themed';
 import { useAuth } from '@/context/AuthProvider';
 import { useTheme } from '@/context/ThemeContext';
 import PostCard from './components/post-card';
 import { Post } from './types';
+import HomeHeaderLeft from '@/components/HomeHeaderLeft';
+import HomeHeaderRight from '@/components/HomeHeaderRight';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const POSTS_PER_PAGE = 10;
 
@@ -88,20 +91,36 @@ export default function AllPostsFeedList() {
   }, [fetchPosts]);
 
   const handleLoadMore = useCallback(() => {
-    if (!loadingMore && hasMore) {
-      setLoadingMore(true);
-      fetchPosts(true);
-    }
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    fetchPosts(true);
   }, [loadingMore, hasMore, fetchPosts]);
+  
 
   const renderFooter = () => {
     if (!loadingMore) return null;
     return <ActivityIndicator size="small" color={colours.primary} style={{ marginVertical: 20 }} />;
   };
 
+  const renderHeader = () => {
+    return <RamaHStack style={{
+        justifyContent: "space-between", 
+        paddingHorizontal: 12, 
+        paddingBottom: 18,
+        marginBottom: 12, 
+        paddingTop: 8, 
+        borderBottomWidth: 2, 
+        borderBottomColor: colours.background.soft,
+        backgroundColor: colours.background.strong
+        }}>
+            <RamaText style={{fontSize: 22}} variant={"h1"}>Feed</RamaText>
+    </RamaHStack>
+  }
+
   return (
-    <RamaBackView>
-      {loading && <ProgressBar style={{ marginVertical: 4 }} color={colours.primary} indeterminate />}
+    <SafeAreaView style={{flex: 1, backgroundColor: colours.background.strong}}>
+      <RamaBackView>
+      {loading && <ProgressBar style={{ marginVertical: 0 }} color={colours.primary} indeterminate />}
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id}
@@ -109,15 +128,27 @@ export default function AllPostsFeedList() {
         onRefresh={handleRefresh}
         refreshing={refreshing}
         onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.1}
+        onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
-        contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 0 }}
-        ListEmptyComponent={() => (
-          <View>
-            <RamaText>No Posts found</RamaText>
-          </View>
-        )}
+        ListHeaderComponent={renderHeader}
+        stickyHeaderIndices={[0]}
+        stickyHeaderHiddenOnScroll
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingVertical: 0, paddingHorizontal: 0, paddingBottom: 120, }}
+        ListEmptyComponent={() => {
+          if (loading || refreshing) {
+            return null;
+          }
+          return(
+            <View>
+              <RamaText>No Posts found</RamaText>
+            </View>
+          )
+        } 
+        }
+        
       />
     </RamaBackView>
+    </SafeAreaView>
   );
 }

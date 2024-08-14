@@ -50,7 +50,7 @@ export default function AppLayout() {
                 defaultStatus="open"
                 drawerContent={() => <DrawerLayout />}
             >
-                <Drawer.Screen name="index" options={{title: "Feed"}} />
+                <Drawer.Screen name="index" options={{title: "Feed", headerShown: false}} />
                 <Drawer.Screen name="(profile)" options={{
                     title: "Profile",
                     drawerType: "back",
