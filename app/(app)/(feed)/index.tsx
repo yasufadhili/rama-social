@@ -1,0 +1,123 @@
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { View, FlatList, ActivityIndicator } from 'react-native';
+import { ProgressBar } from 'react-native-paper';
+import { useFocusEffect } from 'expo-router';
+import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { RamaBackView, RamaText } from '@/components/Themed';
+import { useAuth } from '@/context/AuthProvider';
+import { useTheme } from '@/context/ThemeContext';
+import PostCard from './components/post-card';
+import { Post } from './types';
+
+const POSTS_PER_PAGE = 10;
+
+export default function AllPostsFeedList() {
+  const { colourTheme, colours } = useTheme();
+  const { user, userExistsInCollection } = useAuth();
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const lastDocRef = useRef<FirebaseFirestoreTypes.DocumentSnapshot | null>(null);
+
+  const fetchPosts = useCallback(async (loadMore: boolean = false) => {
+    try {
+      let query = firestore()
+        .collection('posts')
+        .orderBy('createdAt', 'desc')
+        .limit(POSTS_PER_PAGE);
+
+      if (loadMore && lastDocRef.current) {
+        query = query.startAfter(lastDocRef.current);
+      }
+
+      const postsSnapshot = await query.get();
+
+      if (postsSnapshot.empty) {
+        setHasMore(false);
+        return;
+      }
+
+      lastDocRef.current = postsSnapshot.docs[postsSnapshot.docs.length - 1];
+
+      const postPromises = postsSnapshot.docs.map(async (doc) => {
+        const postData = doc.data() as Post;
+        const creatorSnapshot = await firestore().collection('users').doc(postData.creatorId).get();
+        const creatorData = creatorSnapshot.data();
+        return {
+          ...postData,
+          id: doc.id,
+          creatorDisplayName: creatorData?.displayName || 'Anonymous',
+          creatorProfilePicture: creatorData?.profilePicture || '',
+          createdAt: postData?.createdAt,
+          post_type: postData?.post_type,
+          textBlocks: postData?.textBlocks || [],
+          imageUrls: postData?.mediaUrls,
+          content: postData?.content,
+          gradientColours: postData?.gradientColours || ['#000000', '#000000'],
+        };
+      });
+
+      const fetchedPosts = await Promise.all(postPromises);
+      setPosts((prevPosts) => (loadMore ? [...prevPosts, ...fetchedPosts] : fetchedPosts))
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+      setLoadingMore(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPosts();
+    }, [fetchPosts])
+  );
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    lastDocRef.current = null;
+    setHasMore(true);
+    fetchPosts();
+  }, [fetchPosts]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!loadingMore && hasMore) {
+      setLoadingMore(true);
+      fetchPosts(true);
+    }
+  }, [loadingMore, hasMore, fetchPosts]);
+
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    return <ActivityIndicator size="small" color={colours.primary} style={{ marginVertical: 20 }} />;
+  };
+
+  return (
+    <RamaBackView>
+      {loading && <ProgressBar style={{ marginVertical: 4 }} color={colours.primary} indeterminate />}
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <PostCard onImagePress={() => {}} item={item} />}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.1}
+        ListFooterComponent={renderFooter}
+        contentContainerStyle={{ paddingVertical: 12, paddingHorizontal: 0 }}
+        ListEmptyComponent={() => (
+          <View>
+            <RamaText>No Posts found</RamaText>
+          </View>
+        )}
+      />
+    </RamaBackView>
+  );
+}
