@@ -1,15 +1,16 @@
 import React from 'react';
-import { RamaBackView, RamaText, RamaVStack } from "@/components/Themed";
+import { RamaBackView, RamaButton, RamaText, RamaVStack } from "@/components/Themed";
 import { useAuth } from "@/context/AuthProvider";
 import { Redirect, Stack, usePathname, router } from "expo-router";
 import { useTheme } from "@/context/ThemeContext";
 import { Drawer } from 'expo-router/drawer';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
-import { View, ViewStyle } from "react-native";
+import { Alert, View, ViewStyle } from "react-native";
 import { RectButton, TouchableOpacity } from "react-native-gesture-handler";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import RamaSplashScreen from '../splash';
+import { Dialog, Portal } from 'react-native-paper';
 
 export default function AppLayout() {
     const { user, initialising } = useAuth();
@@ -29,6 +30,7 @@ export default function AppLayout() {
                 initialRouteName="index" 
                 screenOptions={{
                     headerShown: true,
+                    swipeEnabled: false,
                     drawerPosition: "left",
                     drawerStyle: {
                         width: "15%",
@@ -43,11 +45,17 @@ export default function AppLayout() {
                         fontSize: 20,
                         fontWeight: "bold",
                     },
+                    
                 }}
                 defaultStatus="open"
                 drawerContent={() => <DrawerLayout />}
             >
-                <Drawer.Screen name="index" options={{title: "Feed"}}  />
+                <Drawer.Screen name="index" options={{title: "Feed"}} />
+                <Drawer.Screen name="(profile)" options={{
+                    title: "Profile",
+                    drawerType: "back",
+                    headerShown: false,
+                    }}  />
                 <Drawer.Screen name="stars" options={{title: "Starred Posts"}} />
                 <Drawer.Screen name="likes" options={{title: "Liked Posts"}} />
                 <Drawer.Screen 
@@ -79,9 +87,14 @@ interface DrawerItem {
 }
 
 function DrawerLayout() {
-    const { colours } = useTheme();
-    const { user } = useAuth();
+    const { colours, colourTheme } = useTheme();
+    const { user, signOut } = useAuth();
     const pathname = usePathname();
+    const [signoutVisible, setSignoutVisible] = React.useState(false);
+
+    const showSignoutDialog = () => setSignoutVisible(true);
+
+    const hideSignoutDialog = () => setSignoutVisible(false);
 
     const drawerItems: DrawerItem[] = [
         { name: "", icon: "home", label: "Home" },
@@ -95,7 +108,7 @@ function DrawerLayout() {
             <RamaBackView>
                 <RamaVStack style={{ alignItems: "center", paddingVertical: 14, flex: 1, justifyContent: "space-between" }}>
                     <RamaVStack style={{alignItems: "center", gap: 28}}>
-                        <TouchableOpacity activeOpacity={.5} onPress={()=> {}}>
+                        <TouchableOpacity activeOpacity={.5} onPress={()=> {router.push("/(app)/(profile)")}}>
                             <Image
                                 source={{uri: `${user?.photoURL}`}}
                                 style={{ height: 32, width: 32, borderRadius: 12 }}
@@ -116,15 +129,25 @@ function DrawerLayout() {
                     <RamaVStack style={{ paddingBottom: 12 }}>
                     <RectButton
                         style={{}}
-                        onPress={() => {
-                            
-                        }}
+                        onPress={() => { setSignoutVisible(true) }}
                     >
-                        <MaterialCommunityIcons name={"cog-outline"} size={28} color={"#7c868b"} />
+                        <MaterialCommunityIcons name={"logout"} size={28} color={"#7c868b"} />
                         </RectButton>
                     </RamaVStack>
                 </RamaVStack>
             </RamaBackView>
+            {/** Sign out dialog */}
+            <Portal>
+            <Dialog style={{backgroundColor: colourTheme === "dark" ? colours.background.soft : colours.background.strong}} visible={signoutVisible} onDismiss={hideSignoutDialog}>
+                <Dialog.Title>Sign out!</Dialog.Title>
+                <Dialog.Content>
+                <RamaText >Are you sure you want to sign out</RamaText>
+                </Dialog.Content>
+                <Dialog.Actions>
+                <RamaButton variant={"link"} onPress={()=> signOut()}>Sign out</RamaButton>
+                </Dialog.Actions>
+            </Dialog>
+            </Portal>
         </SafeAreaView>
     );
 }
