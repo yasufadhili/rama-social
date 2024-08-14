@@ -1,4 +1,6 @@
-
+{/** TO DO 
+  witch to a 2x2 grid for the selected images,
+  with the add image button at the top of the grid and the caption in the toolbar area */}
 import React, { useState, useCallback, useEffect } from 'react';
 import { 
   View, 
