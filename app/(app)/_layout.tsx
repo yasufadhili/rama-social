@@ -65,7 +65,7 @@ export default function AppLayout() {
                     name="circles" 
                     options={{
                         title: "Circles",
-                        headerRight: ()=> (<RectButton onPress={()=> {router.push("/create-circle")}} style={{
+                        headerRight: ()=> (<RectButton onPress={()=> {}} style={{
                             alignContent: "center",
                             alignItems: "center",
                             justifyContent: "center",
