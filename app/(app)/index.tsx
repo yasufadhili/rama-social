@@ -43,9 +43,7 @@ export default function FeedScreen(){
       }
 
     return <>
-        <RamaBackView>
-
-          <AllPostsFeedList />          
+        <RamaBackView>   
 
           <RightCreateFAB />
             
