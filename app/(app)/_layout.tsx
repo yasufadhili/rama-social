@@ -107,7 +107,6 @@ function DrawerLayout() {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: colours.background.strong }}>
-            <RamaBackView>
                 <RamaVStack style={{ alignItems: "center", paddingVertical: 14, flex: 1, justifyContent: "space-between" }}>
                     <RamaVStack style={{alignItems: "center", gap: 28}}>
                         <TouchableOpacity activeOpacity={.5} onPress={()=> {router.push(`/profile`)}}>
@@ -130,14 +129,13 @@ function DrawerLayout() {
                     
                     <RamaVStack style={{ paddingBottom: 12 }}>
                     <RectButton
-                        style={{}}
+                        style={{padding: 12}}
                         onPress={() => { setSignoutVisible(true) }}
                     >
                         <MaterialCommunityIcons name={"logout"} size={28} color={"#7c868b"} />
                         </RectButton>
                     </RamaVStack>
                 </RamaVStack>
-            </RamaBackView>
             {/** Sign out dialog */}
             <Portal>
             <Dialog style={{backgroundColor: colourTheme === "dark" ? colours.background.soft : colours.background.strong}} visible={signoutVisible} onDismiss={hideSignoutDialog}>
