@@ -10,7 +10,6 @@ import { Image } from "expo-image";
 import { View, ViewStyle } from "react-native";
 import { RectButton, TouchableOpacity } from "react-native-gesture-handler";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import HomeHeaderRight from '@/components/HomeHeaderRight';
 
 export default function AppLayout() {
     const { user, initialising } = useAuth();
@@ -27,7 +26,7 @@ export default function AppLayout() {
     return (
         <>
             <Drawer 
-                initialRouteName="feed" 
+                initialRouteName="index" 
                 screenOptions={{
                     headerShown: true,
                     drawerPosition: "left",
@@ -41,17 +40,33 @@ export default function AppLayout() {
                         backgroundColor: colours.background.strong,
                     },
                     headerTitleStyle: {
-                        fontSize: 23,
+                        fontSize: 20,
                         fontWeight: "bold",
                     },
                 }}
                 defaultStatus="open"
                 drawerContent={() => <DrawerLayout />}
             >
-                <Drawer.Screen name="feed" options={{title: "Feed"}}  />
+                <Drawer.Screen name="index" options={{title: "Feed"}}  />
                 <Drawer.Screen name="stars" options={{title: "Starred Posts"}} />
                 <Drawer.Screen name="likes" options={{title: "Liked Posts"}} />
-                <Drawer.Screen name="circles" options={{title: "Contacts"}} />
+                <Drawer.Screen 
+                    name="circles" 
+                    options={{
+                        title: "Circles",
+                        headerRight: ()=> (<RectButton onPress={()=> router.push("/(circles)")} style={{
+                            alignContent: "center",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: 6,
+                            borderRadius: 12,
+                            backgroundColor: colours.background.soft,
+                            marginRight: 8
+                        }}>
+                            <MaterialCommunityIcons name={"plus"} color={colours.text.soft} size={28} />
+                        </RectButton>)
+                    }} 
+                />
             </Drawer>
         </>
     );
@@ -69,7 +84,7 @@ function DrawerLayout() {
     const pathname = usePathname();
 
     const drawerItems: DrawerItem[] = [
-        { name: "feed", icon: "home", label: "Home" },
+        { name: "index", icon: "home", label: "Home" },
         { name: "stars", icon: "star", label: "Stars" },
         { name: "likes", icon: "heart", label: "Likes" },
         { name: "circles", icon: "account-group", label: "Circles" },

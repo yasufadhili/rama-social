@@ -11,7 +11,7 @@ export default function SettingLayout(){
         },
         headerLeft: () => <HeaderBack />
     }}>
-        <Stack.Screen name={"index"} options={{
+        <Stack.Screen name={"settings"} options={{
             title: "Settings",
             headerTitleStyle: {
                 fontSize: 23,

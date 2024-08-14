@@ -6,5 +6,5 @@ export default function AppLayout(){
     if (!user) {
         return <Redirect href={"/sign-in"} />
     }
-    return <Stack initialRouteName={"(drawer)"} screenOptions={{headerShown: false}} />
+    return <Stack initialRouteName={"(a)"} screenOptions={{headerShown: false}} />
 }
