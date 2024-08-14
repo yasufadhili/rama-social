@@ -8,7 +8,7 @@ import PostDetailsBottomSheet from './navigation/PostDetailsBottomSheet';
 import SettingsBottomSheet from './navigation/SettingsBottomSheet';
 
 const DynamicBottomSheet = forwardRef((props, ref) => {
-  const { currentBottomSheet, bottomSheetProps, closeBottomSheet } = useBottomSheet();
+  const { currentBottomSheet, bottomSheetProps, closeBottomSheet, enableSwipeDown } = useBottomSheet();
 
   const renderContent = () => {
     switch (currentBottomSheet) {
@@ -27,10 +27,11 @@ const DynamicBottomSheet = forwardRef((props, ref) => {
       <BottomSheetModal
         ref={ref}
         index={0}
-        snapPoints={["100%"]}
+        snapPoints={['100%']}
         onChange={(index) => {
-          if (index === -1) closeBottomSheet();
+          if (index === -1 && enableSwipeDown) closeBottomSheet();
         }}
+        enablePanDownToClose={enableSwipeDown}
       >
         <View style={{ flex: 1 }}>{renderContent()}</View>
       </BottomSheetModal>

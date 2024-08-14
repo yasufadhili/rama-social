@@ -138,7 +138,7 @@ function DrawerLayout() {
                     </RamaVStack>
                     <RamaVStack style={{gap: 18, paddingBottom: 18}}>
                         <Divider />
-                        <RectButton onPress={()=> openBottomSheet("Settings")} style={{padding: 12}}>
+                        <RectButton onPress={()=> openBottomSheet("Settings", {}, false)} style={{padding: 12}}>
                             <MaterialCommunityIcons size={28}color={colours.text.soft} name={"cog-outline"} />
                         </RectButton>
                         <TouchableOpacity activeOpacity={.5} onPress={()=> openBottomSheet("Profile", {userId : "123"})} style={{alignItems: "center"}}>
