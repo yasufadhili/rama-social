@@ -38,9 +38,9 @@ const ProfileDetailsScreen = () => {
                     const userData= userDoc.data();
                     setProfileData(prev => ({
                         ...prev,
-                        profilePicture: userData.profilePicture || "",
-                        displayName: userData.displayName || 'Unknown User',
-                        phoneNumber: userData.phoneNumber || 'unknown_user',
+                        profilePicture: userData?.profilePicture || "",
+                        displayName: userData?.displayName || 'Unknown User',
+                        phoneNumber: userData?.phoneNumber || 'unknown_user',
                     }));
                 }
 

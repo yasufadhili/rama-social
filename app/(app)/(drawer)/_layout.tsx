@@ -8,7 +8,7 @@ import { Drawer } from 'expo-router/drawer';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { View, ViewStyle } from "react-native";
-import { RectButton } from "react-native-gesture-handler";
+import { RectButton, TouchableOpacity } from "react-native-gesture-handler";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import HomeHeaderRight from '@/components/HomeHeaderRight';
 
@@ -37,7 +37,6 @@ export default function AppLayout() {
                     drawerType: "permanent",
                     drawerHideStatusBarOnOpen: false,
                     headerLeft: ()=> <></>,
-                    headerRight: ()=> <HomeHeaderRight />,
                     headerStyle: {
                         backgroundColor: colours.background.strong,
                     },
@@ -52,7 +51,7 @@ export default function AppLayout() {
                 <Drawer.Screen name="feed" options={{title: "Feed"}}  />
                 <Drawer.Screen name="stars" options={{title: "Starred Posts"}} />
                 <Drawer.Screen name="likes" options={{title: "Liked Posts"}} />
-                <Drawer.Screen name="contacts" options={{title: "Contacts"}} />
+                <Drawer.Screen name="circles" options={{title: "Contacts"}} />
             </Drawer>
         </>
     );
@@ -73,20 +72,21 @@ function DrawerLayout() {
         { name: "feed", icon: "home", label: "Home" },
         { name: "stars", icon: "star", label: "Stars" },
         { name: "likes", icon: "heart", label: "Likes" },
-        { name: "contacts", icon: "account-group", label: "Contacts" },
+        { name: "circles", icon: "account-group", label: "Circles" },
     ];
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: colours.background.strong }}>
             <RamaBackView>
                 <RamaVStack style={{ alignItems: "center", paddingVertical: 14, flex: 1, justifyContent: "space-between" }}>
-                    <View>
-                        <Image
-                            source={require("../../../assets/images/logo.png")}
-                            style={{ height: 28, width: 28 }}
-                        />
-                    </View>
-                    <RamaVStack style={{ gap: 12 }}>
+                    <RamaVStack style={{alignItems: "center", gap: 28}}>
+                        <TouchableOpacity activeOpacity={.5} onPress={()=> router.push("/(profile)")}>
+                            <Image
+                                source={{uri: `${user?.photoURL}`}}
+                                style={{ height: 32, width: 32, borderRadius: 12 }}
+                            />
+                        </TouchableOpacity>
+                        <RamaVStack style={{ gap: 14 }}>
                         {drawerItems.slice(0, 4).map((item) => (
                             <DrawerItem
                                 key={item.name}
@@ -96,6 +96,8 @@ function DrawerLayout() {
                             />
                         ))}
                     </RamaVStack>
+                    </RamaVStack>
+                    
                     <RamaVStack style={{ paddingBottom: 12 }}>
                     <RectButton
                         style={{}}
@@ -103,7 +105,7 @@ function DrawerLayout() {
                             router.push("/(app)/(settings)");
                         }}
                     >
-                        <MaterialCommunityIcons name={"cog"} size={30} color={"#7c868b"} />
+                        <MaterialCommunityIcons name={"cog-outline"} size={28} color={"#7c868b"} />
                         </RectButton>
                     </RamaVStack>
                 </RamaVStack>
@@ -124,7 +126,7 @@ interface DrawerItemProps extends DrawerItem {
 
 function DrawerItem({ name, icon, label, isActive, colours }: DrawerItemProps) {
     const itemStyle: ViewStyle = {
-        padding: 12,
+        padding: 10,
         backgroundColor: isActive ? colours.background.default : 'transparent',
         borderRadius: 8,
     };
@@ -137,9 +139,9 @@ function DrawerItem({ name, icon, label, isActive, colours }: DrawerItemProps) {
             }}
         >
             <MaterialCommunityIcons 
-                name={icon}
+                name={isActive ? icon : `${icon}-outline`}
                 color={isActive ? colours.primary : "#7c868b"} 
-                size={30} 
+                size={26} 
             />
             {/**
              * 
