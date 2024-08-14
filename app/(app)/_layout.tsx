@@ -60,7 +60,6 @@ export default function AppLayout() {
                     headerShown: false,
                     drawerType: "back"
                     }}  />
-                <Drawer.Screen name="stars" options={{title: "Starred Posts"}} />
                 <Drawer.Screen name="likes" options={{title: "Liked Posts"}} />
                 <Drawer.Screen 
                     name="circles" 
@@ -102,7 +101,6 @@ function DrawerLayout() {
 
     const drawerItems: DrawerItem[] = [
         { name: "", icon: "home", label: "Home" },
-        { name: "stars", icon: "star", label: "Stars" },
         { name: "likes", icon: "heart", label: "Likes" },
         { name: "circles", icon: "account-group", label: "Circles" },
     ];
