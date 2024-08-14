@@ -103,11 +103,11 @@ export default function AllPostsFeedList() {
   };
   
   const renderHeader = () => {
-    return <RamaHStack style={{
+    return <>
+    <RamaHStack style={{
         justifyContent: "space-between", 
         paddingHorizontal: 12, 
         paddingBottom: 18,
-        marginBottom: 12, 
         paddingTop: 8, 
         borderBottomWidth: 2, 
         borderBottomColor: colours.background.soft,
@@ -115,12 +115,13 @@ export default function AllPostsFeedList() {
         }}>
             <RamaText style={{fontSize: 22}} variant={"h1"}>Feed</RamaText>
     </RamaHStack>
+    {loading && <ProgressBar style={{ marginVertical: 0, marginBottom: 12 }} color={colours.primary} indeterminate />}
+    </>
   }
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: colours.background.strong}}>
       <RamaBackView>
-      {loading && <ProgressBar style={{ marginVertical: 0 }} color={colours.primary} indeterminate />}
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id}
