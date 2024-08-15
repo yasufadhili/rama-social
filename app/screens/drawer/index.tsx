@@ -159,13 +159,22 @@ interface DrawerItemProps{
 }
 
 function RamaDrawerItem({icon, isActive, onPress, colours}: DrawerItemProps){
-  return <RectButton onPress={onPress} style={{padding: 12, backgroundColor: isActive ? colours.background.soft : undefined, borderRadius: 12 }}>
-    <MaterialCommunityIcons
-        name={isActive ? icon : `${icon}-outline`}
+  return (
+    <RectButton
+      onPress={onPress}
+      style={{
+        padding: 12,
+        backgroundColor: isActive ? colours.background.soft : undefined,
+        borderRadius: 12
+      }}
+    >
+      <MaterialCommunityIcons
+        name={isActive ? (icon as keyof typeof MaterialCommunityIcons.glyphMap) : `${icon}-outline` as keyof typeof MaterialCommunityIcons.glyphMap}
         color={isActive ? colours.primary : '#7c868b'}
         size={28}
       />
-  </RectButton>
+    </RectButton>
+  );
 }
 
 function CustomDrawerItem({ name, icon, label, isActive, colours, onPress }: CustomDrawerItemProps) {
@@ -180,7 +189,7 @@ function CustomDrawerItem({ name, icon, label, isActive, colours, onPress }: Cus
       label={label}
       icon={({ color, size }) => (
         <MaterialCommunityIcons
-          name={isActive ? icon : `${icon}-outline`}
+          name={isActive ? (icon as keyof typeof MaterialCommunityIcons.glyphMap) : `${icon}-outline` as keyof typeof MaterialCommunityIcons.glyphMap}
           color={isActive ? colours.primary : '#7c868b'}
           size={size}
         />
