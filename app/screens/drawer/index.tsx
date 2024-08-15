@@ -6,7 +6,7 @@ import { createDrawerNavigator, DrawerItem } from '@react-navigation/drawer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { RectButton, TouchableOpacity } from 'react-native-gesture-handler';
 import { Image } from 'expo-image';
-import { Dialog, Portal, Divider } from 'react-native-paper';
+import { Divider } from 'react-native-paper';
 
 import AllFeedScreen from './AllFeedScreen';
 import CirclesListScreen from './CirclesListScreen';
@@ -14,7 +14,7 @@ import NotificationsScreen from './NotificationsScreen';
 import SetupProfileScreen from '../profile/SetupProfileScreen';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { RamaButton, RamaText, RamaVStack } from '@/components/Themed';
+import { RamaVStack } from '@/components/Themed';
 
 type RootStackParamList = {
   MainDrawer: undefined;
@@ -113,23 +113,6 @@ function CustomDrawerContent(props: any) {
             </TouchableOpacity>
           </RamaVStack>
         </RamaVStack>
-      <Portal>
-        <Dialog
-          visible={signoutVisible}
-          onDismiss={hideSignoutDialog}
-          style={{ backgroundColor: colourTheme === 'dark' ? colours.background.soft : colours.background.strong }}
-        >
-          <Dialog.Title>Sign out!</Dialog.Title>
-          <Dialog.Content>
-            <RamaText>Are you sure you want to sign out?</RamaText>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <RamaButton variant="link" onPress={() => signOut()}>
-              Sign out
-            </RamaButton>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
     </SafeAreaView>
   );
 }
