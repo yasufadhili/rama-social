@@ -45,6 +45,7 @@ export default function DrawerStack() {
 }
 
 function MainDrawer() {
+  const {colourTheme, colours} = useTheme();
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
@@ -54,12 +55,20 @@ function MainDrawer() {
           width: '15%',
         },
         drawerType: "permanent",
-        drawerPosition: 'left',  // Set the drawer to the left side
+        drawerPosition: 'left',
+        headerLeft: ()=> <></>,
+        headerStyle: {
+          backgroundColor: colours.background.strong
+        },
+        headerTitleStyle: {
+          fontSize: 20,
+          fontWeight: "bold"
+        }
       }}
     >
-      <Drawer.Screen name="AllFeedScreen" component={AllFeedScreen} />
-      <Drawer.Screen name="CirclesListScreen" component={CirclesListScreen} />
-      <Drawer.Screen name="NotificationsScreen" component={NotificationsScreen} />
+      <Drawer.Screen name="AllFeedScreen" component={AllFeedScreen} options={{title: "Feed"}} />
+      <Drawer.Screen name="CirclesListScreen" component={CirclesListScreen} options={{title: "Circles"}} />
+      <Drawer.Screen name="NotificationsScreen" component={NotificationsScreen} options={{title: "Notifications"}} />
     </Drawer.Navigator>
   );
 }
