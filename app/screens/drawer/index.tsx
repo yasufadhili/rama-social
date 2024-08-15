@@ -15,6 +15,7 @@ import SetupProfileScreen from '../profile/SetupProfileScreen';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { RamaVStack } from '@/components/Themed';
+import { useNavigation } from '@react-navigation/native';
 
 type RootStackParamList = {
   MainDrawer: undefined;
@@ -46,6 +47,7 @@ export default function DrawerStack() {
 
 function MainDrawer() {
   const {colourTheme, colours} = useTheme();
+  const navigation = useNavigation();
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
@@ -67,7 +69,23 @@ function MainDrawer() {
       }}
     >
       <Drawer.Screen name="AllFeedScreen" component={AllFeedScreen} options={{title: "Feed"}} />
-      <Drawer.Screen name="CirclesListScreen" component={CirclesListScreen} options={{title: "Circles"}} />
+      <Drawer.Screen 
+        name="CirclesListScreen" 
+        component={CirclesListScreen} 
+        options={{
+          title: "Circles",
+          headerRight: ()=> (
+            <RectButton onPress={()=> navigation.navigate("CreateNewCircleScreen")} style={{
+              padding: 8,
+              marginRight: 8,
+              borderRadius: 12,
+              backgroundColor: colours.background.soft
+            }}>
+              <MaterialCommunityIcons name={"plus"} size={22} color={colours.text.default} />
+            </RectButton>
+          )
+        }}
+      />
       <Drawer.Screen name="NotificationsScreen" component={NotificationsScreen} options={{title: "Notifications"}} />
     </Drawer.Navigator>
   );
