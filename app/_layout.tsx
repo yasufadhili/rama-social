@@ -4,6 +4,8 @@ import { Slot, SplashScreen } from 'expo-router';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ThemeProvider from '@/context/ThemeContext';
+import { LanguageProvider } from "@/context/LanguageContext";
+import AuthProvider from "@/context/AuthContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -39,9 +41,13 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-        <ThemeProvider>
-          <Slot />
-      </ThemeProvider>
+        <LanguageProvider>
+            <ThemeProvider>
+              <AuthProvider>
+                <Slot />
+              </AuthProvider>
+          </ThemeProvider>
+        </LanguageProvider>
     </GestureHandlerRootView>
   );
 }
