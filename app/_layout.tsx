@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ThemeProvider, { useTheme } from '@/context/ThemeContext';
 import { LanguageProvider } from "@/context/LanguageContext";
 import AuthProvider from "@/context/AuthContext";
+import {PaperProvider} from "react-native-paper";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -43,9 +44,11 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
         <LanguageProvider>
             <ThemeProvider>
-              <AuthProvider>
-                <Slot />
-              </AuthProvider>
+              <PaperProvider>
+                <AuthProvider>
+                  <Slot />
+                </AuthProvider>
+              </PaperProvider>
           </ThemeProvider>
         </LanguageProvider>
     </GestureHandlerRootView>
