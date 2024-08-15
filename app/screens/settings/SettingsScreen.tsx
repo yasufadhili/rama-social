@@ -2,22 +2,26 @@ import { useAuth } from '@/context/AuthContext';
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Reanimated, { FadeIn } from 'react-native-reanimated';
-import { RamaButton, RamaCard, RamaText } from '@/components/Themed';
+import { RamaButton, RamaCard, RamaText, RamaVStack } from '@/components/Themed';
 import { useTheme } from '@/context/ThemeContext';
 import { Dialog, Portal } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 
 type ListItemProps = {
-  icon: React.ReactNode;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap;
   title: string;
   description?: string;
   onPress: () => void;
 };
 
 const ListItem: React.FC<ListItemProps> = ({ icon, title, description, onPress }) => {
+  const {colourTheme, colours} = useTheme();
   return (
     <TouchableOpacity onPress={onPress} style={styles.listItemContainer}>
-      <View style={styles.iconContainer}>{icon}</View>
+      <View style={styles.iconContainer}>
+        <MaterialCommunityIcons name={icon} size={20} color={colours.text.soft} />
+      </View>
       <RamaText style={styles.listItemText}>{title}</RamaText>
       {description !== undefined && <RamaText style={styles.listItemDescription}>{description}</RamaText>}
     </TouchableOpacity>
@@ -33,7 +37,7 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
       paddingTop: 12,
       borderRadius: 8,
     }}>
-      <RamaText style={{ marginBottom: 4 }} variant={"h3"}>{title}</RamaText>
+      <RamaText style={{ marginBottom: 4, marginLeft: 12 }} variant={"h3"}>{title}</RamaText>
       <View>{children}</View>
     </RamaCard>
   );
@@ -81,38 +85,40 @@ const SettingsScreen: React.FC = () => {
 
         {/* Account Section */}
         <Section title="Account">
-          <ListItem icon={<RamaText>🗓️</RamaText>} title="Display Name" description="" onPress={() => {}} />
-          <ListItem icon={<RamaText>⭐</RamaText>} title="Phone Number" description={""} onPress={() => {}} />
-          <ListItem icon={<RamaText>📅</RamaText>} title="Email Address" description="" onPress={() => {}} />
-          <ListItem icon={<RamaText>👥</RamaText>} title="Circles" description="" onPress={() => {}} />
-          <ListItem icon={<RamaText>📋</RamaText>} title="Contacts" description="" onPress={() => {}} />
+          <ListItem icon={"text-account"} title="Display Name" description="" onPress={() => {}} />
+          <ListItem icon={"phone-outline"} title="Phone Number" description={""} onPress={() => {}} />
+          <ListItem icon={"email-outline"} title="Email Address" description="" onPress={() => {}} />
+          <ListItem icon={"account-group-outline"} title="Circles" description="" onPress={() => {}} />
+          <ListItem icon={"contacts-outline"} title="Contacts" description="" onPress={() => {}} />
         </Section>
 
         {/* Notifications Section */}
         <Section title="Notifications">
-          <ListItem icon={<RamaText>🔔</RamaText>} title="Push Notifications" description="Off" onPress={() => {}} />
-          <ListItem icon={<RamaText>📧</RamaText>} title="Email Notifications" description="Off" onPress={() => {}} />
-          <ListItem icon={<RamaText>📱</RamaText>} title="SMS Notifications" description="Off" onPress={() => {}} />
+          <ListItem icon={"bell-alert-outline"} title="Push Notifications" description="Off" onPress={() => {}} />
+          <ListItem icon={"email-alert-outline"} title="Email Notifications" description="Off" onPress={() => {}} />
+          <ListItem icon={"phone-alert-outline"} title="SMS Notifications" description="Off" onPress={() => {}} />
         </Section>
 
         {/* Personalisation Section */}
         <Section title="Personalisation">
-          <ListItem icon={<RamaText>🎨</RamaText>} title="Colour Mode" description="System" onPress={() => {}} />
-          <ListItem icon={<RamaText>🌈</RamaText>} title="Theme" description="Rama" onPress={() => {}} />
-          <ListItem icon={<RamaText>🌍</RamaText>} title="Language" description="English (UK)" onPress={() => {}} />
+          <ListItem icon={"palette-outline"} title="Colour Mode" description="System" onPress={() => {}} />
+          <ListItem icon={"palette-swatch-outline"} title="Theme" description="Rama" onPress={() => {}} />
+          <ListItem icon={"format-list-bulleted"} title="Language" description="English (UK)" onPress={() => {}} />
         </Section>
 
         {/* Boring Zone Section */}
         <Section title="Boring Zone">
-          <ListItem icon={<RamaText>🔒</RamaText>} title="Privacy Policy" onPress={() => {}} />
-          <ListItem icon={<RamaText>📜</RamaText>} title="Terms of Service" onPress={() => {}} />
-          <ListItem icon={<RamaText>ℹ️</RamaText>} title="App Version" description="0.0.1 - Beta" onPress={() => {}} />
+          <ListItem icon={"form-textbox-password"} title="Privacy Policy" onPress={() => {}} />
+          <ListItem icon={"application-outline"} title="Terms of Service" onPress={() => {}} />
+          <ListItem icon={"ab-testing"} title="App Version" description="0.0.1 - Beta" onPress={() => {}} />
         </Section>
 
-        {/* Sign Out Section */}
-        <Section title="">
-          <RamaButton variant={"primary"} onPress={showSignoutDialog}>Sign Out</RamaButton>
-        </Section>
+
+        <RamaVStack style={{paddingVertical: 48, gap: 28,}}>
+            <RamaButton variant={"outline"} onPress={showSignoutDialog}>Sign Out</RamaButton>
+            <RamaText variant={"p3"} style={{alignSelf: "center"}}>2024 - Rama Social by Yasu Fadhili</RamaText>
+        </RamaVStack>
+
 
         <Portal>
             <Dialog
