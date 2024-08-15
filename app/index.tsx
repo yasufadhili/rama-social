@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import SettingsStack from './screens/settings';
 import DrawerStack from './screens/drawer';
+import ProfileStack from './screens/profile';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -26,9 +27,10 @@ function AuthStack(){
 }
 
 function MainStack(){
-    return <Stack.Navigator initialRouteName={"DrawerStack"}>
+    return <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName={"DrawerStack"}>
         <Stack.Screen name={"DrawerStack"} component={DrawerStack} />
         <Stack.Screen name={"SettingsStack"} component={SettingsStack} />
+        <Stack.Screen name={"ProfileStack"} component={ProfileStack} />
     </Stack.Navigator>
 }
 

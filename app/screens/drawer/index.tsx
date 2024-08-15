@@ -2,10 +2,9 @@ import React from 'react';
 import { ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
-import { NavigationContainer, useNavigation, DrawerActions } from '@react-navigation/native';
+import { createDrawerNavigator, DrawerItem } from '@react-navigation/drawer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { RectButton, TouchableOpacity } from 'react-native-gesture-handler';
 import { Image } from 'expo-image';
 import { Dialog, Portal, Divider } from 'react-native-paper';
 
@@ -52,10 +51,10 @@ function MainDrawer() {
       screenOptions={{
         headerShown: true,
         drawerStyle: {
-          width: '55%',
+          width: '15%',
         },
         drawerType: "permanent",
-        
+        drawerPosition: 'left',  // Set the drawer to the left side
       }}
     >
       <Drawer.Screen name="AllFeedScreen" component={AllFeedScreen} />
@@ -75,25 +74,29 @@ function CustomDrawerContent(props: any) {
   const { colours, colourTheme } = useTheme();
   const { user, signOut } = useAuth();
   const [signoutVisible, setSignoutVisible] = React.useState(false);
-  const navigation = useNavigation();
 
   const showSignoutDialog = () => setSignoutVisible(true);
   const hideSignoutDialog = () => setSignoutVisible(false);
 
   const drawerItems: DrawerItemData[] = [
     { name: 'AllFeedScreen', icon: 'home', label: 'Home' },
-    { name: 'CirclesListScreen', icon: 'account-group', label: 'Circles' },
     { name: 'NotificationsScreen', icon: 'bell', label: 'Notifications' },
+    { name: 'CirclesListScreen', icon: 'account-group', label: 'Circles' },
   ];
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colours.background.strong }}>
-
         <RamaVStack style={{ alignItems: 'center', paddingVertical: 14, flex: 1, justifyContent: 'space-between' }}>
           <RamaVStack style={{ alignItems: 'center', gap: 28 }}>
+            <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('ProfileStack')} style={{ alignItems: 'center' }}>
+              <Image
+                source={{ uri: `${user?.photoURL}` }}
+                style={{ height: 42, width: 42, borderRadius: 12 }}
+              />
+            </TouchableOpacity>
             <RamaVStack style={{ gap: 14 }}>
               {drawerItems.map((item) => (
-                <CustomDrawerItem
+                <RamaDrawerItem
                   key={item.name}
                   {...item}
                   isActive={props.state.routeNames[props.state.index] === item.name}
@@ -105,14 +108,8 @@ function CustomDrawerContent(props: any) {
           </RamaVStack>
           <RamaVStack style={{ gap: 18, paddingBottom: 18 }}>
             <Divider />
-            <TouchableOpacity onPress={() => {}} style={{ padding: 12 }}>
-              <MaterialCommunityIcons size={28} color={colours.text.soft} name="cog-outline" />
-            </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.5} onPress={() => {}} style={{ alignItems: 'center' }}>
-              <Image
-                source={{ uri: `user?.photoURL` }}
-                style={{ height: 42, width: 42, borderRadius: 12 }}
-              />
+            <TouchableOpacity onPress={() => props.navigation.navigate('SettingsStack')} style={{ padding: 12 }}>
+              <MaterialCommunityIcons size={28} color={"#7c868b"} name="cog-outline" />
             </TouchableOpacity>
           </RamaVStack>
         </RamaVStack>
@@ -148,6 +145,29 @@ interface CustomDrawerItemProps extends DrawerItemData {
   onPress: () => void;
 }
 
+interface DrawerItemProps{
+  icon: string;
+  isActive: boolean;
+  colours: {
+    background: {
+      default: string;
+      soft: string;
+    };
+    primary: string;
+  };
+  onPress: () => void;
+}
+
+function RamaDrawerItem({icon, isActive, onPress, colours}: DrawerItemProps){
+  return <RectButton onPress={onPress} style={{padding: 12, backgroundColor: isActive ? colours.background.soft : undefined, borderRadius: 12 }}>
+    <MaterialCommunityIcons
+        name={isActive ? icon : `${icon}-outline`}
+        color={isActive ? colours.primary : '#7c868b'}
+        size={28}
+      />
+  </RectButton>
+}
+
 function CustomDrawerItem({ name, icon, label, isActive, colours, onPress }: CustomDrawerItemProps) {
   const itemStyle: ViewStyle = {
     padding: 10,
@@ -167,7 +187,7 @@ function CustomDrawerItem({ name, icon, label, isActive, colours, onPress }: Cus
       )}
       onPress={onPress}
       style={itemStyle}
-      labelStyle={{ color: isActive ? colours.primary : '#7c868b' }}
+      labelStyle={{ color: isActive ? colours.primary : '#7c868b', }}
     />
   );
 }
