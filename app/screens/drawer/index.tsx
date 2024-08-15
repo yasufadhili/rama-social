@@ -91,7 +91,7 @@ function CustomDrawerContent(props: any) {
             <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('ProfileStack')} style={{ alignItems: 'center' }}>
               <Image
                 source={{ uri: `${user?.photoURL}` }}
-                style={{ height: 42, width: 42, borderRadius: 12 }}
+                style={{ height: 38, width: 38, borderRadius: 12 }}
               />
             </TouchableOpacity>
             <RamaVStack style={{ gap: 14 }}>
