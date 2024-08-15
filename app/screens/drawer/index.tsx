@@ -99,7 +99,7 @@ function CustomDrawerContent(props: any) {
                 style={{ height: 38, width: 38, borderRadius: 12 }}
               />
             </TouchableOpacity>
-            <RamaVStack style={{ gap: 14 }}>
+            <RamaVStack style={{ gap: 20 }}>
               {drawerItems.map((item) => (
                 <RamaDrawerItem
                   key={item.name}
@@ -114,7 +114,7 @@ function CustomDrawerContent(props: any) {
           <RamaVStack style={{ gap: 18, paddingBottom: 18 }}>
             <Divider />
             <TouchableOpacity onPress={() => props.navigation.navigate('SettingsStack')} style={{ padding: 12 }}>
-              <MaterialCommunityIcons size={28} color={"#7c868b"} name="cog-outline" />
+              <MaterialCommunityIcons size={26} color={"#7c868b"} name="cog-outline" />
             </TouchableOpacity>
           </RamaVStack>
         </RamaVStack>
@@ -151,7 +151,7 @@ function RamaDrawerItem({icon, isActive, onPress, colours}: DrawerItemProps){
     <RectButton
       onPress={onPress}
       style={{
-        padding: 12,
+        padding: 8,
         backgroundColor: isActive ? colours.background.soft : undefined,
         borderRadius: 12
       }}
@@ -159,7 +159,7 @@ function RamaDrawerItem({icon, isActive, onPress, colours}: DrawerItemProps){
       <MaterialCommunityIcons
         name={isActive ? (icon as keyof typeof MaterialCommunityIcons.glyphMap) : `${icon}-outline` as keyof typeof MaterialCommunityIcons.glyphMap}
         color={isActive ? colours.primary : '#7c868b'}
-        size={28}
+        size={26}
       />
     </RectButton>
   );
