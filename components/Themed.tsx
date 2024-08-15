@@ -22,6 +22,7 @@ import {
     useSharedValue,
     withTiming,
     useAnimatedStyle,
+    FadeIn,
   } from 'react-native-reanimated';
   
   import {
@@ -76,9 +77,9 @@ import {
     });
   
     return (
-      <View style={[styles.view, style]} {...rest}>
+      <Animated.View entering={FadeIn.duration(1000)} style={[styles.view, style]} {...rest}>
         {children}
-      </View>
+      </Animated.View>
     );
   };
   
