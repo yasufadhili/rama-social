@@ -7,6 +7,7 @@ import ThemeProvider, { useTheme } from '@/context/ThemeContext';
 import { LanguageProvider } from "@/context/LanguageContext";
 import AuthProvider from "@/context/AuthContext";
 import {PaperProvider} from "react-native-paper";
+import RamaSplashScreen from "./splash";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -37,7 +38,7 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null;
+    return <RamaSplashScreen />;
   }
 
   return (
