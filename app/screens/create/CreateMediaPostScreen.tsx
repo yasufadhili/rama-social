@@ -204,7 +204,7 @@ import { useNavigation } from '@react-navigation/native';
               </RamaButton>
             </View>
     
-            <BottomSheetScrollView style={styles.scrollView}>
+            <ScrollView style={styles.scrollView}>
               <View style={styles.userProfile}>
                 <View style={{
                   width: 38,
@@ -290,7 +290,7 @@ import { useNavigation } from '@react-navigation/native';
               />
   
   
-            </BottomSheetScrollView>
+            </ScrollView>
   
             {isDraftSaved && (
               <View style={styles.draftSavedNotification}>
