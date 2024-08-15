@@ -7,7 +7,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import SettingsStack from './screens/settings';
 import DrawerStack from './screens/drawer';
 import ProfileStack from './screens/profile';
-import CreateStack, { CreateMediaPostScreen, CreateNewCircleScreen, CreateTextPostScreen } from './screens/create';
+import { CreateMediaPostScreen, CreateNewCircleScreen, CreateTextPostScreen } from './screens/create';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -38,7 +38,7 @@ function MainStack(){
             name={"CreateNewCircleScreen"} 
             component={CreateNewCircleScreen} 
             options={{
-                
+
             }}
         />
     </Stack.Navigator>

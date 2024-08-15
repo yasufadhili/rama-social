@@ -74,8 +74,8 @@ function MainDrawer() {
         component={CirclesListScreen} 
         options={{
           title: "Circles",
-          headerRight: ()=> (
-            <RectButton onPress={()=> navigation.navigate("CreateNewCircleScreen")} style={{
+          headerRight: () => (
+            <RectButton onPress={() => navigation.navigate("CreateNewCircleScreen" as never)} style={{
               padding: 8,
               marginRight: 8,
               borderRadius: 12,
