@@ -16,14 +16,16 @@ const Stack = createNativeStackNavigator();
 export default function Index(){
     const {colourTheme, colours} = useTheme();
     const {user, initialising} = useAuth();
-    if (initialising) return <RamaSplashScreen />
+    //if (initialising) return <RamaSplashScreen />
     return <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
             {user ? <MainStack /> : <AuthStack />}
     </NavigationThemeProvider>
 }
 
 function AuthStack(){
-    return <Stack.Navigator>
+    return <Stack.Navigator screenOptions={{
+        headerShown: false
+    }}>
         <Stack.Screen name={"WelcomeScreen"} component={WelcomeScreen} />
         <Stack.Screen name={"LoginScreen"} component={LoginScreen} />
     </Stack.Navigator>
