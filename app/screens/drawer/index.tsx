@@ -73,10 +73,6 @@ interface DrawerItemData {
 function CustomDrawerContent(props: any) {
   const { colours, colourTheme } = useTheme();
   const { user, signOut } = useAuth();
-  const [signoutVisible, setSignoutVisible] = React.useState(false);
-
-  const showSignoutDialog = () => setSignoutVisible(true);
-  const hideSignoutDialog = () => setSignoutVisible(false);
 
   const drawerItems: DrawerItemData[] = [
     { name: 'AllFeedScreen', icon: 'home', label: 'Home' },

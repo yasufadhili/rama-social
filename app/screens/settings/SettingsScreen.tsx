@@ -4,6 +4,9 @@ import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Reanimated, { FadeIn } from 'react-native-reanimated';
 import { RamaButton, RamaCard, RamaText } from '@/components/Themed';
 import { useTheme } from '@/context/ThemeContext';
+import { Dialog, Portal } from 'react-native-paper';
+
+
 type ListItemProps = {
   icon: React.ReactNode;
   title: string;
@@ -62,6 +65,10 @@ const Header: React.FC = () => {
 const SettingsScreen: React.FC = () => {
   const { colourTheme, colours } = useTheme();
   const {signOut} = useAuth();
+  const [signoutVisible, setSignoutVisible] = React.useState(false);
+
+  const showSignoutDialog = () => setSignoutVisible(true);
+  const hideSignoutDialog = () => setSignoutVisible(false);
 
   return (
     <>
@@ -104,8 +111,27 @@ const SettingsScreen: React.FC = () => {
 
         {/* Sign Out Section */}
         <Section title="">
-          <RamaButton variant={"primary"} onPress={signOut}>Sign Out</RamaButton>
+          <RamaButton variant={"primary"} onPress={showSignoutDialog}>Sign Out</RamaButton>
         </Section>
+
+        <Portal>
+            <Dialog
+            visible={signoutVisible}
+            onDismiss={hideSignoutDialog}
+            style={{ backgroundColor: colourTheme === 'dark' ? colours.background.soft : colours.background.strong }}
+            >
+            <Dialog.Title>Sign out!</Dialog.Title>
+            <Dialog.Content>
+                <RamaText>Are you sure you want to sign out?</RamaText>
+            </Dialog.Content>
+            <Dialog.Actions>
+                <RamaButton variant="link" onPress={() => signOut()}>
+                Sign out
+                </RamaButton>
+            </Dialog.Actions>
+            </Dialog>
+        </Portal>
+
       </Reanimated.ScrollView>
     </>
   );
