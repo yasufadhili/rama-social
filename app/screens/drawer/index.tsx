@@ -32,11 +32,12 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
 export default function DrawerStack() {
-  const { userExistsInCollection } = useAuth();
+  const { user } = useAuth();
+
 
   return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {userExistsInCollection ? (
+        {user?.displayName?.trim() !== null ? (
           <Stack.Screen name="MainDrawer" component={MainDrawer} />
         ) : (
           <Stack.Screen name="SetupProfileScreen" component={SetupProfileScreen} />

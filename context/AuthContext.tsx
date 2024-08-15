@@ -50,7 +50,7 @@ import React, {
         if (user) {
           try {
             const exists = await getUserExistsFromStorage();
-  
+            console.log("Exists", exists)
             if (exists === null) {
               // No local data, check backend
               const existsInBackend = await checkUserDocumentExists();

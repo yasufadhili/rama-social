@@ -9,6 +9,7 @@ import DrawerStack from './screens/drawer';
 import ProfileStack from './screens/profile';
 import { CreateMediaPostScreen, CreateNewCircleScreen, CreateTextPostScreen } from './screens/create';
 import RamaSplashScreen from './splash';
+import SetupProfileScreen from './screens/profile/SetupProfileScreen';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -33,18 +34,18 @@ function AuthStack(){
 
 function MainStack(){
     return <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName={"DrawerStack"}>
-        <Stack.Screen name={"DrawerStack"} component={DrawerStack} />
-        <Stack.Screen name={"SettingsStack"} component={SettingsStack} />
-        <Stack.Screen name={"ProfileStack"} component={ProfileStack} />
-        <Stack.Screen name={"CreateTextPostScreen"} component={CreateTextPostScreen} />
-        <Stack.Screen name={"CreateMediaPostScreen"} component={CreateMediaPostScreen} />
-        <Stack.Screen 
-            name={"CreateNewCircleScreen"} 
-            component={CreateNewCircleScreen} 
-            options={{
+            <Stack.Screen name={"DrawerStack"} component={DrawerStack} />
+            <Stack.Screen name={"SettingsStack"} component={SettingsStack} />
+            <Stack.Screen name={"ProfileStack"} component={ProfileStack} />
+            <Stack.Screen name={"CreateTextPostScreen"} component={CreateTextPostScreen} />
+            <Stack.Screen name={"CreateMediaPostScreen"} component={CreateMediaPostScreen} />
+            <Stack.Screen 
+                name={"CreateNewCircleScreen"} 
+                component={CreateNewCircleScreen} 
+                options={{
 
-            }}
-        />
+                }}
+            />
     </Stack.Navigator>
 }
 
