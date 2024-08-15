@@ -1,3 +1,4 @@
+import { RightCreateFAB } from '@/components/RightCreateFAB';
 import { RamaBackView } from '@/components/Themed';
 import { useTheme } from '@/context/ThemeContext';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -10,7 +11,8 @@ export default function NotificationsScreen(){
 
 function TopTabs(){
     const {colours} = useTheme();
-    return <Tab.Navigator screenOptions={{
+    return <> 
+    <Tab.Navigator screenOptions={{
         tabBarStyle: {
             backgroundColor: colours.background.strong
         },
@@ -32,6 +34,8 @@ function TopTabs(){
         <Tab.Screen name={"AllNotificationsTab"} component={AllNotificationsTab} options={{title: "All"}} />
         <Tab.Screen name={"MentionsNotificationsTab"} component={MentionsNotificationsTab} options={{title: "Mentions"}} />
     </Tab.Navigator>
+    <RightCreateFAB />
+    </>
 }
 
 function AllNotificationsTab(){
