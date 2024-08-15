@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { View, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -9,15 +8,14 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from 'react-native-reanimated';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { RamaBackView, RamaButton } from '@/components/Themed';
 import { useTheme } from '@/context/ThemeContext';
 import { Image } from 'expo-image';
-
-const { width, height } = Dimensions.get('window');
+import { useNavigation } from '@react-navigation/native';
 
 const WelcomeScreen: React.FC = () => {
   const {colourTheme, colours} = useTheme();
+  const navigation = useNavigation();
   const logoScale = useSharedValue(0);
   const titleOpacity = useSharedValue(0);
   const descriptionTranslateY = useSharedValue(50);
@@ -90,7 +88,7 @@ const WelcomeScreen: React.FC = () => {
         </Animated.Text>
       </View>
       <Animated.View style={[styles.buttonContainer, buttonAnimatedStyle]}>
-        <RamaButton variant={"primary"} size={"xl"}>Get Started</RamaButton>
+        <RamaButton onPress={()=> navigation.navigate("LoginScreen" as never)} variant={"primary"} size={"xl"}>Get Started</RamaButton>
       </Animated.View>
     </RamaBackView>
   );
