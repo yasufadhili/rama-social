@@ -3,7 +3,7 @@ import { useFonts } from 'expo-font';
 import { Slot, SplashScreen } from 'expo-router';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import ThemeProvider from '@/context/ThemeContext';
+import ThemeProvider, { useTheme } from '@/context/ThemeContext';
 import { LanguageProvider } from "@/context/LanguageContext";
 import AuthProvider from "@/context/AuthContext";
 

@@ -21,7 +21,7 @@ const LanguageSelector: React.FC = () => {
   );
 };
 
-const MainContent: React.FC = () => {
+const LanguageSettingsScreen: React.FC = () => {
   const { language } = useLanguage();
   const { t } = useTranslation();
 
@@ -35,11 +35,7 @@ const MainContent: React.FC = () => {
   );
 };
 
-export default function Index() {
-  return (
-      <MainContent />
-  );
-}
+export default LanguageSettingsScreen;
 
 const styles = StyleSheet.create({
   container: {
