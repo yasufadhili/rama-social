@@ -13,3 +13,8 @@ A platform for stories so that users can get an emotional connection to the
 Capture emotions
 Emotional music
 Sad stories
+
+
+Rather than Circles that have a specific group of people, 
+A new type of categorisations that users can create themselves live channels so that they can categorise content
+A user can have up to three channels. They can purchase channel creation rights at a small fee to create another channel

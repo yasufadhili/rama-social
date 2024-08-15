@@ -1,7 +1,6 @@
 import { useTheme } from '@/context/ThemeContext';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from "@react-navigation/native";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import {FeedScreen} from './screens/feed';
 import { LoginScreen, WelcomeScreen } from './screens/auth';
 import { useAuth } from '@/context/AuthContext';
 import { createDrawerNavigator } from '@react-navigation/drawer';
