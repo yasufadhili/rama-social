@@ -1,8 +1,10 @@
+import { RightCreateFAB } from "@/components/RightCreateFAB";
 import { RamaBackView, RamaText } from "@/components/Themed";
 
 
-export default function AllFeedScreen({route}){
+export default function AllFeedScreen(){
     return <RamaBackView>
-        <RamaText>{route.name}</RamaText>
+        <RamaText></RamaText>
+        <RightCreateFAB />
     </RamaBackView>
 }
