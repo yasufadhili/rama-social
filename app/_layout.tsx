@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import AuthProvider from "@/context/AuthContext";
 import {PaperProvider} from "react-native-paper";
 import RamaSplashScreen from "./splash";
+import { ToastProvider } from "@/context/ToastContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -47,7 +48,9 @@ export default function RootLayout() {
             <ThemeProvider>
               <PaperProvider>
                 <AuthProvider>
-                  <Slot />
+                  <ToastProvider>
+                    <Slot />
+                  </ToastProvider>
                 </AuthProvider>
               </PaperProvider>
           </ThemeProvider>
