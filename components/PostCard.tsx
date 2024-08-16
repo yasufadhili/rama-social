@@ -1,10 +1,9 @@
 import { RamaHStack, RamaText, RamaVStack } from "@/components/Themed";
 import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { Image } from "expo-image";
 import { NativeScrollEvent, NativeSyntheticEvent, View } from "react-native";
-import { RectButton, ScrollView, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { RectButton, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import {BlurView} from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useState } from "react";
