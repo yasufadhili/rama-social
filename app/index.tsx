@@ -33,11 +33,12 @@ function AuthStack(){
 }
 
 function MainStack(){
-    return <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName={"DrawerStack"}>
+    const {colourTheme, colours} = useTheme();
+    return <Stack.Navigator screenOptions={{headerShown: false, headerStyle: {backgroundColor: colours.background.strong}, headerTitleStyle: {fontSize: 20, fontWeight: "bold"} }} initialRouteName={"DrawerStack"}>
             <Stack.Screen name={"DrawerStack"} component={DrawerStack} />
             <Stack.Screen name={"SettingsStack"} component={SettingsStack} />
             <Stack.Screen name={"ProfileDetailsScreen"} component={ProfileDetailsScreen} />
-            <Stack.Screen name={"EditProfileScreen"} component={EditProfileScreen} />
+            <Stack.Screen name={"EditProfileScreen"} component={EditProfileScreen} options={{headerShown: true, title: "Edit Profile"}} />
             <Stack.Screen name={"CreateTextPostScreen"} component={CreateTextPostScreen} />
             <Stack.Screen name={"CreateMediaPostScreen"} component={CreateMediaPostScreen} />
             <Stack.Screen 

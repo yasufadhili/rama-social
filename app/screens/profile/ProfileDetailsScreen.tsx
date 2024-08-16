@@ -18,7 +18,6 @@ export default function ProfileDetailsScreen(){
     const {colours, colourTheme} = useTheme();
     const navigation = useNavigation();
     return <>
-        <StatusBar style={"light"} />
         <RamaBackView>
             
             <ScrollView
