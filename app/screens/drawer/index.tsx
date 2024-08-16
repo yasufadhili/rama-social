@@ -1,9 +1,9 @@
-import React from 'react';
-import { ViewStyle } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { BackHandler, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator, DrawerItem } from '@react-navigation/drawer';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { RectButton, TouchableOpacity } from 'react-native-gesture-handler';
 import { Image } from 'expo-image';
 import { Divider } from 'react-native-paper';
@@ -14,8 +14,9 @@ import NotificationsScreen from './NotificationsScreen';
 import SetupProfileScreen from '../profile/SetupProfileScreen';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { RamaVStack } from '@/components/Themed';
+import { RamaBackView, RamaHStack, RamaText, RamaVStack } from '@/components/Themed';
 import { useNavigation } from '@react-navigation/native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 type RootStackParamList = {
   MainDrawer: undefined;
@@ -101,6 +102,15 @@ interface DrawerItemData {
 function CustomDrawerContent(props: any) {
   const { colours, colourTheme } = useTheme();
   const { user, signOut } = useAuth();
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  const openBottomSheet = () => {
+    bottomSheetModalRef.current?.present();
+  }
+
+  const cloaseBottomSheet = () => {
+    bottomSheetModalRef.current?.dismiss();
+  }
 
   const drawerItems: DrawerItemData[] = [
     { name: 'AllFeedScreen', icon: 'home', label: 'Home' },
@@ -112,7 +122,7 @@ function CustomDrawerContent(props: any) {
     <SafeAreaView style={{ flex: 1, backgroundColor: colours.background.strong }}>
         <RamaVStack style={{ alignItems: 'center', paddingVertical: 14, flex: 1, justifyContent: 'space-between' }}>
           <RamaVStack style={{ alignItems: 'center', gap: 28 }}>
-            <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('ProfileStack')} style={{ alignItems: 'center' }}>
+            <TouchableOpacity activeOpacity={0.5} onPress={() => openBottomSheet()} style={{ alignItems: 'center' }}>
               <Image
                 source={{ uri: `${user?.photoURL}` }}
                 style={{ height: 38, width: 38, borderRadius: 12 }}
@@ -137,6 +147,34 @@ function CustomDrawerContent(props: any) {
             </TouchableOpacity>
           </RamaVStack>
         </RamaVStack>
+        <BottomSheetModal
+            ref={bottomSheetModalRef}
+            index={0}
+            snapPoints={['60%']}
+            enablePanDownToClose={true}
+            handleStyle={{backgroundColor: colours.background.strong, borderTopLeftRadius: 24, borderTopRightRadius: 24}}
+            handleIndicatorStyle={{
+              backgroundColor: colours.text.soft,
+              width: 60
+            }}
+            enableDismissOnClose
+          >
+            <RamaHStack>
+              <RectButton onPress={()=> {cloaseBottomSheet()}} style={{padding: 12, position: "absolute", right: 8}} >
+                <Ionicons name={"close"} size={28} color={colours.text.soft} />
+              </RectButton>
+            </RamaHStack>
+            <RamaVStack style={{alignItems: "center", paddingTop: 28, gap: 12}}>
+              <Image
+                source={{ uri: `${user?.photoURL}` }}
+                style={{ height: 140, width: 140, borderRadius: 24 }}
+              />
+              <RamaVStack style={{alignItems: "center", paddingHorizontal: 12}}>
+                <RamaText numberOfLines={1} style={{fontSize: 32}} variant={"h1"}>{user?.displayName}</RamaText>
+                <RamaText variant={"h4"} style={{fontSize: 18}}>{user?.phoneNumber}</RamaText>
+              </RamaVStack>
+            </RamaVStack>
+          </BottomSheetModal>
     </SafeAreaView>
   );
 }
@@ -207,3 +245,6 @@ function CustomDrawerItem({ name, icon, label, isActive, colours, onPress }: Cus
     />
   );
 }
+
+
+

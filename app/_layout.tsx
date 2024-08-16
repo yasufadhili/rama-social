@@ -9,6 +9,7 @@ import AuthProvider from "@/context/AuthContext";
 import {PaperProvider} from "react-native-paper";
 import RamaSplashScreen from "./splash";
 import { ToastProvider } from "@/context/ToastContext";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -46,14 +47,16 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
         <LanguageProvider>
             <ThemeProvider>
-              <PaperProvider>
-                <AuthProvider>
-                  <ToastProvider>
-                    <Slot />
-                  </ToastProvider>
-                </AuthProvider>
-              </PaperProvider>
-          </ThemeProvider>
+                <PaperProvider>
+                  <AuthProvider>
+                    <BottomSheetModalProvider>
+                    <ToastProvider>
+                      <Slot />
+                    </ToastProvider>
+                    </BottomSheetModalProvider>
+                  </AuthProvider>
+                </PaperProvider>
+            </ThemeProvider>
         </LanguageProvider>
     </GestureHandlerRootView>
   );
