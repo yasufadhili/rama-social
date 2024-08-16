@@ -1,6 +1,7 @@
 import { RamaBackView, RamaButton, RamaHStack, RamaText, RamaVStack } from "@/components/Themed";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { useToast } from "@/context/ToastContext";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SCREEN_WIDTH, SCREEN_HEIGHT } from "@gorhom/bottom-sheet";
 import { useNavigation } from "@react-navigation/native";
@@ -12,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileDetailsScreen(){
     const {user} = useAuth();
+    const {showToast} = useToast();
     const {colours, colourTheme} = useTheme();
     const navigation = useNavigation();
     return <>
@@ -62,6 +64,61 @@ export default function ProfileDetailsScreen(){
                 <View style={{width: SCREEN_WIDTH/2.5}}>
                     <RamaButton>Connect</RamaButton>
                 </View>
+            </RamaHStack>
+
+            <RamaHStack style={{paddingHorizontal: 18, justifyContent: "space-between"}}>
+              <RectButton 
+              onPress={()=> showToast({
+                variant: "info",
+                heading: "Coming Soon",
+                text: "The message feature is not yet ready :)"
+              })}
+              style={{
+                padding: 12,
+                backgroundColor: colours.background.soft,
+                borderRadius: 12
+              }}>
+                <MaterialCommunityIcons name={"message-outline"} color={colours.text.default} size={24} />
+              </RectButton>
+              <RectButton 
+              onPress={()=> showToast({
+                variant: "info",
+                heading: "Coming Soon",
+                text: "The call feature is not yet ready :)"
+              })}
+              style={{
+                padding: 12,
+                backgroundColor: colours.background.soft,
+                borderRadius: 12
+              }}>
+                <MaterialCommunityIcons name={"phone-outline"} color={colours.text.default} size={24} />
+              </RectButton>
+              <RectButton 
+              onPress={()=> showToast({
+                variant: "info",
+                heading: "Coming Soon",
+                text: "The circles feature is not yet ready :)"
+              })}
+              style={{
+                padding: 12,
+                backgroundColor: colours.background.soft,
+                borderRadius: 12
+              }}>
+                <MaterialCommunityIcons name={"account-plus-outline"} color={colours.text.default} size={24} />
+              </RectButton>
+              <RectButton 
+              onPress={()=> showToast({
+                variant: "info",
+                heading: "Coming Soon",
+                text: "The block feature is not yet ready :)"
+              })}
+              style={{
+                padding: 12,
+                backgroundColor: colours.background.soft,
+                borderRadius: 12
+              }}>
+                <MaterialCommunityIcons name={"cancel"} color={colours.text.default} size={24} />
+              </RectButton>
             </RamaHStack>
 
 

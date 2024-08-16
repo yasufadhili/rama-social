@@ -125,7 +125,7 @@ function CustomDrawerContent(props: any) {
     <SafeAreaView style={{ flex: 1, backgroundColor: colours.background.strong }}>
         <RamaVStack style={{ alignItems: 'center', paddingVertical: 14, flex: 1, justifyContent: 'space-between' }}>
           <RamaVStack style={{ alignItems: 'center', gap: 28 }}>
-            <TouchableOpacity activeOpacity={0.5} onPress={() => openBottomSheet()} style={{ alignItems: 'center' }}>
+            <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate("ProfileDetailsScreen")} style={{ alignItems: 'center' }}>
               <Image
                 source={{ uri: `${user?.photoURL}` }}
                 style={{ height: 38, width: 38, borderRadius: 12 }}
@@ -150,89 +150,6 @@ function CustomDrawerContent(props: any) {
             </TouchableOpacity>
           </RamaVStack>
         </RamaVStack>
-        <BottomSheetModal
-            ref={bottomSheetModalRef}
-            index={0}
-            snapPoints={['60%']}
-            enablePanDownToClose={true}
-            handleStyle={{backgroundColor: colours.background.strong, borderTopLeftRadius: 24, borderTopRightRadius: 24}}
-            handleIndicatorStyle={{
-              backgroundColor: colours.text.soft,
-              width: 60
-            }}
-            enableDismissOnClose
-          >
-            <RamaHStack>
-              <RectButton onPress={()=> {cloaseBottomSheet()}} style={{padding: 12, position: "absolute", right: 8}} >
-                <Ionicons name={"close"} size={28} color={colours.text.soft} />
-              </RectButton>
-            </RamaHStack>
-            <RamaVStack style={{alignItems: "center", paddingTop: 28, gap: 12, marginBottom: 24}}>
-              <Image
-                source={{ uri: `${user?.photoURL}` }}
-                style={{ height: 140, width: 140, borderRadius: 24 }}
-              />
-              <RamaVStack style={{alignItems: "center", paddingHorizontal: 12}}>
-                <RamaText numberOfLines={1} style={{fontSize: 32}} variant={"h1"}>{user?.displayName}</RamaText>
-                <RamaText variant={"h4"} style={{fontSize: 18}}>{user?.phoneNumber}</RamaText>
-              </RamaVStack>
-            </RamaVStack>
-            <RamaButton onPress={()=> navigation.navigate("EditProfileScreen" as never)} variant={"link"} size={"lg"}>Edit Profile</RamaButton>
-            <RamaHStack style={{paddingHorizontal: 18, justifyContent: "space-between"}}>
-              <RectButton 
-              onPress={()=> showToast({
-                variant: "info",
-                heading: "Coming Soon",
-                text: "The message feature is not yet ready :)"
-              })}
-              style={{
-                padding: 12,
-                backgroundColor: colours.background.soft,
-                borderRadius: 12
-              }}>
-                <MaterialCommunityIcons name={"message-outline"} color={colours.text.default} size={24} />
-              </RectButton>
-              <RectButton 
-              onPress={()=> showToast({
-                variant: "info",
-                heading: "Coming Soon",
-                text: "The call feature is not yet ready :)"
-              })}
-              style={{
-                padding: 12,
-                backgroundColor: colours.background.soft,
-                borderRadius: 12
-              }}>
-                <MaterialCommunityIcons name={"phone-outline"} color={colours.text.default} size={24} />
-              </RectButton>
-              <RectButton 
-              onPress={()=> showToast({
-                variant: "info",
-                heading: "Coming Soon",
-                text: "The circles feature is not yet ready :)"
-              })}
-              style={{
-                padding: 12,
-                backgroundColor: colours.background.soft,
-                borderRadius: 12
-              }}>
-                <MaterialCommunityIcons name={"account-plus-outline"} color={colours.text.default} size={24} />
-              </RectButton>
-              <RectButton 
-              onPress={()=> showToast({
-                variant: "info",
-                heading: "Coming Soon",
-                text: "The block feature is not yet ready :)"
-              })}
-              style={{
-                padding: 12,
-                backgroundColor: colours.background.soft,
-                borderRadius: 12
-              }}>
-                <MaterialCommunityIcons name={"cancel"} color={colours.text.default} size={24} />
-              </RectButton>
-            </RamaHStack>
-          </BottomSheetModal>
     </SafeAreaView>
   );
 }
