@@ -17,6 +17,10 @@ export default function ProfileDetailsScreen(){
     const {showToast} = useToast();
     const {colours, colourTheme} = useTheme();
     const navigation = useNavigation();
+
+    
+
+
     return <>
         <RamaBackView>
             
@@ -130,7 +134,6 @@ export default function ProfileDetailsScreen(){
                 <RamaVStack style={{paddingHorizontal: 14, paddingVertical: 8, gap: 4}}>
                     <RamaText variant={"h3"}>About</RamaText>
                     <RamaText>
-                        Hello
                         {userAbout}
                     </RamaText>
                 </RamaVStack>
