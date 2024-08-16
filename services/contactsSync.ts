@@ -12,7 +12,7 @@ interface Contact {
   phoneNumbers: string[];
 }
 
-async function getUniquePhoneNumbers(): Promise<string[]> {
+export async function getUniquePhoneNumbers(): Promise<string[]> {
   const { status } = await Contacts.requestPermissionsAsync();
   if (status !== "granted") {
     throw new Error("Contacts permission not granted");
@@ -49,10 +49,11 @@ async function syncContacts() {
       
       await firestore().runTransaction(async (transaction) => {
         const doc = await transaction.get(userContactsRef);
+        //const doc = await userContactsRef.get();
         const existingNumbers = doc.exists ? doc.data()?.phoneNumbers || [] : [];
         const updatedNumbers = [...new Set([...existingNumbers, ...newNumbers])];
         transaction.set(userContactsRef, { phoneNumbers: updatedNumbers }, { merge: true });
-      });
+      }).then(()=> console.log("Synced")).catch((err) => console.log(err));
 
       console.log("Contacts synced successfully");
       return BackgroundFetch.BackgroundFetchResult.NewData;
@@ -84,7 +85,7 @@ async function registerBackgroundFetch() {
 }
 
 
-export async function manualSync() {
+export async function manualSyncContacts() {
   await syncContacts();
 }
 
