@@ -13,17 +13,8 @@ import { router } from 'expo-router';
 import { RamaButton, RamaText } from '@/components/Themed';
 import { useTheme } from '@/context/ThemeContext';
 import { useToast } from '@/context/ToastContext';
+import { TTextBlock } from '@/types/Post';
 
-type TextBlock = {
-  id: string;
-  text: string;
-  style: {
-    fontWeight: 'normal' | 'bold';
-    fontStyle: 'normal' | 'italic';
-    textDecorationLine: 'none' | 'underline';
-    fontSize: number;
-  };
-};
 
 type Circle = {
   id: string;
@@ -35,7 +26,7 @@ const FONT_SIZE_RANGE = { min: 18, max: 38 };
 const MAX_CHARACTERS = 255;
 
 export default function CreateTextPostScreen() {
-  const [textBlocks, setTextBlocks] = useState<TextBlock[]>([{ id: '1', text: '', style: { fontWeight: 'normal', fontStyle: 'normal', textDecorationLine: 'none', fontSize: 20 } }]);
+  const [textBlocks, setTextBlocks] = useState<TTextBlock[]>([{ id: '1', text: '', style: { fontWeight: 'normal', fontStyle: 'normal', textDecorationLine: 'none', fontSize: 20 } }]);
   const [selectedCircles, setSelectedCircles] = useState<Circle[]>([]);
   const [gradientColours, setGradientColours] = useState(['#000000', '#333333']);
   const [isLoading, setIsLoading] = useState(false);
@@ -155,7 +146,7 @@ export default function CreateTextPostScreen() {
     bottomSheetModalRef.current?.present();
   }; */
 
-  const renderText = (block: TextBlock) => {
+  const renderText = (block: TTextBlock) => {
     const fontSize = Math.max(
       FONT_SIZE_RANGE.min,
       Math.min(FONT_SIZE_RANGE.max, FONT_SIZE_RANGE.max - block.text.length / 10)
