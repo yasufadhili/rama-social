@@ -69,7 +69,7 @@ export default function ProfileDetailsScreen(){
                         <RamaText variant={"p2"}>{user?.phoneNumber}</RamaText>
                     </RamaVStack>
                     <View style={{width: SCREEN_WIDTH/2.5}}>
-                        <RamaButton>Connect</RamaButton>
+                        <RamaButton onPress={()=> navigation.navigate("EditProfileScreen" as never)} >Connect</RamaButton>
                     </View>
                 </RamaHStack>
 
