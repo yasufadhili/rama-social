@@ -11,6 +11,8 @@ import { CreateMediaPostScreen, CreateNewCircleScreen, CreateTextPostScreen } fr
 import RamaSplashScreen from './splash';
 import SetupProfileScreen from './screens/profile/SetupProfileScreen';
 import CreateAudioPostScreen from './screens/create/CreateAudioPostScreen';
+import { useEffect } from 'react';
+import { initialiseContactSync } from '@/services/contactsSync';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -18,6 +20,9 @@ const Stack = createNativeStackNavigator();
 export default function Index(){
     const {colourTheme, colours} = useTheme();
     const {user, initialising} = useAuth();
+    useEffect(() => {
+        initialiseContactSync();
+      }, []);
     if (initialising) return <RamaSplashScreen />
     return( 
         <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
