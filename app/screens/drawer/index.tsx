@@ -14,9 +14,10 @@ import NotificationsScreen from './NotificationsScreen';
 import SetupProfileScreen from '../profile/SetupProfileScreen';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { RamaBackView, RamaHStack, RamaText, RamaVStack } from '@/components/Themed';
+import { RamaBackView, RamaButton, RamaHStack, RamaText, RamaVStack } from '@/components/Themed';
 import { useNavigation } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useToast } from '@/context/ToastContext';
 
 type RootStackParamList = {
   MainDrawer: undefined;
@@ -102,6 +103,8 @@ interface DrawerItemData {
 function CustomDrawerContent(props: any) {
   const { colours, colourTheme } = useTheme();
   const { user, signOut } = useAuth();
+  const {showToast} = useToast();
+  const navigation = useNavigation();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const openBottomSheet = () => {
@@ -164,7 +167,7 @@ function CustomDrawerContent(props: any) {
                 <Ionicons name={"close"} size={28} color={colours.text.soft} />
               </RectButton>
             </RamaHStack>
-            <RamaVStack style={{alignItems: "center", paddingTop: 28, gap: 12}}>
+            <RamaVStack style={{alignItems: "center", paddingTop: 28, gap: 12, marginBottom: 24}}>
               <Image
                 source={{ uri: `${user?.photoURL}` }}
                 style={{ height: 140, width: 140, borderRadius: 24 }}
@@ -174,6 +177,61 @@ function CustomDrawerContent(props: any) {
                 <RamaText variant={"h4"} style={{fontSize: 18}}>{user?.phoneNumber}</RamaText>
               </RamaVStack>
             </RamaVStack>
+            <RamaButton onPress={()=> navigation.navigate("EditProfileScreen" as never)} variant={"link"} size={"lg"}>Edit Profile</RamaButton>
+            <RamaHStack style={{paddingHorizontal: 18, justifyContent: "space-between"}}>
+              <RectButton 
+              onPress={()=> showToast({
+                variant: "info",
+                heading: "Coming Soon",
+                text: "The message feature is not yet ready :)"
+              })}
+              style={{
+                padding: 12,
+                backgroundColor: colours.background.soft,
+                borderRadius: 12
+              }}>
+                <MaterialCommunityIcons name={"message-outline"} color={colours.text.default} size={24} />
+              </RectButton>
+              <RectButton 
+              onPress={()=> showToast({
+                variant: "info",
+                heading: "Coming Soon",
+                text: "The call feature is not yet ready :)"
+              })}
+              style={{
+                padding: 12,
+                backgroundColor: colours.background.soft,
+                borderRadius: 12
+              }}>
+                <MaterialCommunityIcons name={"phone-outline"} color={colours.text.default} size={24} />
+              </RectButton>
+              <RectButton 
+              onPress={()=> showToast({
+                variant: "info",
+                heading: "Coming Soon",
+                text: "The circles feature is not yet ready :)"
+              })}
+              style={{
+                padding: 12,
+                backgroundColor: colours.background.soft,
+                borderRadius: 12
+              }}>
+                <MaterialCommunityIcons name={"account-plus-outline"} color={colours.text.default} size={24} />
+              </RectButton>
+              <RectButton 
+              onPress={()=> showToast({
+                variant: "info",
+                heading: "Coming Soon",
+                text: "The block feature is not yet ready :)"
+              })}
+              style={{
+                padding: 12,
+                backgroundColor: colours.background.soft,
+                borderRadius: 12
+              }}>
+                <MaterialCommunityIcons name={"cancel"} color={colours.text.default} size={24} />
+              </RectButton>
+            </RamaHStack>
           </BottomSheetModal>
     </SafeAreaView>
   );
