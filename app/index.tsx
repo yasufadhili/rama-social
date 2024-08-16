@@ -10,6 +10,7 @@ import { EditProfileScreen, ProfileDetailsScreen } from './screens/profile';
 import { CreateMediaPostScreen, CreateNewCircleScreen, CreateTextPostScreen } from './screens/create';
 import RamaSplashScreen from './splash';
 import SetupProfileScreen from './screens/profile/SetupProfileScreen';
+import CreateAudioPostScreen from './screens/create/CreateAudioPostScreen';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -18,9 +19,10 @@ export default function Index(){
     const {colourTheme, colours} = useTheme();
     const {user, initialising} = useAuth();
     if (initialising) return <RamaSplashScreen />
-    return <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
+    return( 
+        <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
             {user ? <MainStack /> : <AuthStack />}
-    </NavigationThemeProvider>
+    </NavigationThemeProvider>)
 }
 
 function AuthStack(){
