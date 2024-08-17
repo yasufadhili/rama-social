@@ -1,6 +1,6 @@
 import { RamaHStack, RamaText, RamaVStack } from "@/components/Themed";
 import { useTheme } from "@/context/ThemeContext";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { NativeScrollEvent, NativeSyntheticEvent, View } from "react-native";
 import { RectButton, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
@@ -50,31 +50,58 @@ const PostCard: React.FC<PostCardProps> = ({ item, onImagePress }) => {
   }, [])
 
   const renderHeader = () => (
-    <BlurView intensity={80} tint={item?.post_type === "text" ? "dark" : colourTheme} style={{ paddingLeft: 0, paddingVertical: 12 }}>
-      <RamaHStack style={{ justifyContent: "space-between", paddingHorizontal: 12 }}>
+    <View style={{ paddingVertical: 12, backgroundColor: colours.background.strong }}>
+      <RamaHStack style={{ justifyContent: "space-between", paddingLeft: 12 }}>
         <RamaHStack>
           <TouchableOpacity style={{ height: 38, width: 38, borderRadius: 12, borderWidth: 1, borderColor: colours.text.soft }}>
             <Image source={{ uri: item?.creatorPhotoUrl || "https://picsum.photos/40" }} style={{ height: "100%", width: "100%", borderRadius: 12 }} />
           </TouchableOpacity>
           <RamaVStack>
-            <RamaText style={{ color: item?.post_type === "text" ? "#f1f1f1" : colours.text.default }} variant={"h3"}>{item?.creatorDisplayName}</RamaText>
-            <RamaText style={{ color: item?.post_type === "text" ? "#f1f1f1" : colours.text.default }} variant={"p3"}>{item && formatTimeSince(item.createdAt.toMillis())}</RamaText>
+            <RamaText style={{ fontWeight: "bold" }} variant={"h4"}>{item?.creatorDisplayName}</RamaText>
+            <RamaText style={{ }} variant={"p3"}>{item && formatTimeSince(item.createdAt.toMillis())}</RamaText>
           </RamaVStack>
         </RamaHStack>
         <RamaVStack>
           <RectButton style={{ padding: 8, borderRadius: 14 }}>
-            <Ionicons name={"heart"} size={24} color={colours.text.soft} />
+            <Ionicons name={"ellipsis-vertical"} size={24} color={colours.text.soft} />
           </RectButton>
         </RamaVStack>
       </RamaHStack>
-    </BlurView>
+    </View>
   );
 
-  const renderFooter = () => (
-    <View>
+  const renderFooter = () => {
+    return <RamaHStack style={{justifyContent: "space-between", paddingHorizontal: 12, paddingBottom: 12, backgroundColor: colours.background.strong}}>
+      <RamaHStack style={{
+        gap: 8
+      }}>
+        <RectButton
+          style={{
+            padding: 6,
+            borderRadius: 12,
+          }}
+        >
+          <MaterialCommunityIcons name={"star-outline"} size={28} color={colours.text.soft} />
+        </RectButton>
 
-    </View>
-  )
+        <RectButton style={{
+          padding: 8,
+          borderRadius: 12,
+          //backgroundColor: colours.primary
+        }}>
+          <MaterialCommunityIcons name={"comment-outline"} size={24} color={colours.text.soft} />
+        </RectButton>
+      </RamaHStack>
+      
+      <RectButton style={{
+          padding: 8,
+          borderRadius: 12,
+          //backgroundColor: colours.primary
+        }}>
+          <MaterialCommunityIcons name={"heart-outline"} size={25} color={colours.text.soft} />
+        </RectButton>
+    </RamaHStack>
+  }
 
   const renderTextContent= () => {
     const contentLength : number = item?.textBlocks.reduce((acc, block) => acc + block.text.length, 0) ?? 0;
@@ -86,7 +113,7 @@ const PostCard: React.FC<PostCardProps> = ({ item, onImagePress }) => {
           colors={item?.gradientColours || ["#000000", "#333333"]}
           start={{ x: 1, y: 2 }}
           end={{ x: 0, y: 0 }}
-          style={[{ marginBottom: 8, borderRadius: 4, overflow: "hidden", paddingBottom: 8,marginHorizontal: 0 }]}
+          style={[{ borderRadius: 4, overflow: "hidden", paddingBottom: 8,marginHorizontal: 0 }]}
         >
           <View style={{
             alignItems: "center",
@@ -115,7 +142,7 @@ const PostCard: React.FC<PostCardProps> = ({ item, onImagePress }) => {
   };
 
   const renderMediaContent  = () => (
-    <View style={{ marginBottom: 8, borderRadius: 4, overflow: "hidden", marginHorizontal: 0, backgroundColor: colourTheme === "dark" ? colours.background.soft : colours.background.strong }}>
+    <View style={{borderRadius: 4, overflow: "hidden", marginHorizontal: 0, backgroundColor: colourTheme === "dark" ? colours.background.soft : colours.background.strong }}>
       {(item?.images?.length ?? 0) > 0 &&
         <ScrollView
           horizontal
@@ -203,7 +230,7 @@ const PostCard: React.FC<PostCardProps> = ({ item, onImagePress }) => {
   }
 
   return (
-    <Animated.View entering={FadeIn.duration(1000)} style={{}}>
+    <Animated.View entering={FadeIn.duration(1000)} style={{borderRadius: 12}}>
       {renderHeader()}
       {renderContent()}
       {renderFooter()}

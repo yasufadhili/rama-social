@@ -6,18 +6,22 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { TPost } from "@/types/Post";
-import { FlatList, RefreshControl } from "react-native-gesture-handler";
+import { FlatList, RectButton, RefreshControl, TouchableOpacity } from "react-native-gesture-handler";
 import { ActivityIndicator, ProgressBar } from "react-native-paper";
 import { RamaHStack, RamaText } from "@/components/Themed";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Image } from "expo-image";
+import { useNavigation } from "@react-navigation/native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 
 const POSTS_PER_PAGE = 10;
-const AUTO_REFRESH_INTERVAL = 60000; // 1 minute
+const AUTO_REFRESH_INTERVAL = 600000; // 10 minutes
 
 const FeedScreen: React.FC = () => {
   const {colourTheme, colours} = useTheme();
   const {user} = useAuth();
+  const navigation = useNavigation();
   const [posts, setPosts] = useState<TPost[]>([]);
   const [lastVisible, setLastVisible] = useState<FirebaseFirestoreTypes.QueryDocumentSnapshot | null>(null);
   const [loading, setLoading] = useState(false);
@@ -169,21 +173,40 @@ const FeedScreen: React.FC = () => {
     return <>
     <RamaHStack style={{
         justifyContent: "space-between", 
-        paddingHorizontal: 12, 
+        paddingLeft: 12, 
         paddingBottom: 18,
         paddingTop: 8, 
+        marginBottom: 12,
         borderBottomWidth: 2, 
         borderBottomColor: colours.background.soft,
-        backgroundColor: colours.background.strong
+        backgroundColor: colours.background.strong,
+        alignItems: "center"
         }}>
-            <RamaText style={{fontSize: 22}} variant={"h1"}>Feed</RamaText>
+            <RamaHStack style={{gap: 8}}>
+              <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate("ProfileDetailsScreen" as never)}
+               style={{ alignItems: 'center' }}>
+                <Image
+                  source={{ uri: `${user?.photoURL}` }}
+                  style={{ height: 38, width: 38, borderRadius: 12}}
+                />
+              </TouchableOpacity>
+              <RamaText style={{fontSize: 22}} variant={"h1"}>Feed</RamaText>
+            </RamaHStack>
+            <RectButton onPress={()=> navigation.navigate("SettingsStack" as never)} style={{
+              padding: 8,
+              backgroundColor: colours.background.soft,
+              borderRadius: 12,
+              marginRight: 8
+            }}>
+              <MaterialCommunityIcons name={"cog-outline"} size={24} color={colours.text.default} />
+            </RectButton>
     </RamaHStack>
     {loading && <ProgressBar style={{ marginVertical: 0, marginBottom: 12 }} color={colours.primary} indeterminate />}
     </>
   }
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: colours.background.strong}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: colours.background.strong  }}>
         <FlatList
             data={posts}
             renderItem={renderItem}
@@ -202,7 +225,8 @@ const FeedScreen: React.FC = () => {
             stickyHeaderIndices={[0]}
             stickyHeaderHiddenOnScroll
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingVertical: 0, paddingHorizontal: 0, paddingBottom: 120, }}
+            contentContainerStyle={{ paddingVertical: 0, paddingHorizontal: 0, paddingBottom: 120, backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default }}
+            ItemSeparatorComponent={()=> <View style={{backgroundColor: colours.background.soft, padding:1}} />}
         />
     </SafeAreaView>
   );

@@ -13,6 +13,7 @@ import SetupProfileScreen from './screens/profile/SetupProfileScreen';
 import CreateAudioPostScreen from './screens/create/CreateAudioPostScreen';
 import { useEffect } from 'react';
 import { manualSyncContacts } from '@/services/contactsSync';
+import AllFeedScreen from './screens/drawer/AllFeedScreen';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -45,7 +46,10 @@ function AuthStack(){
 function MainStack(){
     const {colourTheme, colours} = useTheme();
     return <Stack.Navigator screenOptions={{headerShown: false, headerStyle: {backgroundColor: colours.background.strong}, headerTitleStyle: {fontSize: 20, fontWeight: "bold"} }} initialRouteName={"DrawerStack"}>
-            <Stack.Screen name={"DrawerStack"} component={DrawerStack} />
+            {/**<Stack.Screen name={"DrawerStack"} component={DrawerStack} /> */}
+            <Stack.Screen name={"AllFeedScreen"} component={AllFeedScreen} options={{
+                
+            }} />
             <Stack.Screen name={"SettingsStack"} component={SettingsStack} />
             <Stack.Screen name={"ProfileDetailsScreen"} component={ProfileDetailsScreen} />
             <Stack.Screen name={"EditProfileScreen"} component={EditProfileScreen} options={{headerShown: true, title: "Edit Profile"}} />
