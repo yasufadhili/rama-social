@@ -2,9 +2,9 @@ import { TColourThemeName, TThemeColours } from "@/types/Colours";
 
 const colours: Record<TColourThemeName, TThemeColours> = {
     light: {
-      primary: "#28ABFA", 
-      secondary: "#793BCC", 
-      accent: "#FF6347",
+      primary: "#f40752", 
+      secondary: "#717171", 
+      accent: "#ff73e5",
       text: {
         default: "#3b3e4f",
         strong:"#333",
@@ -18,9 +18,9 @@ const colours: Record<TColourThemeName, TThemeColours> = {
       },
     },
     dark: {
-      primary: "#28ABFA",
-      secondary: "#793BCC", 
-      accent: "#FF6347",
+      primary: "#f40752",
+      secondary: "#717171", 
+      accent: "#ff73e5",
       text: {
         default: "#f2f2f2",
         strong:"#fff",

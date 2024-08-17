@@ -11,8 +11,8 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/context/ThemeContext';
 
-const PRIMARY_COLOUR = '#28ABFA';
-const SECONDARY_COLOUR = '#793BCC';
+const PRIMARY_COLOUR = '#f40752';
+const SECONDARY_COLOUR = '#717171';
 const BACKGROUND_COLOUR_DARK = '#070812';
 const BACKGROUND_COLOUR_LIGHT = "#ffffff"
 

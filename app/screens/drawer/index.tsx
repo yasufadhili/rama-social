@@ -71,7 +71,7 @@ function MainDrawer() {
         }
       }}
     >
-      <Drawer.Screen name="AllFeedScreen" component={AllFeedScreen} options={{title: "Feed"}} />
+      <Drawer.Screen name="AllFeedScreen" component={AllFeedScreen} options={{title: "Feed", headerShown: false}} />
       <Drawer.Screen 
         name="CirclesListScreen" 
         component={CirclesListScreen} 

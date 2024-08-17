@@ -1,16 +1,23 @@
+import PostCard from "@/components/PostCard";
+import { TUser } from "@/types/User";
+import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { ActivityIndicator, StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { TPost } from "@/types/Post";
 import { FlatList, RefreshControl } from "react-native-gesture-handler";
-import PostCard from "@/components/PostCard";
-import { TUser } from "@/types/User";
+import { ActivityIndicator, ProgressBar } from "react-native-paper";
+import { RamaHStack, RamaText } from "@/components/Themed";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const POSTS_PER_PAGE = 10;
 const AUTO_REFRESH_INTERVAL = 60000; // 1 minute
 
 const FeedScreen: React.FC = () => {
+  const {colourTheme, colours} = useTheme();
+  const {user} = useAuth();
   const [posts, setPosts] = useState<TPost[]>([]);
   const [lastVisible, setLastVisible] = useState<FirebaseFirestoreTypes.QueryDocumentSnapshot | null>(null);
   const [loading, setLoading] = useState(false);
@@ -139,25 +146,65 @@ const FeedScreen: React.FC = () => {
   );
 
   const renderFooter = () => {
-    if (!loading) return null;
-    return <ActivityIndicator style={styles.loader} />;
+    if (!loading || posts.length === 0) return null;
+    return <ActivityIndicator color={colours.primary} />;
   };
 
+  const renderListEmpty = () => {
+    if (posts.length === 0 && !loading) return <>
+        <View style={{
+            alignItems: "center",
+            justifyContent: "center",
+            alignContent: "center",
+            marginTop: 45,
+            padding: 48
+        }}>
+            <RamaText variant={"h2"}>No Posts could be retrieved at this time</RamaText>
+        </View>
+    </>
+    return null;
+  }
+
+  const renderHeader = () => {
+    return <>
+    <RamaHStack style={{
+        justifyContent: "space-between", 
+        paddingHorizontal: 12, 
+        paddingBottom: 18,
+        paddingTop: 8, 
+        borderBottomWidth: 2, 
+        borderBottomColor: colours.background.soft,
+        backgroundColor: colours.background.strong
+        }}>
+            <RamaText style={{fontSize: 22}} variant={"h1"}>Feed</RamaText>
+    </RamaHStack>
+    {loading && <ProgressBar style={{ marginVertical: 0, marginBottom: 12 }} color={colours.primary} indeterminate />}
+    </>
+  }
+
   return (
-    <FlatList
-      data={posts}
-      renderItem={renderItem}
-      keyExtractor={item => item.id || ""}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
+    <SafeAreaView style={{flex: 1, backgroundColor: colours.background.strong}}>
+        <FlatList
+            data={posts}
+            renderItem={renderItem}
+            keyExtractor={item => item.id || ""}
+            refreshControl={
+                <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                />
+            }
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.1}
+            ListFooterComponent={renderFooter}
+            ListEmptyComponent={renderListEmpty}
+            ListHeaderComponent={renderHeader}
+            stickyHeaderIndices={[0]}
+            stickyHeaderHiddenOnScroll
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingVertical: 0, paddingHorizontal: 0, paddingBottom: 120, }}
         />
-      }
-      onEndReached={handleLoadMore}
-      onEndReachedThreshold={0.1}
-      ListFooterComponent={renderFooter}
-    />
+    </SafeAreaView>
   );
 };
 
