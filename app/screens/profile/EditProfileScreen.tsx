@@ -1,3 +1,6 @@
+{/** Thuis screen hasn't put into consideration some scenarios like when a user updates only the image or only the about or only the name, the display name cannot be null
+    and neither can be the display photo so make sure updating it doensnot mess up previos un changed data */}
+
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, SafeAreaView, ScrollView, Alert, ActivityIndicator, View } from 'react-native';
 import { useTheme } from "@/context/ThemeContext";
@@ -16,7 +19,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '@/context/AuthContext';
 
 const EditProfileScreen: React.FC = () => {
-    const [profileData, setProfileData] = useState<TUser>({ displayName: `${auth().currentUser?.displayName}`, photoUrl: `${auth().currentUser?.photoURL}`, about: "" });
+    const [profileData, setProfileData] = useState<TUser>({ displayName: `${auth().currentUser?.displayName}`, photoUrl: `${auth().currentUser?.photoURL}`, about: `` });
     const [isPicLoading, setPicIsLoading] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { colours } = useTheme();
@@ -67,60 +70,80 @@ const EditProfileScreen: React.FC = () => {
     };
 
     const handleSaveProfile = async () => {
-        const { displayName, photoUrl } = profileData;
-
-        if (!photoUrl.trim()) {
-            Alert.alert("Missing Information", "Please enter a display picture.");
+        const { displayName, photoUrl, about } = profileData;
+    
+        if (!displayName.trim() && !photoUrl.trim()) {
+            Alert.alert("Missing Information", "Please enter a display name and select a profile picture.");
             return;
         }
-
-        if (!displayName.trim()) {
-            Alert.alert("Missing Information", "Please enter a display name.");
-            return;
-        }
-
+    
         setIsLoading(true);
-
+    
         try {
             const currentUser = auth().currentUser;
-
+    
             if (!currentUser) {
                 throw new Error("No authenticated user found.");
             }
-
-            let downloadUrl = null;
-            if (photoUrl) {
+    
+            const userDocRef = firestore().collection('users').doc(currentUser.uid);
+            const userDoc = await userDocRef.get();
+    
+            if (!userDoc.exists) {
+                throw new Error("User document does not exist.");
+            }
+    
+            const existingData = userDoc.data() as TUser;
+    
+            // Determine which fields to update
+            let updatedFields: Partial<TUser> = {};
+            if (displayName.trim() && displayName !== existingData.displayName) {
+                updatedFields.displayName = displayName;
+            }
+            if (about.trim() && about !== existingData.about) {
+                updatedFields.about = about;
+            }
+    
+            let downloadUrl = existingData.photoUrl;
+            if (photoUrl !== existingData.photoUrl) {
                 setPicIsLoading(true);
                 downloadUrl = await uploadImage(photoUrl);
+                updatedFields.photoUrl = downloadUrl;
                 setPicIsLoading(false);
             }
-
-            await currentUser.updateProfile({
-                displayName: displayName,
-                photoURL: downloadUrl,
-            });
-
-            await firestore().collection('users').doc(currentUser.uid).set({
-                displayName,
-                photoUrl: downloadUrl,
-                phoneNumber: currentUser.phoneNumber,
-                about: profileData.about,
-            }).then(()=> navigation.goBack());
-            showToast({
-                variant: "success",
-                heading: "Success",
-                text: "Profile Updated Successfully"
-            });
-            navigation.goBack()
+    
+            // Update only if there are fields to update
+            if (Object.keys(updatedFields).length > 0) {
+                await currentUser.updateProfile({
+                    displayName: updatedFields.displayName ?? currentUser.displayName,
+                    photoURL: downloadUrl ?? currentUser.photoURL,
+                });
+    
+                await userDocRef.update(updatedFields);
+    
+                showToast({
+                    variant: "success",
+                    heading: "Success",
+                    text: "Profile Updated Successfully"
+                });
+            } else {
+                showToast({
+                    variant: "info",
+                    heading: "No Changes",
+                    text: "No changes detected in your profile."
+                });
+            }
+    
+            navigation.goBack();
+    
         } catch (error) {
-            //Alert.alert("Save Failed", "An error occurred while saving the profile. Please try again.");
             showToast({
                 variant: "error",
                 heading: "Error",
                 text: "Failed to save profile. Please try again"
             });
             console.error("Save profile error:", error);
-
+    
         } finally {
             setIsLoading(false);
         }
@@ -161,7 +184,7 @@ const EditProfileScreen: React.FC = () => {
                         <View style={styles.inputContainer}>
                             <RamaText style={styles.inputLabel}>Display Name</RamaText>
                             <RamaInput
-                                placeholder="Enter your display name"
+                                placeholder={profileData.displayName}
                                 placeholderTextColor={colours.text.soft}
                                 onChangeText={(text) => setProfileData({ ...profileData, displayName: text })}
                                 value={profileData.displayName}
@@ -175,7 +198,7 @@ const EditProfileScreen: React.FC = () => {
                                 }}
                                 multiline
                                 maxLength={120}
-                                placeholder="A description about yourself"
+                                placeholder={"A description about yourself"}
                                 placeholderTextColor={colours.text.soft}
                                 onChangeText={(text) => setProfileData({ ...profileData, about: text })}
                                 value={profileData.about}
