@@ -151,7 +151,7 @@ const FeedScreen: React.FC = () => {
 
   const renderFooter = () => {
     if (!loading || posts.length === 0) return null;
-    return <ActivityIndicator color={colours.primary} />;
+    return <ActivityIndicator color={colours.primary} style={{margin: 30}} />;
   };
 
   const renderListEmpty = () => {
@@ -201,7 +201,7 @@ const FeedScreen: React.FC = () => {
               <MaterialCommunityIcons name={"cog-outline"} size={24} color={colours.text.default} />
             </RectButton>
     </RamaHStack>
-    {loading && <ProgressBar style={{ marginVertical: 0, marginBottom: 12 }} color={colours.primary} indeterminate />}
+    {loading && <ProgressBar style={{ }} color={colours.primary} indeterminate />}
     </>
   }
 
@@ -225,8 +225,8 @@ const FeedScreen: React.FC = () => {
             stickyHeaderIndices={[0]}
             stickyHeaderHiddenOnScroll
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingVertical: 0, paddingHorizontal: 0, paddingBottom: 120, backgroundColor: colourTheme === "dark" ? colours.background.strong : colours.background.default }}
-            ItemSeparatorComponent={()=> <View style={{backgroundColor: colours.background.soft, padding:1}} />}
+            contentContainerStyle={{ paddingVertical: 0, paddingHorizontal: 0, paddingBottom: 120, }}
+            //ItemSeparatorComponent={()=> <View style={{backgroundColor: colours.background.soft, padding:1}} />}
         />
     </SafeAreaView>
   );

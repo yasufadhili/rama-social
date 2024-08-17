@@ -14,6 +14,7 @@ import CreateAudioPostScreen from './screens/create/CreateAudioPostScreen';
 import { useEffect } from 'react';
 import { manualSyncContacts } from '@/services/contactsSync';
 import AllFeedScreen from './screens/drawer/AllFeedScreen';
+import PostDetailsScreen from './screens/feed/PostDetailsScreen';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -50,6 +51,7 @@ function MainStack(){
             <Stack.Screen name={"AllFeedScreen"} component={AllFeedScreen} options={{
                 
             }} />
+            <Stack.Screen name={"PostDetailsScreen"} component={PostDetailsScreen} options={{title: "Post", headerShown: true}} />
             <Stack.Screen name={"SettingsStack"} component={SettingsStack} />
             <Stack.Screen name={"ProfileDetailsScreen"} component={ProfileDetailsScreen} />
             <Stack.Screen name={"EditProfileScreen"} component={EditProfileScreen} options={{headerShown: true, title: "Edit Profile"}} />
