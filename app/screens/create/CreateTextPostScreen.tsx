@@ -113,7 +113,6 @@ export default function CreateTextPostScreen() {
         creatorId: user?.uid,
       };
       await firestore().collection('posts').add(postData);
-      console.log(postData);
       resetPostState();
       showToast({
         variant: 'success',
