@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import firestore, { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
-import { TPost, TTextBlock } from "@/types/Post";
-import { RamaText } from "@/components/Themed";
+import { TPost } from "@/types/Post";
 import { FlatList, RefreshControl } from "react-native-gesture-handler";
 import PostCard from "@/components/PostCard";
 import { TUser } from "@/types/User";
