@@ -67,12 +67,11 @@ export default function ProfileDetailsScreen(){
                     <RamaVStack style={{gap: 4, overflow: "hidden", width: SCREEN_WIDTH /2}}>
                         <RamaHStack>
                             <RamaText numberOfLines={1} style={{fontSize: 24}} variant={"h1"}>{user?.displayName}</RamaText>
-                            <RamaText variant={"h1"}>#1</RamaText>
                         </RamaHStack>
                         <RamaText variant={"p2"}>{user?.phoneNumber}</RamaText>
                     </RamaVStack>
                     <View style={{width: SCREEN_WIDTH/2.5}}>
-                        <RamaButton onPress={()=> navigation.navigate("EditProfileScreen" as never)} >Connect</RamaButton>
+                        <RamaButton onPress={()=> navigation.navigate("EditProfileScreen" as never)} >Edit Profile</RamaButton>
                     </View>
                 </RamaHStack>
 

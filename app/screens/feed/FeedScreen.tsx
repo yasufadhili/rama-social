@@ -198,7 +198,7 @@ const FeedScreen: React.FC = () => {
               borderRadius: 12,
               marginRight: 8
             }}>
-              <MaterialCommunityIcons name={"cog-outline"} size={24} color={colours.text.default} />
+              <MaterialCommunityIcons name={"cog-outline"} size={24} color={colours.text.soft} />
             </RectButton>
     </RamaHStack>
     {loading && <ProgressBar style={{ }} color={colours.primary} indeterminate />}
