@@ -36,12 +36,13 @@ import React, {
     const [userExistsInCollection, setUserExistsInCollection] = useState<boolean | null>(null);
   
     function onAuthStateChanged(user: FirebaseAuthTypes.User | null) {
-      setUser(user);
+      setUser(user)
       if (initialising) setTimeout(() => { setInitialising(false) }, 3000);
     }
   
     useEffect(() => {
       const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+      if (initialising && !user) setTimeout(() => { setInitialising(false) }, 3000);
       return subscriber; // unsubscribe on unmount
     }, []);
   

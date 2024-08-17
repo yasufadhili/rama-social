@@ -22,12 +22,7 @@ const Stack = createNativeStackNavigator();
 export default function Index(){
     const {colourTheme, colours} = useTheme();
     const {user, initialising} = useAuth();
-    const run = async()=> {
-        await manualSyncContacts()
-    }
-    useEffect(() => {
-        run();
-      }, []);
+    
     if (initialising) return <RamaSplashScreen />
     return( 
         <NavigationThemeProvider value={ colourTheme === "dark" ? DarkTheme : DefaultTheme} >
@@ -45,6 +40,13 @@ function AuthStack(){
 }
 
 function MainStack(){
+    const run = async()=> {
+        await manualSyncContacts();
+        
+    }
+    useEffect(() => {
+        run();
+      }, []);
     const {colourTheme, colours} = useTheme();
     return <Stack.Navigator screenOptions={{headerShown: false, headerStyle: {backgroundColor: colours.background.strong}, headerTitleStyle: {fontSize: 20, fontWeight: "bold"} }} initialRouteName={"DrawerStack"}>
             {/**<Stack.Screen name={"DrawerStack"} component={DrawerStack} /> */}

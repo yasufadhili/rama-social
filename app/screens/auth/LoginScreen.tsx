@@ -149,7 +149,9 @@ const LoginScreen: React.FC = () => {
                             )}
 
                             <View style={styles.registerContainer}>
-                                <RamaText>Please note that due to high frequency of requests, You may not receive an OTP today. Please bear with us as we try to cope with the demand for our service</RamaText>
+                                <RamaText>
+                                    Please make sure you enter your phone number in international format with no spaces
+                                </RamaText>
                             </View>
                         </ScrollView>
                     </KeyboardAvoidingView>

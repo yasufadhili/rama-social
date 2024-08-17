@@ -6,6 +6,7 @@ import { RamaButton, RamaCard, RamaText, RamaVStack } from '@/components/Themed'
 import { useTheme } from '@/context/ThemeContext';
 import { Dialog, Portal } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useToast } from '@/context/ToastContext';
 
 
 type ListItemProps = {
@@ -69,6 +70,7 @@ const Header: React.FC = () => {
 const SettingsScreen: React.FC = () => {
   const { colourTheme, colours } = useTheme();
   const {signOut} = useAuth();
+  const {showToast} = useToast();
   const [signoutVisible, setSignoutVisible] = React.useState(false);
 
   const showSignoutDialog = () => setSignoutVisible(true);
@@ -131,7 +133,7 @@ const SettingsScreen: React.FC = () => {
                 <RamaText>Are you sure you want to sign out?</RamaText>
             </Dialog.Content>
             <Dialog.Actions>
-                <RamaButton variant="link" onPress={() => signOut()}>
+                <RamaButton variant="link" onPress={() => signOut().then(()=> showToast({heading: "Signed out", variant: "warning", text: "Signed out Successfully"}))}>
                 Sign out
                 </RamaButton>
             </Dialog.Actions>
