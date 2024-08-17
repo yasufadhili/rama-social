@@ -49,7 +49,7 @@ import { useNavigation } from '@react-navigation/native';
   
       const toolbarTranslateY = useSharedValue(50);
   
-      const isPostButtonDisabled = !images.length && true ;
+      const isPostButtonDisabled = images.length === 0;
       
       useEffect(() => {
           const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -80,13 +80,19 @@ import { useNavigation } from '@react-navigation/native';
             allowsMultipleSelection: true,
             aspect: [4, 3],
             quality: 1,
+            selectionLimit: 4 - images.length, // Limit selection based on existing images
           });
       
           if (!result.canceled) {
             const newMedia = result.assets.map(asset => asset.uri);
-            setMedia(prevMedia => [...prevMedia, ...newMedia].slice(0, 5));
+            setMedia(prevMedia => [...prevMedia, ...newMedia].slice(0, 4));
           }
         } catch (error) {
+          showToast({
+            variant: "error",
+            heading: "Error",
+            text: "Failed to pick media"
+          });
           Alert.alert('Error', 'Something went wrong while picking images.');
         } finally {
           setLoadingMedia(false);
@@ -94,54 +100,54 @@ import { useNavigation } from '@react-navigation/native';
       };
     
       const removeMedia = (index: number) => {
-          setMedia(prevMedia => prevMedia.filter((_, i) => i !== index));
-        };
+        setMedia(prevMedia => prevMedia.filter((_, i) => i !== index));
+      };
     
-        const handlePost = async () => {
-          if (isPostButtonDisabled || isPosting) return <> {showToast({variant: "error", heading: "Error",  text: "Add images to your post"})} </>;
-      
-          setIsPosting(true);
-      
-          try {
-            if (!user) {
-              throw new Error('User not authenticated');
-            }
-      
-            let images: string[] = [];
-      
-            if (images.length > 0) {
-              images = await Promise.all(
-                images.map(async (imagesUri, index) => {
-                  const reference = storage().ref(`post_images/${user.uid}/${Date.now()}_${index}`);
-                  await reference.putFile(imagesUri);
-                  return await reference.getDownloadURL();
-                })
-              );
-            }
-      
-            const post: TMediaPost = {
-              caption,
-              images,
-              isPublic,
-              creatorId: user?.uid,
-              createdAt: firestore.Timestamp.now(),
-              post_type: "media",
-            };
-      
-            await firestore().collection('posts').add(post);
-      
-            setCaption('');
-            setMedia([]);
-            setIsPublic(true);
-            navigation.goBack();
-      
-          } catch (error) {
-            console.error('Error posting:', error);
-            Alert.alert('Error', 'Failed to create post. Please try again.');
-          } finally {
-            setIsPosting(false);
+      const handlePost = async () => {
+        if (isPostButtonDisabled || isPosting) return <> {showToast({variant: "error", heading: "Error",  text: "Add images to your post"})} </>;
+    
+        setIsPosting(true);
+    
+        try {
+          if (!user) {
+            throw new Error('User not authenticated');
           }
-        };
+    
+          let imageUrls: string[] = [];
+    
+          if (images.length > 0) {
+            imageUrls = await Promise.all(
+              images.map(async (imagesUri, index) => {
+                const reference = storage().ref(`post_images/${user.uid}/${Date.now()}_${index}`);
+                await reference.putFile(imagesUri);
+                return await reference.getDownloadURL();
+              })
+            );
+          }
+    
+          const post: TMediaPost = {
+            caption,
+            images: imageUrls,
+            isPublic,
+            creatorId: user?.uid,
+            createdAt: firestore.Timestamp.now(),
+            post_type: "media",
+          };
+    
+          await firestore().collection('posts').add(post);
+    
+          setCaption('');
+          setMedia([]);
+          setIsPublic(true);
+          navigation.goBack();
+    
+        } catch (error) {
+          console.error('Error posting:', error);
+          Alert.alert('Error', 'Failed to create post. Please try again.');
+        } finally {
+          setIsPosting(false);
+        }
+      };
     
       const toggleVisibility = () => {
         setIsPublic(prev => !prev);

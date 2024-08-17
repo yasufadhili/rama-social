@@ -6,9 +6,10 @@ import { NativeScrollEvent, NativeSyntheticEvent, View } from "react-native";
 import { RectButton, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import {BlurView} from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { SCREEN_WIDTH } from "@/constants/window";
 import { TPost, TTextBlock } from "@/types/Post";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 
 
@@ -69,7 +70,13 @@ const PostCard: React.FC<PostCardProps> = ({ item, onImagePress }) => {
     </BlurView>
   );
 
-  const renderTextContent = () => {
+  const renderFooter = () => (
+    <View>
+
+    </View>
+  )
+
+  const renderTextContent= () => {
     const contentLength : number = item?.textBlocks.reduce((acc, block) => acc + block.text.length, 0) ?? 0;
     const gradientHeight = Math.min(580, Math.max(320, contentLength * 4));
 
@@ -81,7 +88,6 @@ const PostCard: React.FC<PostCardProps> = ({ item, onImagePress }) => {
           end={{ x: 0, y: 0 }}
           style={[{ marginBottom: 8, borderRadius: 4, overflow: "hidden", paddingBottom: 8,marginHorizontal: 0 }]}
         >
-          {renderHeader()}
           <View style={{
             alignItems: "center",
             paddingHorizontal: 28,
@@ -104,24 +110,12 @@ const PostCard: React.FC<PostCardProps> = ({ item, onImagePress }) => {
             ))}
           </View>
         </LinearGradient>
-        {/**
-         * <RamaVStack style={{ position: "absolute", right: 14, bottom: 45, gap: 18 }}>
-        
-            <RectButton style={{ padding: 8, backgroundColor: colours.background.soft, borderRadius: 14 }}>
-              <Ionicons name={"star"} size={24} color={colours.text.default} />
-            </RectButton>
-            <RectButton style={{ padding: 8, backgroundColor: colours.background.soft, borderRadius: 14 }}>
-              <Ionicons name={"chatbox"} size={24} color={colours.text.default} />
-            </RectButton>
-          </RamaVStack>
-         */}
       </>
     );
   };
 
-  const renderMediaContent = () => (
+  const renderMediaContent  = () => (
     <View style={{ marginBottom: 8, borderRadius: 4, overflow: "hidden", marginHorizontal: 0, backgroundColor: colourTheme === "dark" ? colours.background.soft : colours.background.strong }}>
-      {renderHeader()}
       {(item?.images?.length ?? 0) > 0 &&
         <ScrollView
           horizontal
@@ -209,9 +203,11 @@ const PostCard: React.FC<PostCardProps> = ({ item, onImagePress }) => {
   }
 
   return (
-    <View style={{}}>
+    <Animated.View entering={FadeIn.duration(1000)} style={{}}>
+      {renderHeader()}
       {renderContent()}
-    </View>
+      {renderFooter()}
+    </Animated.View>
   );
 };
 
