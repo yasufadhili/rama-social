@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -8,10 +8,13 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from 'react-native-reanimated';
-import { RamaBackView, RamaButton } from '@/components/Themed';
+import { RamaBackView, RamaButton, RamaHStack, RamaText } from '@/components/Themed';
 import { useTheme } from '@/context/ThemeContext';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Ionicons } from '@expo/vector-icons';
+import { useRamaBottomSheet } from '@/context/BottomSheetContext';
 
 const WelcomeScreen: React.FC = () => {
   const {colourTheme, colours} = useTheme();
@@ -90,6 +93,22 @@ const WelcomeScreen: React.FC = () => {
       <Animated.View style={[styles.buttonContainer, buttonAnimatedStyle]}>
         <RamaButton onPress={()=> navigation.navigate("LoginScreen" as never)} variant={"primary"} size={"xl"}>Get Started</RamaButton>
       </Animated.View>
+      <RamaHStack style={{
+        alignItems: "center",
+        justifyContent: "center",
+        alignContent: "center"
+      }}>
+        <TouchableOpacity 
+        
+        style={{
+          padding: 8,
+          flexDirection: "row",
+          gap: 8
+        }}>
+          <RamaText>Language - English(UK)</RamaText>
+          <Ionicons name={"chevron-down"} size={22} color={colours.text.soft} />
+        </TouchableOpacity>
+      </RamaHStack>
     </RamaBackView>
   );
 };

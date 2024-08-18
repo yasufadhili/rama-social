@@ -1,4 +1,11 @@
 {
-    "welcome": "Welcome",
-    "changeLang": "Change Language"
+    "welcome": "Rama",
+    "changeLang": "Change Language",
+    "desc": "Coonection That Matter",
+    "login": "Login",
+    "login_subtitle": "Welcome back, Login to continue",
+    "settings":{
+        "title": "Settings",
+        "profile": "Profile"
+    }
 }
