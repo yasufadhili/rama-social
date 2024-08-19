@@ -4,6 +4,7 @@ import { FeedScreen } from "../feed";
 import { useAuth } from "@/context/AuthContext";
 import { SetupProfileScreen } from "../profile";
 import { useEffect } from "react";
+import LeftMessagesFAB from "@/components/LeftMessagesFAB";
 
 export default function AllFeedScreen(){
     const {user, userExistsInCollection} = useAuth();
@@ -16,7 +17,9 @@ export default function AllFeedScreen(){
     }, []);
     return <>
     <RamaBackView>
+        
         <FeedScreen />
+        <LeftMessagesFAB />
         <RightCreateFAB />
     </RamaBackView>
     </>

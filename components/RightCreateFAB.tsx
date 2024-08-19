@@ -13,13 +13,16 @@ export const RightCreateFAB = () => {
   
     return  <FAB.Group
         visible
+        
         open={fabState.open}
         color="#ffffff"
         backdropColor={colourTheme === "dark" ? colours.background.soft : colours.background.soft}
         fabStyle={{
             backgroundColor: colours.primary,
             bottom: 8,
+            
         }}
+        
         icon={fabState.open ? "close" : "plus"}
         actions={[
             { 
