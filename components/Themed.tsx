@@ -347,7 +347,7 @@ import {
       text: {
         color: variantStyles[variant].color,
         fontSize: sizeStyles[size].fontSize,
-        fontFamily: 'bold',
+        fontFamily: 'Semibold',
       },
       icon: {
         marginHorizontal: 4,
