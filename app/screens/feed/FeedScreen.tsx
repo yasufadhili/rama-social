@@ -160,10 +160,10 @@ const FeedScreen: React.FC = () => {
             alignItems: "center",
             justifyContent: "center",
             alignContent: "center",
-            marginTop: 45,
-            padding: 48
+            marginTop: 25,
+            padding: 48,
         }}>
-            <RamaText variant={"h2"}>No Posts could be retrieved at this time</RamaText>
+            <RamaText variant={"h3"}>No Posts could be retrieved at this time</RamaText>
         </View>
     </>
     return null;
