@@ -11,6 +11,7 @@ import RamaSplashScreen from "./splash";
 import { ToastProvider } from "@/context/ToastContext";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { BottomSheetProvider } from "@/context/BottomSheetContext";
+import fonts from "@/constants/fonts";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -25,9 +26,7 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    "logo": require("../assets/fonts/Quicksand-Bold.ttf")
-  });
+  const [loaded, error] = useFonts(fonts);
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {

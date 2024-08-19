@@ -90,7 +90,7 @@ const RamaSplashScreen = () => {
     logo: {
       fontSize: 64,
       color: PRIMARY_COLOUR,
-      fontFamily: "logo"
+      fontFamily: "Bold"
     },
     owner: {
       fontSize: 24,
