@@ -4,7 +4,7 @@ export type TPost = {
   id?: string;
   creatorPhotoUrl: string;
   creatorDisplayName: string;
-  caption?: string;
+  content?: string;
   mediaUrls?: string[];
   images?: string[];
   videos?: string[];
@@ -18,7 +18,7 @@ export type TPost = {
 
 export type TMediaPost = {
     id?: string;
-    caption?: string;
+    content?: string;
     mediaUrls?: string[];
     images?: string[];
     videos?: string[];

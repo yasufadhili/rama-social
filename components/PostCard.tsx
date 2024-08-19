@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState } from "react";
 import { View, StyleSheet, Dimensions, NativeSyntheticEvent, NativeScrollEvent, Pressable } from "react-native";
 import Animated, {
@@ -167,35 +168,62 @@ const PostCard: React.FC<PostCardProps> = ({
           onPress={()=> {}}
           style={{
             borderRadius: 12,
-            padding: 8
+            padding: 8,
+            paddingVertical: 6,
+            flexDirection: "row",
+            gap: 8,
+            width: SCREEN_WIDTH /3.2,
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: colours.background.soft
           }}
-          ><MaterialCommunityIcons name="comment-outline" size={24} color={colours.text.soft} />
+          >
+            <MaterialCommunityIcons name="star-outline" size={24} color={colours.text.soft} />
+            <RamaText style={{color: colours.text.soft}}>Star</RamaText>
         </RectButton>
 
         <RectButton 
           onPress={()=> setIsLiked((prev) => !prev)}
           style={{
-            borderRadius: 12
+            borderRadius: 12,
+            padding: 8,
+            paddingVertical: 6,
+            flexDirection: "row",
+            gap: 8,
+            width: SCREEN_WIDTH /3.5,
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: colours.background.soft
           }}
           >
-          <Animated.View style={[styles.actionButton, likeAnimatedStyle]}>
+          <Animated.View style={[{}, likeAnimatedStyle]}>
             <MaterialCommunityIcons
               name={isLiked ? "heart" : "heart-outline"}
-              size={28}
+              size={22}
               color={isLiked ? colours.primary : colours.text.soft}
             />
           </Animated.View>
+          <RamaText style={{color: colours.text.soft}}>Like</RamaText>
         </RectButton>
 
         <RectButton 
           onPress={()=> {}}
           style={{
             borderRadius: 12,
-            padding: 8
+            padding: 8,
+            paddingVertical: 6,
+            flexDirection: "row",
+            gap: 8,
+            width: SCREEN_WIDTH /3.5,
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: colours.background.soft
           }}
-          ><MaterialCommunityIcons name="star-outline" size={28} color={colours.text.soft} />
+          >
+            <MaterialCommunityIcons name="comment-outline" size={22} color={colours.text.soft} />
+            <RamaText style={{color: colours.text.soft}}>Reply</RamaText>
         </RectButton>
-        
+
       </RamaHStack>
     </View>
   );
@@ -245,6 +273,11 @@ const PostCard: React.FC<PostCardProps> = ({
 
   const renderMediaContent  = () => (
     <View style={{overflow: "hidden", marginHorizontal: 0, backgroundColor: colourTheme === "dark" ? colours.background.soft : colours.background.strong }}>
+      {item?.content &&
+        <View style={{ paddingHorizontal: 12, paddingBottom: 8 }}>
+          <RamaText numberOfLines={4} style={{  }} variant={"h3"}>{item.content}</RamaText>
+        </View>
+      }
       {(item?.images?.length ?? 0) > 0 &&
         <ScrollView
           horizontal
@@ -284,7 +317,7 @@ const PostCard: React.FC<PostCardProps> = ({
           flexDirection: "row",
           justifyContent: "center",
           position: "absolute",
-          bottom: item?.caption ? 70 : 24,
+          bottom: item?.content ? 70 : 24,
           alignSelf: "center"
         }}>
           {item?.images?.map((_, index) => (
@@ -303,11 +336,6 @@ const PostCard: React.FC<PostCardProps> = ({
           ))}
         </View>
       )}
-      {item?.caption &&
-        <View style={{ paddingHorizontal: 12, paddingTop: 8 }}>
-          <RamaText numberOfLines={4} style={{  }} variant={"h3"}>{item.caption}</RamaText>
-        </View>
-      }
     </View>
   );
 
@@ -349,10 +377,10 @@ const PostCard: React.FC<PostCardProps> = ({
           ))}
         </View>
       )}
-      {item?.caption && (
+      {item?.content && (
         <BlurView intensity={100} tint="dark" style={styles.captionContainer}>
-          <RamaText numberOfLines={2} style={styles.caption} variant="p1">
-            {item.caption}
+          <RamaText numberOfLines={2} style={styles.content} variant="p1">
+            {item.content}
           </RamaText>
         </BlurView>
       )}
@@ -378,15 +406,17 @@ const PostCard: React.FC<PostCardProps> = ({
           backgroundColor: colours.background.strong,
           shadowColor: colours.text.default,
         },styles.container, animatedStyle]}>
+          
+          {renderHeader()}
           <Pressable onPress={
             ()=> navigation.navigate("PostDetailsScreen", {
               postId: item?.id,
               creatorId: item?.creatorId
-            } as never )}>
-          {renderHeader()}
+            })}>
           {renderContent()}
-          {renderFooter()}
           </Pressable>
+          {renderFooter()}
+          
         </Animated.View>
       </GestureDetector>
   );
@@ -403,7 +433,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   header: {
-    padding: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
   },
   headerContent: {
     justifyContent: "space-between",
@@ -470,7 +501,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: "100%",
   },
-  caption: {
+  content: {
     fontSize: 14,
     fontWeight: "600",
     color: "#f1f1f1",
