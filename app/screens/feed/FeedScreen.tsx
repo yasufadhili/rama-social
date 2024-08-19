@@ -25,7 +25,7 @@ import { useNavigation } from "@react-navigation/native";
 
 
 const POSTS_PER_PAGE = 10;
-const AUTO_REFRESH_INTERVAL = 600000; // 10 minutes
+const AUTO_REFRESH_INTERVAL = 60000; // 1 minutes
 
 const FeedScreen: React.FC = () => {
   const {colourTheme, colours} = useTheme();
