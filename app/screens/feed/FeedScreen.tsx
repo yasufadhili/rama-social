@@ -25,7 +25,7 @@ import { useNavigation } from "@react-navigation/native";
 
 
 const POSTS_PER_PAGE = 10;
-const AUTO_REFRESH_INTERVAL = 60000; // 1 minutes
+const AUTO_REFRESH_INTERVAL = 600000; // 1 minutes
 
 const FeedScreen: React.FC = () => {
   const {colourTheme, colours} = useTheme();
@@ -50,33 +50,37 @@ const FeedScreen: React.FC = () => {
     setLoading(true);
     try {
 
-      // Fetch the user's contacts from the user_contacts collection
-      const userContactsDoc = await firestore()
-      .collection("user_contacts")
-      .doc(user?.uid)
-      .get();
+      {/**
+        // Fetch the user's contacts from the user_contacts collection
+        const userContactsDoc = await firestore()
+        .collection("user_contacts")
+        .doc(user?.uid)
+        .get();
 
-      const userContacts = userContactsDoc.data()?.phoneNumbers || [];
+        const userContacts = userContactsDoc.data()?.phoneNumbers || [];
 
-      // Map user contacts to their last 9 digits
-      const contactsLastNineDigits = userContacts.map((contact: string) =>
-          contact.slice(-9)
-      );
+        // Map user contacts to their last 9 digits
+        const contactsLastNineDigits = userContacts.map((contact: string) =>
+            contact.slice(-9)
+        );
+       */}
+
+       const contactsLastNineDigits = true;
 
       let query;
 
-      if (contactsLastNineDigits.length > 0) {
+      if (contactsLastNineDigits) {
           // Fetch posts from contacts and the user's own posts
           query = firestore()
               .collection("posts")
-              .where("creatorPhoneLastNine", "in", contactsLastNineDigits)
+              //.where("creatorPhoneLastNine", "in", contactsLastNineDigits)
               .orderBy("createdAt", "desc")
               .limit(POSTS_PER_PAGE);
       } else {
           // If no contacts, fetch only the user's own posts
           query = firestore()
               .collection("posts")
-              .where("creatorId", "==", user?.uid)
+              //.where("creatorId", "==", user?.uid)
               .orderBy("createdAt", "desc")
               .limit(POSTS_PER_PAGE);
       }
