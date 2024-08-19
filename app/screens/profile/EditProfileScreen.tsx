@@ -184,6 +184,9 @@ const EditProfileScreen: React.FC = () => {
                         <View style={styles.inputContainer}>
                             <RamaText style={styles.inputLabel}>Display Name</RamaText>
                             <RamaInput
+                                style={{
+                                    fontFamily: "Semibold"
+                                }}
                                 placeholder={profileData.displayName}
                                 placeholderTextColor={colours.text.soft}
                                 onChangeText={(text) => setProfileData({ ...profileData, displayName: text })}
@@ -195,11 +198,13 @@ const EditProfileScreen: React.FC = () => {
                             <RamaInput
                                 style={{
                                     minHeight: 120,
+                                    fontFamily: "Semibold"
                                 }}
                                 multiline
                                 maxLength={120}
                                 placeholder={"A description about yourself"}
                                 placeholderTextColor={colours.text.soft}
+                                
                                 onChangeText={(text) => setProfileData({ ...profileData, about: text })}
                                 value={profileData.about}
                             />
@@ -237,7 +242,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     inputLabel: {
-        fontWeight: "bold",
+        fontFamily: "Semibold",
     },
     profilePictureContainer: {
         alignSelf: 'center',

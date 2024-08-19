@@ -67,7 +67,7 @@ function MainDrawer() {
         },
         headerTitleStyle: {
           fontSize: 20,
-          fontWeight: "bold"
+          fontFamily: "Bold"
         }
       }}
     >

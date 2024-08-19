@@ -48,7 +48,7 @@ function MainStack(){
       }, []);
       
     const {colourTheme, colours} = useTheme();
-    return <Stack.Navigator screenOptions={{headerShown: false, headerStyle: {backgroundColor: colours.background.strong}, headerTitleStyle: {fontSize: 20, fontWeight: "bold"} }} initialRouteName={"DrawerStack"}>
+    return <Stack.Navigator screenOptions={{headerShown: false, headerStyle: {backgroundColor: colours.background.strong}, headerTitleStyle: {fontSize: 20, fontFamily: "Bold"} }} initialRouteName={"DrawerStack"}>
             {/**<Stack.Screen name={"DrawerStack"} component={DrawerStack} /> */}
             <Stack.Screen name={"AllFeedScreen"} component={AllFeedScreen} options={{
                 
