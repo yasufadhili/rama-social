@@ -24,18 +24,17 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
-  const [initialising, setInitializing] = useState<boolean>(true);
+  const [initialising, setInitialising] = useState<boolean>(true);
   const [userExistsInCollection, setUserExistsInCollection] = useState<boolean | null>(null);
 
   const onAuthStateChanged = useCallback((user: FirebaseAuthTypes.User | null) => {
     setUser(user);
-    if (initialising) {
-      setInitializing(false);
-    }
+    if (initialising) setTimeout(() => { setInitialising(false) }, 3000);
   }, [initialising]);
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    if (initialising && !user) setTimeout(() => { setInitialising(false) }, 3000);
     return subscriber; // unsubscribe on unmount
   }, [onAuthStateChanged]);
 
