@@ -1,144 +1,334 @@
-import { RamaBackView, RamaButton, RamaHStack, RamaText, RamaVStack } from "@/components/Themed";
-import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
-import { useToast } from "@/context/ToastContext";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { SCREEN_WIDTH, SCREEN_HEIGHT } from "@gorhom/bottom-sheet";
-import { useNavigation } from "@react-navigation/native";
-import { ImageBackground } from "expo-image";
-import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
-import { View } from "react-native";
-import { RectButton, ScrollView } from "react-native-gesture-handler";
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Dimensions, ViewStyle, TextStyle, ImageStyle } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withSpring,
+  AnimatedStyleProp 
+} from 'react-native-reanimated';
+import { 
+  PanGestureHandler, 
+  RectButton,
+  ScrollView,
+  GestureEventPayload,
+  PanGestureHandlerEventPayload 
+} from 'react-native-gesture-handler';
+import { 
+  RamaText, 
+  RamaButton, 
+  RamaBackView 
+} from '@/components/Themed';
+import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { ImageBackground } from 'expo-image';
+import { SectionList, SectionListData, SectionListRenderItem } from 'react-native';
+import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import { FirebaseStorageTypes } from '@react-native-firebase/storage';
+import { TUser } from '@/types/User';
+import { useToast } from '@/context/ToastContext';
 
-export default function ProfileDetailsScreen(){
-    const {user} = useAuth();
-    const [userAbout, setUserAbout]  = useState<string>("")
-    const {showToast} = useToast();
-    const {colours, colourTheme} = useTheme();
-    const navigation = useNavigation();
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-    
+type RootStackParamList = {
+  ProfileDetailsScreen: { userId: string };
+  EditProfileScreen: undefined;
+};
+
+type ProfileDetailsRouteProp = RouteProp<RootStackParamList, 'ProfileDetailsScreen'>;
+type ProfileDetailsNavigationProp = NavigationProp<RootStackParamList>;
+
+interface ProfileDetailsScreenProps {
+  route: ProfileDetailsRouteProp;
+  navigation: ProfileDetailsNavigationProp;
+}
 
 
-    return <>
-        <RamaBackView>
-            
-            <ScrollView
-                contentContainerStyle={{
-                    paddingBottom: 48
-                }}
-            >
+interface Post {
+  id: string;
+  content: string;
+  createdAt: FirebaseFirestoreTypes.Timestamp;
+}
+
+type SectionData = {
+  title: string;
+  data: (Post | { id: string; content: string })[];
+};
+
+const ProfileDetailsScreen: React.FC<ProfileDetailsScreenProps> = ({ route }) => {
+  const { userId } = route.params;
+  const { user } = useAuth();
+  const { colours } = useTheme();
+  const navigation = useNavigation<ProfileDetailsNavigationProp>();
+  const [profileUser, setProfileUser] = useState<TUser | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const isOwnProfile = user?.uid === userId;
+  const {showToast} = useToast();
+  const headerHeight = useSharedValue(SCREEN_HEIGHT / 2);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const userDoc = await firestore().collection('users').doc(userId).get();
+      setProfileUser(userDoc.data() as TUser);
+    };
+
+    const fetchPosts = async () => {
+      const postsSnapshot = await firestore()
+        .collection('posts')
+        .where('userId', '==', userId)
+        .orderBy('createdAt', 'desc')
+        .limit(10)
+        .get();
+      
+      setPosts(postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post)));
+    };
+
+    fetchUserData();
+    //fetchPosts();
+  }, [userId]);
+
+  const animatedHeaderStyle = useAnimatedStyle(() => {
+    return {
+      height: headerHeight.value,
+    };
+  });
+
+  {/**
+    const handleHeaderPan = ({ nativeEvent }: PanGestureHandlerEventPayload) => {
+    headerHeight.value = withSpring(
+      Math.max(SCREEN_HEIGHT / 4, Math.min(SCREEN_HEIGHT / 2, headerHeight.value - nativeEvent.translationY)),
+      { damping: 15 }
+    );
+  }; */}
+
+  const renderSectionHeader: (info: { section: SectionListData<Post> }) => React.ReactElement = ({ section: { title } }) => (
+    <RamaText style={styles.sectionHeader}>{title}</RamaText>
+  );
+
+  const renderItem: SectionListRenderItem<Post | { id: string; content: string }> = ({ item }) => (
+    <View style={styles.postItem}>
+      <RamaText>{item.content}</RamaText>
+    </View>
+  );
+
+  return (
+    <RamaBackView style={styles.container}>
+      <StatusBar style="light" />
+      <SectionList<Post | { id: string; content: string }, SectionData>
+        sections={[
+          { title: 'About', data: [{ id: 'about', content: profileUser?.about || '' }] },
+          { title: 'Posts', data: posts },
+        ]}
+        //renderSectionHeader={renderSectionHeader}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        ListHeaderComponent={() => (
+          <>
+              <Animated.View style={[styles.header, animatedHeaderStyle]}>
                 <ImageBackground
-                    imageStyle={{
-                        borderBottomLeftRadius: 18,
-                        borderBottomRightRadius: 18,
-                    }}
-                    source={{
-                        uri : `${user?.photoURL}`
-                    }}
-                    style={{
-                        width: "100%", height: SCREEN_HEIGHT / 2, borderBottomLeftRadius: 24, borderBottomRightRadius: 14, borderBottomColor: colours.background.soft, borderBottomWidth: 1
-                    }}
+                  source={{ uri: profileUser?.photoUrl || '' }}
+                  style={styles.headerImage}
+                  imageStyle={styles.headerImageStyle}
                 >
-                    <RectButton onPress={()=> navigation.goBack()} style={{
-                        padding: 8,
-                        backgroundColor: "#333",
-                        position: "absolute",
-                        left: 12,
-                        top: 48,
-                        borderRadius: 14
-                    }}>
-                        <MaterialCommunityIcons name={"chevron-left"} size={26} color={"#f2f2f2"} />
+                  <RectButton onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <Ionicons name="chevron-back" size={24} color="#fff" />
+                  </RectButton>
+                  {isOwnProfile && (
+                    <RectButton
+                      onPress={()=> navigation.navigate("EditProfileScreen")}
+                      style={styles.editButton}>
+                        <MaterialCommunityIcons name={"account-edit"} size={24} color="#fff" />
                     </RectButton>
-                    <RectButton onPress={()=> navigation.goBack()} style={{
-                        padding: 8,
-                        backgroundColor: "#333",
-                        position: "absolute",
-                        right: 12,
-                        top: 48,
-                        borderRadius: 14
-                    }}>
-                        <Ionicons name={"ellipsis-vertical"} size={26} color={"#f2f2f2"} />
-                    </RectButton>
+                    )}
+                  
                 </ImageBackground>
+              </Animated.View>
 
-                <RamaHStack style={{justifyContent: "space-between", paddingHorizontal: 12, paddingVertical: 14}}>
-                    <RamaVStack style={{gap: 4, overflow: "hidden", width: SCREEN_WIDTH /2}}>
-                        <RamaHStack>
-                            <RamaText numberOfLines={1} style={{fontSize: 24}} variant={"h1"}>{user?.displayName}</RamaText>
-                        </RamaHStack>
-                        <RamaText variant={"p2"}>{user?.phoneNumber}</RamaText>
-                    </RamaVStack>
-                    <View style={{width: SCREEN_WIDTH/2.5}}>
-                        <RamaButton onPress={()=> navigation.navigate("EditProfileScreen" as never)} >Edit Profile</RamaButton>
-                    </View>
-                </RamaHStack>
+            <View style={styles.profileInfo}>
+              <View>
+                <RamaText style={styles.username}>{profileUser?.displayName}</RamaText>
+                <RamaText style={styles.phoneNumber}>{profileUser?.phoneNumber}</RamaText>
+              </View>
 
-                <RamaHStack style={{paddingHorizontal: 18, paddingVertical: 14, justifyContent: "space-between"}}>
-                <RectButton 
-                onPress={()=> showToast({
-                    variant: "info",
-                    heading: "Coming Soon",
-                    text: "The message feature is not yet ready :)"
-                })}
-                style={{
-                    padding: 12,
-                    backgroundColor: colours.background.soft,
-                    borderRadius: 12
-                }}>
-                    <MaterialCommunityIcons name={"message-outline"} color={colours.text.default} size={24} />
-                </RectButton>
-                <RectButton 
+              <View style={styles.statItem}>
+                <RamaText style={styles.statValue}>#</RamaText>
+                <RamaText style={styles.statLabel}>Rank</RamaText>
+              </View>
+              
+            </View>
+
+            {/**
+             * <View style={styles.statsContainer}>
+                <View style={styles.statItem}>
+                    <RamaText style={styles.statValue}>#0</RamaText>
+                    <RamaText style={styles.statLabel}>Rank</RamaText>
+                </View>
+                <View style={styles.statItem}>
+                    <RamaText style={styles.statValue}>0</RamaText>
+                    <RamaText style={styles.statLabel}>Connections</RamaText>
+                </View>
+                <View style={styles.statItem}>
+                    <RamaText style={styles.statValue}>0</RamaText>
+                    <RamaText style={styles.statLabel}>Stars</RamaText>
+                </View>
+              </View>
+
+             */}
+
+            <View style={styles.actionButtons}>
+              <RectButton
                 onPress={()=> showToast({
                     variant: "info",
                     heading: "Coming Soon",
                     text: "The call feature is not yet ready :)"
                 })}
-                style={{
-                    padding: 12,
-                    backgroundColor: colours.background.soft,
-                    borderRadius: 12
-                }}>
-                    <MaterialCommunityIcons name={"phone-outline"} color={colours.text.default} size={24} />
-                </RectButton>
-                <RectButton 
+               style={styles.actionButton}>
+                <MaterialCommunityIcons name="phone-outline" size={24} color={colours.text.default} />
+              </RectButton>
+              <RectButton
                 onPress={()=> showToast({
                     variant: "info",
                     heading: "Coming Soon",
-                    text: "The circles feature is not yet ready :)"
+                    text: "The video call feature is not yet ready :)"
                 })}
-                style={{
-                    padding: 12,
-                    backgroundColor: colours.background.soft,
-                    borderRadius: 12
-                }}>
-                    <MaterialCommunityIcons name={"account-plus-outline"} color={colours.text.default} size={24} />
-                </RectButton>
-                <RectButton 
+                style={styles.actionButton}>
+                <MaterialCommunityIcons name="video-outline" size={24} color={colours.text.default} />
+              </RectButton>
+              {
+                isOwnProfile ?
+                <RamaButton
+                onPress={()=> navigation.navigate("EditProfileScreen") }
+                size={"lg"}>Edit Profile</RamaButton>
+                    :
+                <RamaButton
                 onPress={()=> showToast({
                     variant: "info",
                     heading: "Coming Soon",
-                    text: "The block feature is not yet ready :)"
+                    text: "Chat feature coming soon"
                 })}
-                style={{
-                    padding: 12,
-                    backgroundColor: colours.background.soft,
-                    borderRadius: 12
-                }}>
-                    <MaterialCommunityIcons name={"cancel"} color={colours.text.default} size={24} />
-                </RectButton>
-                </RamaHStack>
+                size={"lg"}>Message</RamaButton>
 
-                <RamaVStack style={{paddingHorizontal: 14, paddingVertical: 8, gap: 4}}>
-                    <RamaText variant={"h3"}>About</RamaText>
-                    <RamaText>
-                        {userAbout}
-                    </RamaText>
-                </RamaVStack>
-            </ScrollView>
+              }
+            </View>
+          </>
+        )}
+      />
+    </RamaBackView>
+  );
+};
 
+type Styles = {
+  container: ViewStyle;
+  header: ViewStyle;
+  headerImage: ImageStyle;
+  headerImageStyle: ImageStyle;
+  backButton: ViewStyle;
+  editButton: ViewStyle;
+  profileInfo: ViewStyle;
+  username: TextStyle;
+  phoneNumber: TextStyle;
+  statsContainer: ViewStyle;
+  statItem: ViewStyle;
+  statValue: TextStyle;
+  statLabel: TextStyle;
+  actionButtons: ViewStyle;
+  actionButton: ViewStyle;
+  messageButton: ViewStyle;
+  sectionHeader: TextStyle;
+  postItem: ViewStyle;
+};
 
-        </RamaBackView>
-    </>
-}
+const styles = StyleSheet.create<Styles>({
+  container: {
+    flex: 1,
+  },
+  header: {
+    width: '100%',
+    overflow: 'hidden',
+  },
+  headerImage: {
+    width: '100%',
+    height: '100%',
+  },
+  headerImageStyle: {
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  editButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  profileInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+  },
+  username: {
+    fontSize: 24,
+    fontFamily: 'Bold',
+  },
+  phoneNumber: {
+    fontSize: 16,
+    color: '#888',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 20,
+    fontFamily: "Semibold"
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#888',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 20,
+  },
+  actionButton: {
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#222',
+  },
+  messageButton: {
+    flex: 1,
+    marginLeft: 20,
+  },
+  sectionHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    padding: 20,
+    backgroundColor: '#111',
+  },
+  postItem: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+});
+
+export default ProfileDetailsScreen;

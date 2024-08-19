@@ -183,7 +183,7 @@ const FeedScreen: React.FC = () => {
         alignItems: "center"
         }}>
             <RamaHStack style={{gap: 8}}>
-              <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate("ProfileDetailsScreen" as never)}
+              <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate("ProfileDetailsScreen", {userId: user?.uid})}
                style={{ alignItems: 'center' }}>
                 <Image
                   source={{ uri: `${user?.photoURL}` }}
