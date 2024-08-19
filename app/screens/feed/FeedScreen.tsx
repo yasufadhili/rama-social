@@ -215,7 +215,6 @@ const FeedScreen: React.FC = () => {
         paddingLeft: 12, 
         paddingBottom: 18,
         paddingTop: 8, 
-        marginBottom: 12,
         borderBottomWidth: 2, 
         borderBottomColor: colours.background.soft,
         backgroundColor: colours.background.strong,
@@ -230,7 +229,7 @@ const FeedScreen: React.FC = () => {
                 />
             </TouchableOpacity>
     </RamaHStack>
-    {loading && <ProgressBar style={{ }} color={colours.primary} indeterminate />}
+    {loading && <ProgressBar style={{ marginBottom: 8 }} color={colours.primary} indeterminate />}
     </>
   }
 
