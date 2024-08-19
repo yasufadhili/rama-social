@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { SetupProfileScreen } from "../profile";
 
 
 const POSTS_PER_PAGE = 10;
@@ -29,7 +30,6 @@ const FeedScreen: React.FC = () => {
   const [allLoaded, setAllLoaded] = useState(false);
   const autoRefreshTimerRef = useRef<NodeJS.Timeout | null>(null);
   const postsRef = useRef<TPost[]>([]);
-
 
   const fetchCreatorDetails = async (creatorId: string): Promise<TUser> => {
     const userDoc = await firestore().collection("users").doc(creatorId).get();
