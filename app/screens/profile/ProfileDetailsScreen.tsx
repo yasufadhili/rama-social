@@ -148,7 +148,7 @@ const ProfileDetailsScreen: React.FC<ProfileDetailsScreenProps> = ({ route }) =>
 
             <View style={styles.profileInfo}>
               <View>
-                <RamaText style={styles.username}>{profileUser?.displayName}</RamaText>
+                <RamaText numberOfLines={1} style={styles.username}>{profileUser?.displayName}</RamaText>
                 <RamaText style={styles.phoneNumber}>{profileUser?.phoneNumber}</RamaText>
               </View>
 
@@ -184,7 +184,7 @@ const ProfileDetailsScreen: React.FC<ProfileDetailsScreenProps> = ({ route }) =>
                     heading: "Coming Soon",
                     text: "The call feature is not yet ready :)"
                 })}
-               style={styles.actionButton}>
+               style={[{backgroundColor: colours.background.soft},styles.actionButton]}>
                 <MaterialCommunityIcons name="phone-outline" size={24} color={colours.text.default} />
               </RectButton>
               <RectButton
@@ -193,7 +193,7 @@ const ProfileDetailsScreen: React.FC<ProfileDetailsScreenProps> = ({ route }) =>
                     heading: "Coming Soon",
                     text: "The video call feature is not yet ready :)"
                 })}
-                style={styles.actionButton}>
+                style={[{backgroundColor: colours.background.soft},styles.actionButton]}>
                 <MaterialCommunityIcons name="video-outline" size={24} color={colours.text.default} />
               </RectButton>
               {
@@ -281,6 +281,7 @@ const styles = StyleSheet.create<Styles>({
   username: {
     fontSize: 24,
     fontFamily: 'Bold',
+    maxWidth: SCREEN_WIDTH/1.5
   },
   phoneNumber: {
     fontSize: 16,
@@ -312,7 +313,6 @@ const styles = StyleSheet.create<Styles>({
   actionButton: {
     padding: 12,
     borderRadius: 12,
-    backgroundColor: '#222',
   },
   messageButton: {
     flex: 1,
