@@ -1,3 +1,5 @@
+{/** I need you to update this to make it that even thought the user types in a number starting with 07XXXXXXXXX, it if formatted to +447XXXXXXXXX. Then this is the number displayed when the alert pops up to confirm the number */}
+
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, View, StyleSheet, ActivityIndicator, Alert } from "react-native";
 
@@ -26,9 +28,23 @@ const LoginScreen: React.FC = () => {
     const {showToast} = useToast();
 
     const handleSendCode = async () => {
-        const trimmedPhoneNumber = phoneNumber.trim();
+        let trimmedPhoneNumber = phoneNumber.trim();
         if (!trimmedPhoneNumber) {
             setError("Please enter your phone number");
+            return;
+        }
+
+        if (trimmedPhoneNumber.startsWith("0")) {
+            trimmedPhoneNumber = trimmedPhoneNumber.replace(/^0/, "+256");
+        }
+
+        if (trimmedPhoneNumber.length > 15) {
+            setError("Phone number cannot be more than 15 digits");
+            return;
+        }
+
+        if (trimmedPhoneNumber.length < 10) {
+            setError("Phone number cannot be less than 10 digits");
             return;
         }
 
