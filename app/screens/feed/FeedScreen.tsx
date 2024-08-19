@@ -182,24 +182,14 @@ const FeedScreen: React.FC = () => {
         backgroundColor: colours.background.strong,
         alignItems: "center"
         }}>
-            <RamaHStack style={{gap: 8}}>
-              <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate("ProfileDetailsScreen", {userId: user?.uid})}
-               style={{ alignItems: 'center' }}>
+            <RamaText style={{fontSize: 28}} variant={"h1"}>Rama</RamaText>
+            <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate("ProfileDetailsScreen", {userId: user?.uid})}
+               style={{ alignItems: 'center', marginRight: 12, justifyContent: "center", borderWidth: 2, borderColor: colours.background.soft, borderRadius: 12 }}>
                 <Image
                   source={{ uri: `${user?.photoURL}` }}
                   style={{ height: 38, width: 38, borderRadius: 12}}
                 />
-              </TouchableOpacity>
-              <RamaText style={{fontSize: 22}} variant={"h1"}>Feed</RamaText>
-            </RamaHStack>
-            <RectButton onPress={()=> navigation.navigate("SettingsStack" as never)} style={{
-              padding: 8,
-              backgroundColor: colours.background.soft,
-              borderRadius: 12,
-              marginRight: 8
-            }}>
-              <MaterialCommunityIcons name={"cog-outline"} size={24} color={colours.text.soft} />
-            </RectButton>
+            </TouchableOpacity>
     </RamaHStack>
     {loading && <ProgressBar style={{ }} color={colours.primary} indeterminate />}
     </>
