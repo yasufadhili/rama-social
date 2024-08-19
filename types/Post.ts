@@ -24,6 +24,7 @@ export type TMediaPost = {
     videos?: string[];
     isPublic?: boolean;
     creatorId?: string;
+    creatorPhoneLastNine: any;
     createdAt?: FirebaseFirestoreTypes.Timestamp;
     post_type?: "media";
 }

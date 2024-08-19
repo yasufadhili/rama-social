@@ -132,6 +132,7 @@ import { useNavigation } from '@react-navigation/native';
             creatorId: user?.uid,
             createdAt: firestore.Timestamp.now(),
             post_type: "media",
+            creatorPhoneLastNine: user.phoneNumber?.slice(-9)
           };
     
           await firestore().collection('posts').add(post);

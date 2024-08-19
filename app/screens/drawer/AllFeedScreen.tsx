@@ -14,7 +14,7 @@ export default function AllFeedScreen(){
     useEffect(()=> {
         console.log("User", userExistsInCollection);
         
-    }, []);
+    }, [user, userExistsInCollection]);
     return <>
     <RamaBackView>
         

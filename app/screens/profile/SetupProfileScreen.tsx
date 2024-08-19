@@ -105,7 +105,7 @@ const SetupProfileScreen: React.FC = () => {
                 heading: "Success",
                 text: "Profile Setup Successfully"
             });
-            //navigation.navigate("DrawerStack" as never)
+            navigation.navigate("DrawerStack" as never)
         } catch (error) {
             //Alert.alert("Save Failed", "An error occurred while saving the profile. Please try again.");
             showToast({

@@ -49,11 +49,37 @@ const FeedScreen: React.FC = () => {
 
     setLoading(true);
     try {
-      let query = firestore()
-        .collection("posts")
-        .orderBy("createdAt", "desc")
-        .limit(POSTS_PER_PAGE);
 
+      // Fetch the user's contacts from the user_contacts collection
+      const userContactsDoc = await firestore()
+      .collection("user_contacts")
+      .doc(user?.uid)
+      .get();
+
+      const userContacts = userContactsDoc.data()?.phoneNumbers || [];
+
+      // Map user contacts to their last 9 digits
+      const contactsLastNineDigits = userContacts.map((contact: string) =>
+          contact.slice(-9)
+      );
+
+      let query;
+
+      if (contactsLastNineDigits.length > 0) {
+          // Fetch posts from contacts and the user's own posts
+          query = firestore()
+              .collection("posts")
+              .where("creatorPhoneLastNine", "in", contactsLastNineDigits)
+              .orderBy("createdAt", "desc")
+              .limit(POSTS_PER_PAGE);
+      } else {
+          // If no contacts, fetch only the user's own posts
+          query = firestore()
+              .collection("posts")
+              .where("creatorId", "==", user?.uid)
+              .orderBy("createdAt", "desc")
+              .limit(POSTS_PER_PAGE);
+      }
       if (lastVisibleDoc && !isRefresh) {
         query = query.startAfter(lastVisibleDoc);
       }
@@ -94,16 +120,17 @@ const FeedScreen: React.FC = () => {
       );
 
       if (isRefresh) {
+        //setPosts(newPosts);
         setPosts(postsWithCreators);
-      } else {
+    } else {
         setPosts(prev => {
-          const updatedPosts = [...prev, ...postsWithCreators];
-          const uniquePosts = updatedPosts.filter((post, index, self) =>
-            index === self.findIndex((t) => t.id === post.id)
-          );
-          return uniquePosts;
+            const updatedPosts = [...prev, ...newPosts];
+            const uniquePosts = updatedPosts.filter((post, index, self) =>
+                index === self.findIndex((t) => t.id === post.id)
+            );
+            return uniquePosts;
         });
-      }
+    }
 
       postsRef.current = posts;
       setLastVisible(snapshot.docs[snapshot.docs.length - 1] || null);
@@ -113,7 +140,7 @@ const FeedScreen: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [allLoaded, posts]);
+  }, [allLoaded, posts, user?.uid]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);

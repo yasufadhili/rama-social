@@ -111,6 +111,7 @@ export default function CreateTextPostScreen() {
         circles: [...selectedCircles.map(circle => circle.id), "contacts"],
         createdAt: firestore.FieldValue.serverTimestamp(),
         creatorId: user?.uid,
+        creatorPhoneLastNine: user?.phoneNumber?.slice(-9)
       };
       await firestore().collection('posts').add(postData);
       resetPostState();

@@ -166,7 +166,7 @@ const LoginScreen: React.FC = () => {
 
                             <View style={styles.registerContainer}>
                                 <RamaText>
-                                    Please make sure you enter your phone number in international format with no spaces
+                                    Rama is currently only availbale in Uganda, So please make sure you enter a valid Ugandan phone number
                                 </RamaText>
                             </View>
                         </ScrollView>
