@@ -281,18 +281,18 @@ import {
   
   // Styles
   const textStyles = (colours: any) => StyleSheet.create({
-    h1: { fontSize: 20, color: colours.text.strong, fontWeight: 'bold' },
-    h2: { fontSize: 18, color: colours.text.strong, fontWeight: 'bold' },
-    h3: { fontSize: 16, color: colours.text.strong, fontWeight: 'bold' },
-    h4: { fontSize: 15, color: colours.text.strong, fontWeight: 'normal' },
-    h5: { fontSize: 14, color: colours.text.strong, fontWeight: 'normal' },
-    h6: { fontSize: 13, color: colours.text.strong, fontWeight: 'normal' },
-    p1: { fontSize: 15, color: colours.text.default, fontWeight: 'normal' },
-    p2: { fontSize: 14, color: colours.text.default, fontWeight: 'normal' },
-    p3: { fontSize: 13, color: colours.text.default, fontWeight: 'normal' },
-    p4: { fontSize: 12, color: colours.text.default, fontWeight: 'normal' },
-    p5: { fontSize: 11, color: colours.text.soft, fontWeight: 'normal' },
-    p6: { fontSize: 10, color: colours.text.soft, fontWeight: 'normal' },
+    h1: { fontSize: 20, color: colours.text.strong, fontFamily: 'Bold' },
+    h2: { fontSize: 18, color: colours.text.strong, fontFamily: 'Bold' },
+    h3: { fontSize: 16, color: colours.text.strong, fontFamily: 'Semibold' },
+    h4: { fontSize: 15, color: colours.text.strong, fontFamily: 'Semibold' },
+    h5: { fontSize: 14, color: colours.text.strong, fontFamily: 'Medium' },
+    h6: { fontSize: 13, color: colours.text.strong, fontFamily: 'Medium' },
+    p1: { fontSize: 15, color: colours.text.default, fontFamily: 'Regular' },
+    p2: { fontSize: 14, color: colours.text.default, fontFamily: 'Regular' },
+    p3: { fontSize: 13, color: colours.text.default, fontFamily: 'Light' },
+    p4: { fontSize: 12, color: colours.text.default, fontFamily: 'Light' },
+    p5: { fontSize: 11, color: colours.text.soft, fontFamily: 'Thin' },
+    p6: { fontSize: 10, color: colours.text.soft, fontFamily: 'Thin' },
   });
   
   const buttonStyles = (colours: any, size: ButtonSize, variant: ButtonVariant, fullWidth: boolean) => {
@@ -347,7 +347,7 @@ import {
       text: {
         color: variantStyles[variant].color,
         fontSize: sizeStyles[size].fontSize,
-        fontWeight: 'bold',
+        fontFamily: 'bold',
       },
       icon: {
         marginHorizontal: 4,
@@ -670,7 +670,7 @@ StyleSheet.create({
     doneButton: {
     color: colours.primary,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'bold',
     },
 });
   
