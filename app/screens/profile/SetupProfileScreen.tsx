@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, ScrollView, Alert, ActivityIndicator, View } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { StyleSheet, SafeAreaView, ScrollView, Alert, ActivityIndicator, View } from "react-native";
 import { useTheme } from "@/context/ThemeContext";
 import { RamaBackView, RamaButton, RamaInput, RamaText } from "@/components/Themed";
 import { Image } from "expo-image";
-import * as ImagePicker from 'expo-image-picker';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
-import storage from '@react-native-firebase/storage';
-import { Redirect, router } from 'expo-router';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Ionicons } from '@expo/vector-icons';
-import { useToast } from '@/context/ToastContext';
-import { TUser } from '@/types/User';
-import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '@/context/AuthContext';
+import * as ImagePicker from "expo-image-picker";
+import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
+import storage from "@react-native-firebase/storage";
+import { Redirect, router } from "expo-router";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { Ionicons } from "@expo/vector-icons";
+import { useToast } from "@/context/ToastContext";
+import { TUser } from "@/types/User";
+import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "@/context/AuthContext";
 
 const SetupProfileScreen: React.FC = () => {
     const [profileData, setProfileData] = useState<TUser>({ displayName: "", photoUrl: "" });
@@ -94,11 +94,12 @@ const SetupProfileScreen: React.FC = () => {
                 photoURL: downloadUrl,
             });
 
-            await firestore().collection('users').doc(currentUser.uid).set({
+            await firestore().collection("users").doc(currentUser.uid).set({
                 displayName,
                 photoUrl: downloadUrl,
                 phoneNumber: currentUser.phoneNumber,
-            }).then(()=> navigation.navigate("DrawerStack" as never));
+                phoneLastNine: user?.phoneNumber?.slice(-9)
+            }, {merge: true}).then(()=> navigation.navigate("DrawerStack" as never));
             showToast({
                 variant: "success",
                 heading: "Success",
@@ -152,7 +153,7 @@ const SetupProfileScreen: React.FC = () => {
                             />
                         </View>
                         <RamaButton onPress={handleSaveProfile} disabled={isLoading || isPicLoading}>
-                            {isLoading || isPicLoading ? 'Saving...' : 'Save Profile'}
+                            {isLoading || isPicLoading ? "Saving..." : "Save Profile"}
                         </RamaButton>
                     </View>
                 </ScrollView>
@@ -187,8 +188,8 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     profilePictureContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
         marginVertical: 24,
     },
     photoUrl: {
@@ -201,17 +202,17 @@ const styles = StyleSheet.create({
         height: 120,
         borderRadius: 60,
         borderWidth: 2,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         gap: 8,
     },
     uploadText: {
-        textAlign: 'center',
+        textAlign: "center",
         fontSize: 12,
     },
     title: {
         fontSize: 24,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         alignSelf: "center"
     },
     description: {
@@ -222,9 +223,9 @@ const styles = StyleSheet.create({
     },
     loadingOverlay: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "center",
+        alignItems: "center",
     },
 });
 

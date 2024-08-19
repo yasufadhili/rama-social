@@ -1,3 +1,4 @@
+import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useToast } from "@/context/ToastContext";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -5,6 +6,7 @@ import { RectButton } from "react-native-gesture-handler";
 
 export default function LeftMessagesFAB(){
     const {colourTheme, colours} = useTheme();
+    const {signOut} = useAuth();
     const {showToast} = useToast();
     return <RectButton
       onPress={()=> showToast({

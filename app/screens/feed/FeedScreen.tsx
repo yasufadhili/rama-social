@@ -1,3 +1,13 @@
+{/**
+
+  I need an update which will only get posts from creators where the creator's last nine digits of the phone number are equal to any number in the user_contacts collection.
+  Since i have a user_contacts collection that stores the phone numbers of the user from the phone system, just only the numbers in an array
+  The collection is called user_contacts and the doc id os the current user's uid.
+  So it should ensure that the user only sees posts from their contacts, this will be done by comparing the last nine digits of the phone number of the post creator and see it it exists in the list of the current user's user_contacts, and should only get those posts
+  On top of those posts, even the current user's posts should also be included in the posts, so it should fetch posts from their contacts and themseleves only
+  
+  */}
+
 import PostCard from "@/components/PostCard";
 import { TUser } from "@/types/User";
 import { useTheme } from "@/context/ThemeContext";
@@ -12,8 +22,6 @@ import { RamaHStack, RamaText } from "@/components/Themed";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { SetupProfileScreen } from "../profile";
 
 
 const POSTS_PER_PAGE = 10;
