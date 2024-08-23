@@ -53,16 +53,16 @@ PS: Rama is not a mainstream ap but rather a hobby project :)
 ### Installation
 
 1. Clone the repository:
-   ```bash git clone https://github.com/yasufadhili/rama-social.git```
+   ``` git clone https://github.com/yasufadhili/rama-social.git```
 2. Navigate to the project directory:
-   ```bash cd rama-social ```
+   ``` cd rama-social ```
 4. Install dependencies
-   ```bash npm install ```
+   ``` npm install ```
 5. Start App
-   ```bash npx expo start ```
+   ``` npx expo start ```
 ## Usage
 
-(Add instructions on how to use the app, including screenshots if possible)
+If I explain how to use the app, then It would be considered a bad app. Install and figire out yourself :)
 
 ## Contributing
 
@@ -88,4 +88,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 Yasu Fadhili - [@yasufadhili.bsky.social](https://yasufadhili.bsky.social) - yasufadhili@gmail.com
 
-Project Link: [https://github.com/yourusername/rama-social-network](https://github.com/yourusername/rama-social-network)
+Project Link: [https://github.com/yasufadhili/rama-social](https://github.com/yasufadhili/rama-social)
