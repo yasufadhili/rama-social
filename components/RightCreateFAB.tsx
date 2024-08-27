@@ -13,7 +13,6 @@ export const RightCreateFAB = () => {
   
     return  <FAB.Group
         visible
-        
         open={fabState.open}
         color="#ffffff"
         backdropColor={colourTheme === "dark" ? colours.background.soft : colours.background.soft}

@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     inputLabel: {
-        fontWeight: "bold",
+        fontFamily: "Semibold",
     },
     registerContainer: {
         alignItems: "center",

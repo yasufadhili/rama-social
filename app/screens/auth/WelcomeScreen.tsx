@@ -75,7 +75,7 @@ const WelcomeScreen: React.FC = () => {
         <Animated.Text style={[{
             fontSize: 48,
             color: colours.primary,
-            fontFamily: "logo",
+            fontFamily: "Bold",
             marginBottom: 6,
         }, titleAnimatedStyle]}>
             Rama
@@ -86,6 +86,7 @@ const WelcomeScreen: React.FC = () => {
             textAlign: 'center',
             paddingHorizontal: 40,
             marginBottom: 30,
+            fontFamily: "Semibold",
         }, descriptionAnimatedStyle]}>
             Connections that matter
         </Animated.Text>
@@ -142,7 +143,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#ffffff',
     fontSize: 18,
-    fontWeight: 'bold',
   },
 });
 

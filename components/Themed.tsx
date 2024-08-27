@@ -630,6 +630,7 @@ StyleSheet.create({
     paddingHorizontal: 12,
     color: colours.text.default,
     fontSize: 16,
+    fontFamily: "Medium"
     },
     label: {
     position: 'absolute',

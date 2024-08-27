@@ -100,7 +100,7 @@ const FeedScreen: React.FC = () => {
             id: doc.id,
             creatorPhotoUrl: creator.photoUrl || "",
             creatorDisplayName: creator.displayName || "",
-            caption: data.caption || "",
+            content: data.content || "",
             mediaUrls: data.mediaUrls || [],
             images: data.images || [],
             videos: data.videos || [],
@@ -213,23 +213,23 @@ const FeedScreen: React.FC = () => {
     <RamaHStack style={{
         justifyContent: "space-between", 
         paddingLeft: 12, 
-        paddingBottom: 18,
-        paddingTop: 8, 
-        borderBottomWidth: 2, 
+        paddingBottom: 12,
+        paddingTop: 0, 
+        borderBottomWidth: 1, 
         borderBottomColor: colours.background.soft,
         backgroundColor: colours.background.strong,
         alignItems: "center"
         }}>
             <RamaText style={{fontSize: 28}} variant={"h1"}>Rama</RamaText>
             <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate("ProfileDetailsScreen", {userId: user?.uid})}
-               style={{ alignItems: 'center', marginRight: 12, justifyContent: "center", borderWidth: 2, borderColor: colours.background.soft, borderRadius: 12 }}>
+               style={{ alignItems: 'center', marginRight: 12, justifyContent: "center", borderWidth: 1, borderColor: colours.background.soft, borderRadius: 12 }}>
                 <Image
                   source={{ uri: `${user?.photoURL}` }}
-                  style={{ height: 38, width: 38, borderRadius: 12}}
+                  style={{ height: 32, width: 32, borderRadius: 12}}
                 />
             </TouchableOpacity>
     </RamaHStack>
-    {loading && <ProgressBar style={{ marginBottom: 8 }} color={colours.primary} indeterminate />}
+    {loading && <ProgressBar style={{ marginBottom: 8, height: 2  }} color={colours.primary} indeterminate />}
     </>
   }
 
