@@ -1,5 +1,5 @@
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { View, StyleSheet, Dimensions, NativeSyntheticEvent, NativeScrollEvent, Pressable } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -27,12 +27,16 @@ import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
 import { TPost, TTextBlock } from "@/types/Post";
 import {
+  RamaBackView,
   RamaHStack,
   RamaInput,
   RamaText,
   RamaVStack,
 } from "@/components/Themed";
 import { useNavigation } from "@react-navigation/native";
+import { useToast } from "@/context/ToastContext";
+import { ActivityIndicator, Modal, Portal } from "react-native-paper";
+import PagerView from "react-native-pager-view";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const FONT_SIZE_RANGE = { min: 18, max: 38 };
@@ -49,7 +53,6 @@ interface PostCardProps {
 
 const PostCard: React.FC<PostCardProps> = ({
   item,
-  onImagePress,
   onLike,
   onComment,
   onShare,
@@ -60,6 +63,15 @@ const PostCard: React.FC<PostCardProps> = ({
   const navigation = useNavigation();
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
   const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [detailsModalVisible, setDetailsModalVisible ] = useState<boolean>(false);
+  const {showToast} = useToast();
+
+  const [selectedImages, setSelectedImages] = useState<string[] | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  const closeImageViewer = () => {
+    setSelectedImages(null);
+  };
 
   const translateX = useSharedValue(0);
   const cardOpacity = useSharedValue(1);
@@ -138,6 +150,30 @@ const PostCard: React.FC<PostCardProps> = ({
     return 'Just now';
   };
 
+  const handleLike = () => {
+    showToast({
+      variant: "info",
+      heading: "Coming Soon",
+      text: "Like feature coming soon"
+    })
+  }
+
+  const handleStar = () => {
+    showToast({
+      variant: "info",
+      heading: "Coming Soon",
+      text: "Star feature coming soon"
+    })
+  }
+
+  const handleComment = () => {
+    showToast({
+      variant: "info",
+      heading: "Coming Soon",
+      text: "Reply feature coming soon"
+    })
+  }
+
   const renderHeader = () => (
     <View style={styles.header}>
       <RamaHStack style={styles.headerContent}>
@@ -147,7 +183,7 @@ const PostCard: React.FC<PostCardProps> = ({
             style={styles.avatar}
           />
           <RamaVStack>
-            <RamaText style={styles.username} variant="h4">
+            <RamaText style={{}} variant="h4">
               {item?.creatorDisplayName}
             </RamaText>
             <RamaText style={styles.timestamp} variant="p3">
@@ -155,7 +191,6 @@ const PostCard: React.FC<PostCardProps> = ({
             </RamaText>
           </RamaVStack>
         </RamaHStack>
-        <Ionicons name="ellipsis-vertical" size={20} color={colours.text.soft} />
       </RamaHStack>
     </View>
   );
@@ -165,7 +200,7 @@ const PostCard: React.FC<PostCardProps> = ({
       <RamaHStack style={styles.actionButtons}>
         
         <RectButton 
-          onPress={()=> {}}
+          onPress={()=> {handleStar()}}
           style={{
             borderRadius: 12,
             padding: 8,
@@ -183,7 +218,8 @@ const PostCard: React.FC<PostCardProps> = ({
         </RectButton>
 
         <RectButton 
-          onPress={()=> setIsLiked((prev) => !prev)}
+          //onPress={()=> setIsLiked((prev) => !prev)}
+          onPress={()=> handleLike()}
           style={{
             borderRadius: 12,
             padding: 8,
@@ -207,7 +243,7 @@ const PostCard: React.FC<PostCardProps> = ({
         </RectButton>
 
         <RectButton 
-          onPress={()=> {}}
+          onPress={()=> handleComment()}
           style={{
             borderRadius: 12,
             padding: 8,
@@ -269,7 +305,73 @@ const PostCard: React.FC<PostCardProps> = ({
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / SCREEN_WIDTH);
     setCurrentImageIndex(index);
-  }, [])
+  }, []);
+
+  const onImagePress =() => {
+
+  }
+
+  const handleImagePress = (images: string[], index: number) => {
+    setSelectedImages(images);
+    setSelectedImageIndex(index);
+  };
+
+
+  const renderImageCount = () => (
+    <View style={{
+      position: "absolute",
+      top: 8,
+      left: 8,
+      backgroundColor: "#333",
+      borderRadius: 8,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+    }}>
+      <RamaText style={{ color: "#f1f1f1", fontSize: 14 }}>{`${currentImageIndex + 1}/${item?.images?.length}`}</RamaText>
+    </View>
+  );
+
+
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const renderImages = () => (
+    <View style={{
+      position: "relative",
+    }}>
+      {(item?.images?.length ?? 0) > 0 &&
+      <ScrollView
+        ref={scrollViewRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        style={{ width: SCREEN_WIDTH, height: SCREEN_WIDTH }}
+      >
+        {item.images.map((image, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => handleImagePress(index)}
+            style={{
+              width: SCREEN_WIDTH, height: SCREEN_WIDTH
+            }}
+            accessible
+            accessibilityLabel={`Image ${index + 1} of ${item.images.length}`}
+            activeOpacity={.9}
+          >
+            <Image
+              source={{ uri: image }}
+              style={styles.image}
+            />
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+        
+        }
+        {item?.images?.length > 1 && renderImageCount()}
+    </View>
+  );
+
 
   const renderMediaContent  = () => (
     <View style={{overflow: "hidden", marginHorizontal: 0, backgroundColor: colourTheme === "dark" ? colours.background.soft : colours.background.strong }}>
@@ -278,40 +380,9 @@ const PostCard: React.FC<PostCardProps> = ({
           <RamaText numberOfLines={4} style={{  }} variant={"h3"}>{item.content}</RamaText>
         </View>
       }
-      {(item?.images?.length ?? 0) > 0 &&
-        <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-          style={{
-            width: SCREEN_WIDTH,
-            height: 380
-          }}
-        >
-          {item?.images && item.images.length > 0 && item.images.map((image, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => onImagePress?.(item?.images ?? [], index)}
-              activeOpacity={1}
-              accessible
-              //accessibilityLabel={`Image ${index + 1} of ${item.images.length}`}
-            >
-              
-              <Image
-                source={{ uri: image }}
-                style={{
-                  height: "100%",
-                  width: SCREEN_WIDTH
-                }}
-                contentFit="cover"
-                transition={1000}
-              />
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      }
+      
+      {renderImages()}
+        
       {(item?.images?.length ?? 0) > 1 && (
         <View style={{
           flexDirection: "row",
@@ -401,24 +472,134 @@ const PostCard: React.FC<PostCardProps> = ({
   };
 
   return (
-      <GestureDetector gesture={Gesture.Simultaneous(doubleTapGesture)}>
-        <Animated.View entering={FadeIn.duration(1000)} style={[{
-          backgroundColor: colours.background.strong,
-          shadowColor: colours.text.default,
-        },styles.container, animatedStyle]}>
-          
-          {renderHeader()}
-          <Pressable onPress={
-            ()=> navigation.navigate("PostDetailsScreen", {
-              postId: item?.id,
-              creatorId: item?.creatorId
-            })}>
-          {renderContent()}
-          </Pressable>
-          {renderFooter()}
-          
-        </Animated.View>
-      </GestureDetector>
+        <>
+          <Animated.View entering={FadeIn.duration(1000)} style={[{
+            backgroundColor: colours.background.strong,
+            shadowColor: colours.text.default,
+          },styles.container, animatedStyle]}>
+            
+            {renderHeader()}
+            {renderContent()}
+            {renderFooter()}
+            
+          </Animated.View>
+
+          <Portal>
+            {selectedImages && (
+              <ImageViewer
+                images={selectedImages}
+                initialIndex={selectedImageIndex}
+                onClose={closeImageViewer}
+              />
+            )}
+          </Portal>
+
+        </>
+  );
+};
+
+
+
+interface ImageViewerProps {
+  images: string[];
+  initialIndex: number;
+  onClose: () => void;
+}
+
+const ImageViewer: React.FC<ImageViewerProps> = ({ images, initialIndex, onClose }) => {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [loading, setLoading] = useState(true);
+
+  const handleImageLoad = () => {
+    setLoading(false);
+  };
+
+  return (
+    <Modal visible={true} >
+      <View style={{
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.9)",
+        justifyContent: "center",
+        alignItems: "center",
+      }}>
+        <PagerView
+          style={{
+            flex: 1,
+            width: SCREEN_WIDTH,
+          }}
+          initialPage={initialIndex}
+          onPageSelected={e => {
+            setCurrentIndex(e.nativeEvent.position);
+            setLoading(true);
+          }}
+        >
+          {images.map((image, index) => (
+            <View key={index} style={{
+              flex: 1,
+            }}>
+              {loading && (
+                <View style={{
+                  ...StyleSheet.absoluteFillObject,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}>
+                  <ActivityIndicator size="large" color="#ffffff" />
+                </View>
+              )}
+              <Image
+                source={{ uri: image }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  resizeMode: "contain",
+                }}
+                onLoad={handleImageLoad}
+              />
+            </View>
+          ))}
+        </PagerView>
+
+        <TouchableOpacity onPress={onClose} style={{
+          position: "absolute",
+          top: 20,
+          right: 20,
+          padding: 10,
+          backgroundColor: "white",
+          borderRadius: 5,
+        }}>
+          <MaterialCommunityIcons name="close" color="black" size={16} />
+        </TouchableOpacity>
+
+        <RamaText style={{
+          position: "absolute",
+          bottom: 40,
+          color: "white",
+          fontSize: 16,
+        }}>{`${currentIndex + 1} / ${images.length}`}</RamaText>
+
+        {/* Modal Image Carousel Indicators */}
+        <View style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          marginVertical: 8,
+        }}>
+          {images.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                {
+                  width: 10,
+                  height: 10,
+                  borderRadius: 5,
+                  marginHorizontal: 5,
+                },
+                { backgroundColor: index === currentIndex ? "#fff" : "#ccc" },
+              ]}
+            />
+          ))}
+        </View>
+      </View>
+    </Modal>
   );
 };
 
@@ -443,16 +624,10 @@ const styles = StyleSheet.create({
     height: 40,
     width: 40,
     borderRadius: 14,
-    marginRight: 12,
-  },
-  username: {
-    fontWeight: "bold",
+    marginRight: 4,
   },
   timestamp: {
-    fontSize: 12,
-  },
-  optionsButton: {
-    padding: 8,
+    fontSize: 14,
   },
   textContentContainer: {
     overflow: "hidden",

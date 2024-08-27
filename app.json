@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Rama Social",
+    "name": "Rama",
     "description": "Engage with only those that matter to you",
     "owner": "yasufadhili",
     "githubUrl": "https://github.com/yasufadhili/rama-social",
@@ -23,7 +23,8 @@
           "location",
           "fetch",
           "remote-notification"
-        ]
+        ],
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera"
       }
     },
     "android": {
@@ -32,7 +33,19 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.yasufadhili.ramasocial",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.READ_CONTACTS",
+        "android.permission.WRITE_CONTACTS",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_MEDIA_LOCATION",
+        "com.google.android.gms.permission.AD_ID"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -105,7 +118,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "b415e37e-4311-4264-ad7f-0de29177191b"
+        "projectId": "2f14b6ef-1cf2-471d-8b6f-efebe4714697"
       }
     }
   }
