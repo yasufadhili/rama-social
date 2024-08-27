@@ -21,7 +21,6 @@ export const RightCreateFAB = () => {
             bottom: 8,
             
         }}
-        
         icon={fabState.open ? "close" : "plus"}
         actions={[
             { 
@@ -37,6 +36,9 @@ export const RightCreateFAB = () => {
                 style: {
                     backgroundColor: colours.background.default
                 },
+                labelStyle: {
+                    fontFamily: "Medium"
+                },
                 size: "medium",
                 onPress: () => navigation.navigate("CreateMediaPostScreen" as never),
             },
@@ -47,6 +49,9 @@ export const RightCreateFAB = () => {
                 size: "medium",
                 style: {
                     backgroundColor: colours.background.default
+                },
+                labelStyle: {
+                    fontFamily: "Medium"
                 },
                 onPress: () => navigation.navigate("CreateTextPostScreen" as never),
             },
