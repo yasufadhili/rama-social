@@ -1,6 +1,4 @@
-{/** TO DO 
-  witch to a 2x2 grid for the selected images,
-  with the add image button at the top of the grid and the caption in the toolbar area */}
+
   import React, { useState, useCallback, useEffect } from 'react';
   import { 
     View, 
@@ -24,7 +22,7 @@
   import { useTheme } from '@/context/ThemeContext';
   import storage from "@react-native-firebase/storage";
   import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
-  import { RectButton } from 'react-native-gesture-handler';
+  import { RectButton, TextInput } from 'react-native-gesture-handler';
   import { useToast } from '@/context/ToastContext';
   import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useAuth } from '@/context/AuthContext';
@@ -37,7 +35,7 @@ import { useNavigation } from '@react-navigation/native';
   const CreateMediaPostScreen = ({  }: {  }) => {
       const { colours } = useTheme();
       const {user} = useAuth();
-      const [caption, setCaption] = useState('');
+      const [content, setCaption] = useState('');
       const [images, setMedia] = useState<string[]>([]);
       const [isPublic, setIsPublic] = useState(true);
       const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -46,10 +44,10 @@ import { useNavigation } from '@react-navigation/native';
       const [isPosting, setIsPosting] = useState(false);
       const {showToast} = useToast();
       const navigation = useNavigation();
+
+      const isPostButtonDisabled = !content.trim() && images.length === 0;
   
       const toolbarTranslateY = useSharedValue(50);
-  
-      const isPostButtonDisabled = images.length === 0;
       
       useEffect(() => {
           const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -104,7 +102,7 @@ import { useNavigation } from '@react-navigation/native';
       };
     
       const handlePost = async () => {
-        if (isPostButtonDisabled || isPosting) return <> {showToast({variant: "error", heading: "Error",  text: "Add images to your post"})} </>;
+        if (isPostButtonDisabled || isPosting) return <> {showToast({variant: "error", heading: "Error",  text: "Add content to your post"})} </>;
     
         setIsPosting(true);
     
@@ -126,7 +124,7 @@ import { useNavigation } from '@react-navigation/native';
           }
     
           const post: TMediaPost = {
-            caption,
+            content,
             images: imageUrls,
             isPublic,
             creatorId: user?.uid,
@@ -206,7 +204,7 @@ import { useNavigation } from '@react-navigation/native';
                   </RamaText>
               </RamaHStack>
   
-              <RamaButton size={"md"} onPress={handlePost} disabled={isPosting}>
+              <RamaButton variant={isPostButtonDisabled ? "ghost" : "primary"} size={"md"} onPress={handlePost} disabled={isPosting}>
                 {isPosting ? <ActivityIndicator color={"#ffffff"}  size={"small"}/> : 'Post'}
               </RamaButton>
             </View>
@@ -245,6 +243,24 @@ import { useNavigation } from '@react-navigation/native';
                   </TouchableOpacity>
                 </View>
               </View>
+
+              <TextInput
+                style={{
+                  fontSize: 18,
+                  padding: 16,
+                  paddingLeft: 0,
+                  minHeight: 30,
+                  color: colours.text.default,
+                  fontFamily: "Medium",
+                }}
+                cursorColor={colours.primary}
+                placeholderTextColor={colours.text.soft}
+                placeholder="Add post content"
+                value={content}
+                onChangeText={handleCaptionChange}
+                multiline
+                maxLength={MAX_CHARACTERS}
+              />
     
               {loadingMedia ? (
                 <ActivityIndicator size="small" color={colours.text.soft} />
@@ -254,8 +270,8 @@ import { useNavigation } from '@react-navigation/native';
                     renderItem={({ item, index }) => (
                       <View style={styles.imagesWrapper}>
                           <Image source={{ uri: item }} style={{
-                            height: 180,
-                            width: 140,
+                            height: 140,
+                            width: 120,
                             borderRadius: 12
                           }} />
                         <TouchableOpacity 
@@ -271,31 +287,13 @@ import { useNavigation } from '@react-navigation/native';
                     showsHorizontalScrollIndicator={false}
                     style={styles.imagesGallery}
                     ListHeaderComponent={()=> (
-                          <TouchableOpacity activeOpacity={.6} onPress={pickMedia} style={{backgroundColor: colours.background.soft, borderRadius: 14, paddingHorizontal: 14, paddingVertical:64, gap: 12, alignContent: "center", alignItems: "center", justifyContent: "center", marginRight: 12}}>
+                          <TouchableOpacity activeOpacity={.6} onPress={pickMedia} style={{backgroundColor: colours.background.soft, borderRadius: 14, paddingHorizontal: 14, paddingVertical:44, gap: 12, alignContent: "center", alignItems: "center", justifyContent: "center", marginRight: 12}}>
                               <Ionicons name={"add"} size={22} color={colours.text.soft} />
                               <RamaText>Add Images</RamaText>
                           </TouchableOpacity>
                     )}
                   />
               )}
-  
-              <RamaInput
-                style={{
-                  fontSize: 18,
-                  padding: 16,
-                  minHeight: 60,
-                  color: colours.text.default,
-                  fontFamily: "Medium",
-                }}
-                cursorColor={colours.primary}
-                placeholderTextColor={colours.text.soft}
-                placeholder="Add post caption"
-                value={caption}
-                onChangeText={handleCaptionChange}
-                multiline
-                maxLength={MAX_CHARACTERS}
-              />
-  
   
             </ScrollView>
   

@@ -29,6 +29,7 @@ import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firest
 import { FirebaseStorageTypes } from '@react-native-firebase/storage';
 import { TUser } from '@/types/User';
 import { useToast } from '@/context/ToastContext';
+import { Dialog, Portal } from 'react-native-paper';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -59,13 +60,17 @@ type SectionData = {
 
 const ProfileDetailsScreen: React.FC<ProfileDetailsScreenProps> = ({ route }) => {
   const { userId } = route.params;
-  const { user } = useAuth();
-  const { colours } = useTheme();
+  const { user,signOut } = useAuth();
+  const { colours, colourTheme } = useTheme();
   const navigation = useNavigation<ProfileDetailsNavigationProp>();
   const [profileUser, setProfileUser] = useState<TUser | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const isOwnProfile = user?.uid === userId;
   const {showToast} = useToast();
+  const [signoutVisible, setSignoutVisible] = React.useState(false);
+
+  const showSignoutDialog = () => setSignoutVisible(true);
+  const hideSignoutDialog = () => setSignoutVisible(false);
   const headerHeight = useSharedValue(SCREEN_HEIGHT / 2);
 
   useEffect(() => {
@@ -137,9 +142,10 @@ const ProfileDetailsScreen: React.FC<ProfileDetailsScreenProps> = ({ route }) =>
                   </RectButton>
                   {isOwnProfile && (
                     <RectButton
-                      onPress={()=> navigation.navigate("EditProfileScreen")}
+
+                      onPress={()=> showSignoutDialog()}
                       style={styles.editButton}>
-                        <MaterialCommunityIcons name={"account-edit"} size={24} color="#fff" />
+                        <MaterialCommunityIcons name={"logout"} size={24} color="#fff" />
                     </RectButton>
                     )}
                   
@@ -215,6 +221,23 @@ const ProfileDetailsScreen: React.FC<ProfileDetailsScreenProps> = ({ route }) =>
           </>
         )}
       />
+      <Portal>
+            <Dialog
+            visible={signoutVisible}
+            onDismiss={hideSignoutDialog}
+            style={{ backgroundColor: colourTheme === 'dark' ? colours.background.soft : colours.background.strong }}
+            >
+            <Dialog.Title>Sign out!</Dialog.Title>
+            <Dialog.Content>
+                <RamaText>Are you sure you want to sign out?</RamaText>
+            </Dialog.Content>
+            <Dialog.Actions>
+                <RamaButton variant="link" onPress={() => signOut().then(()=> showToast({heading: "Signed out", variant: "warning", text: "Signed out Successfully"}))}>
+                Sign out
+                </RamaButton>
+            </Dialog.Actions>
+            </Dialog>
+        </Portal>
     </RamaBackView>
   );
 };
