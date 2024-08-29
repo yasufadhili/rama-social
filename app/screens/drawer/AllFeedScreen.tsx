@@ -18,7 +18,6 @@ export default function AllFeedScreen(){
     return <>
     <RamaBackView>
         
-        <FeedScreen />
         <LeftMessagesFAB />
         <RightCreateFAB />
     </RamaBackView>
